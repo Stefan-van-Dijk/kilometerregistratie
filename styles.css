@@ -47,3 +47,5 @@ input, select, textarea { width:100%; border:1px solid var(--line); background:#
 .report-print{display:none}
 @media (max-width:520px){.grid-3{grid-template-columns:1fr}.hero h2{font-size:27px}.trip-row{grid-template-columns:52px 1fr auto}}
 @media print { body{background:#fff;color:#000}.topbar,.bottom-nav,.no-print{display:none!important}.app-shell{max-width:none;padding:0}main{padding:0}.report-print{display:block!important}.report-print table{width:100%;border-collapse:collapse;font-size:11pt}.report-print th,.report-print td{border-bottom:1px solid #bbb;padding:7px;text-align:left}.report-print h1{font-size:20pt}.report-print .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:15px 0}.report-print .summary div{border:1px solid #bbb;padding:9px}}
+.location-tools { margin: -3px 0 8px; }
+.location-hint { margin: 0 0 15px; }

@@ -8,9 +8,9 @@ Een lokale, mobiele webapp/PWA voor kilometerregistratie. De app is bewust gesch
 - Het beginadres en de startkilometerstand komen automatisch van de laatste bestemming/eindstand.
 - Bekende locaties met herkenningsstraal (standaard 500 meter).
 - GPS-locatie bij vertrek/aankomst en tijdens een actieve rit maximaal één opgeslagen trackpunt per minuut.
-- Actuele Google-route als kilometer-voorstel wanneer een Google Maps API-key is ingesteld.
-- Routevoorstel met verkeersinformatie via de huidige `Route.computeRoutes()`-interface en `TRAFFIC_AWARE_OPTIMAL`.
-- Fallback op eerdere A→B-ritten wanneer Google niet beschikbaar is.
+- Navigatie rechtstreeks via de **Apple Kaarten-app** op iPhone, zonder MapKit JS en zonder API-key.
+- Bij vertrek kun je de route in Apple Kaarten openen en de daar getoonde actuele routeafstand handmatig als voorstel invullen.
+- Als je geen afstand invult, gebruikt de app eerdere A→B-ritten als voorstel wanneer die beschikbaar zijn.
 - Kilometerstand blijft de administratieve werkelijkheid: `eindstand - startstand = gereden km`.
 - Verdeling in **woon-werk**, **zakelijk** en **privé**.
 - Een privédeel kan binnen een woon-werk- of zakelijke rit worden toegekend.
@@ -33,17 +33,11 @@ Een lokale, mobiele webapp/PWA voor kilometerregistratie. De app is bewust gesch
 
 HTTPS is noodzakelijk voor geolocatie. GitHub Pages levert HTTPS.
 
-## Google Maps / verkeersafhankelijke routevoorstellen
+## Apple Kaarten
 
-De app werkt zonder Google, maar voor een verkeersafhankelijk routevoorstel heb je een Google Maps Platform API-key nodig.
+De app gebruikt **geen Google Maps API en geen MapKit JS**. Bij vertrek opent de knop **Open route in Apple Kaarten** rechtstreeks de Apple Kaarten-app met het gekozen vertrekpunt en de bestemming. Hiervoor is geen API-key nodig.
 
-Zet in Google Cloud de benodigde Maps JavaScript/Routes-functionaliteit aan en plaats de API-key via **Instellingen** in de app. Beperk een browser-key altijd op HTTP referrers, bijvoorbeeld alleen:
-
-`https://jouwgebruikersnaam.github.io/*`
-
-Beperk de key daarnaast tot de APIs die de app daadwerkelijk gebruikt. De key staat bij een statische webapp altijd aan de browserkant en is dus zichtbaar; domein- en API-restricties zijn daarom belangrijk.
-
-Na het wijzigen van de API-key is het verstandig de PWA eenmaal volledig te herladen.
+Apple Kaarten kan actuele verkeerssituaties en omleidingen meenemen in de route die je daar ziet. Een gewone webapp mag de berekende routeafstand echter niet automatisch teruglezen uit de Apple Kaarten-app. Daarom kun je de getoonde afstand desgewenst handmatig invullen als routevoorstel. Laat je dit leeg, dan gebruikt de app eerdere ritten tussen dezelfde locaties als voorstel.
 
 ## Belangrijk: GPS in de achtergrond op iPhone
 
@@ -85,3 +79,19 @@ Maak regelmatig een backup via **Instellingen → Backup exporteren**. Browserda
 4. Automatische rapportmail via serverless backend.
 5. Synchronisatie tussen meerdere apparaten.
 6. Detectie van ontbrekende ritten wanneer huidige GPS niet aansluit op de laatst bekende bestemming.
+
+## Update v2 – locaties toevoegen
+
+- Handmatig een locatie opslaan kan met alleen **naam + adres**.
+- GPS-coördinaten zijn niet verplicht voor opslaan; zonder GPS doet de locatie alleen niet mee aan de automatische 500 m-herkenning.
+- In het locatiescherm kun je met **Gebruik huidige GPS** latitude/longitude automatisch invullen.
+- Decimale GPS-coördinaten werken nu correct op iPhone, inclusief invoer met een komma.
+- De offline-cache is verhoogd naar v2 zodat updates vanaf GitHub Pages sneller zichtbaar worden.
+
+## Update v3 – Apple Kaarten
+
+- Google Maps en de API-key zijn uit de app verwijderd.
+- Route openen gebeurt rechtstreeks in Apple Kaarten.
+- De actuele routeafstand uit Apple Kaarten kan handmatig worden ingevoerd als voorstel.
+- Zonder handmatige routeafstand gebruikt de app eerdere A→B-ritten.
+- De locatieherkenning binnen de ingestelde straal blijft via de iPhone-GPS werken.

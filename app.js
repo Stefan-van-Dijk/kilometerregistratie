@@ -12,7 +12,6 @@ const DEFAULT_SETTINGS = {
   registrationStart: new Date().toISOString().slice(0, 10),
   reportEmail: '',
   recognitionRadius: 500,
-  googleApiKey: '',
   defaultReportPeriod: 'week'
 };
 
@@ -104,6 +103,7 @@ function bindGlobalEvents() {
       if (action === 'week-now') { state.selectedWeekStart = startOfISOWeek(new Date()); render(); }
       if (action === 'add-location') await openLocationEditor();
       if (action === 'add-current-location') await openLocationEditor(null, true);
+      if (action === 'use-location-gps') await fillLocationFromGps();
       if (action === 'edit-location') await openLocationEditor(e.target.closest('[data-id]').dataset.id);
       if (action === 'delete-location') await deleteLocation(e.target.closest('[data-id]').dataset.id);
       if (action === 'edit-trip') await openTripEditor(e.target.closest('[data-id]').dataset.id);
@@ -115,6 +115,8 @@ function bindGlobalEvents() {
       if (action === 'export-data') await exportData();
       if (action === 'import-data') document.getElementById('importFile')?.click();
       if (action === 'clear-data') await clearAllData();
+      if (action === 'apple-route-start') openAppleMapsFromStartForm();
+      if (action === 'apple-route-active') openAppleMaps(state.activeTrip?.origin, state.activeTrip?.expectedDestination);
     } catch (err) {
       console.error(err);
       toast(err.message || 'Er ging iets mis');
@@ -174,8 +176,9 @@ function renderHome() {
       <div class="kicker">${active ? 'Actieve rit' : 'Gereed voor vertrek'}</div>
       ${active ? `
         <h2>${esc(active.origin?.name || active.origin?.address || 'Vertrek')} → ${esc(active.expectedDestination?.name || active.expectedDestination?.address || 'bestemming')}</h2>
-        <p>Start ${fmtOdo(active.startOdometer)} km · voorstel ${fmtKm(active.proposedRouteKm)} km · GPS ${active.gpsTracking ? 'actief' : 'gereed'}</p>
+        <p>Start ${fmtOdo(active.startOdometer)} km · voorstel ${active.proposedRouteKm != null ? `${fmtKm(active.proposedRouteKm)} km` : 'nog niet ingevuld'} · GPS ${active.gpsTracking ? 'actief' : 'gereed'}</p>
         <div class="status-row"><span class="pill"><span class="dot"></span>Rit gestart ${formatTime(active.departureTime)}</span></div>
+        <div class="button-row" style="margin-top:12px"><button class="btn secondary" data-action="apple-route-active">Open in Apple Kaarten</button></div>
       ` : `
         <h2>${last ? `${fmtOdo(last.odometer)} km` : 'Stel eerst je auto in'}</h2>
         <p>${last ? `Laatste locatie: ${esc(last.location?.name || last.location?.address || 'onbekend')}` : 'Voer in Instellingen de auto en beginstand in.'}</p>
@@ -286,8 +289,7 @@ function renderSettings() {
       <div class="card">
         <h3>Locatie & route</h3>
         ${field('Herkenningsstraal (meter)', 'recognitionRadius', s.recognitionRadius, 'number')}
-        ${field('Google Maps API-key', 'googleApiKey', s.googleApiKey, 'password', 'Voor verkeersafhankelijke routevoorstellen en adresherkenning. Beperk deze sleutel in Google Cloud op jouw GitHub Pages-domein.')}
-        <div class="notice warning">Zonder Google-key blijft de registratie werken. Het routevoorstel gebruikt dan eerdere A→B-ritten; als die ontbreken volgt alleen een grove afstandsschatting.</div>
+        <div class="notice">Voor navigatie gebruikt de app rechtstreeks de Apple Kaarten-app. Hiervoor is geen API-key nodig. Apple Kaarten geeft de route en verkeerssituatie weer; de webapp kan de routeafstand niet automatisch uit Apple Kaarten teruglezen.</div>
       </div>
       <div class="card">
         <h3>Rapportage</h3>
@@ -302,6 +304,9 @@ function renderSettings() {
 
 function field(label, name, value='', type='text', hint='') {
   return `<div class="form-group"><label>${esc(label)}</label><input type="${type}" name="${name}" value="${esc(value ?? '')}">${hint?`<div class="hint">${esc(hint)}</div>`:''}</div>`;
+}
+function coordinateField(label, name, value='') {
+  return `<div class="form-group"><label>${esc(label)}</label><input type="text" inputmode="decimal" autocomplete="off" name="${name}" value="${esc(value ?? '')}" placeholder="bijv. 52.12345"></div>`;
 }
 function metric(label, value) { return `<div class="metric"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`; }
 
@@ -332,9 +337,11 @@ async function openStartTrip() {
       <div class="card"><div class="kicker">Beginpunt uit vorige rit</div><h3>${esc(origin?.name || origin?.address || 'Onbekend')}</h3><p>${esc(origin?.address || '')}</p></div>
       ${gps && base?.location && distanceMeters(gps, base.location) > (state.settings.recognitionRadius||500) ? `<div class="notice warning">Je GPS staat meer dan ${state.settings.recognitionRadius||500} meter van het laatste bestemmingspunt. Controleer of er een rit ontbreekt.</div>` : ''}
       <div class="form-group"><label>Startkilometerstand</label><input name="startOdometer" type="number" step="1" required value="${startOdo || ''}"><div class="hint">Automatisch de eindstand van de vorige rit. Aanpasbaar voor correcties.</div></div>
-      <div class="form-group"><label>Verwachte bestemming</label><select name="destinationId" required><option value="">Kies locatie…</option>${locationOptions()}</select></div>
+      <div class="form-group"><label>Verwachte bestemming</label><select name="destinationId" id="startDestination" required><option value="">Kies locatie…</option>${locationOptions()}</select></div>
+      <div class="button-row"><button class="btn secondary" type="button" data-action="apple-route-start">Open route in Apple Kaarten</button></div>
+      <div class="form-group" style="margin-top:12px"><label>Routeafstand volgens Apple Kaarten (optioneel)</label><input name="routeKm" type="number" min="0" step="0.1" inputmode="decimal" placeholder="Bijv. 47,2"><div class="hint">Bekijk de actuele route in Apple Kaarten en vul hier desgewenst de getoonde afstand in. Laat leeg om een eerdere A→B-rit als voorstel te gebruiken.</div></div>
       <div class="form-group"><label>Vertrektijd</label><input name="departureTime" type="datetime-local" value="${toLocalInput(new Date())}" required></div>
-      <div class="notice">Bij opslaan berekenen we de actuele verkeersafhankelijke route als een Google Maps API-key is ingesteld. De GPS-track slaat tijdens de actieve rit maximaal één punt per minuut op zolang de browser dit op iOS toelaat.</div>
+      <div class="notice">De GPS-track slaat tijdens de actieve rit maximaal één punt per minuut op zolang iOS dit in de achtergrond toelaat.</div>
       <button class="btn full" type="submit">Rit starten</button>
     </form>`);
 }
@@ -346,13 +353,14 @@ async function saveStartTrip(fd) {
   const startOdometer = Number(fd.get('startOdometer'));
   if (!Number.isFinite(startOdometer)) throw new Error('Vul een geldige kilometerstand in.');
   const departureTime = new Date(fd.get('departureTime')).toISOString();
-  const route = await getRouteProposal(origin, destination, departureTime);
+  const manualKm = parseLocaleNumber(fd.get('routeKm'));
+  const route = getRouteProposal(origin, destination, manualKm);
   const active = {
     id: 'activeTrip', tripId: crypto.randomUUID(),
     origin: snapshotLocation(origin), expectedDestination: snapshotLocation(destination),
     startOdometer, departureTime,
-    proposedRouteKm: route.km, routeProvider: route.provider, routeDurationMin: route.durationMin,
-    gpsTracking: true, startGps: route.startGps || (origin.lat != null ? {lat:origin.lat,lng:origin.lng}:null),
+    proposedRouteKm: route.km, routeProvider: route.provider, routeDurationMin: null,
+    gpsTracking: true, startGps: origin.lat != null ? {lat:origin.lat,lng:origin.lng}:null,
     createdAt: new Date().toISOString()
   };
   await idbPut('appState', active);
@@ -361,7 +369,7 @@ async function saveStartTrip(fd) {
   await startGpsTracking(active.tripId);
   closeModal();
   render();
-  toast(`Rit gestart · voorstel ${fmtKm(route.km)} km (${route.providerLabel})`);
+  toast(route.km != null ? `Rit gestart · voorstel ${fmtKm(route.km)} km (${route.providerLabel})` : 'Rit gestart.');
 }
 
 async function openArrival() {
@@ -375,15 +383,16 @@ async function openArrival() {
   if (expected && gps && distanceMeters(gps, expected) <= (state.settings.recognitionRadius || 500)) defaultId = expected.id;
   else if (matches[0]) defaultId = matches[0].location.id;
   const current = gps ? currentLocationObject(gps, address) : null;
-  const suggestedEnd = Math.round(Number(active.startOdometer) + Number(active.proposedRouteKm || 0));
+  const hasProposal = active.proposedRouteKm != null && Number.isFinite(Number(active.proposedRouteKm));
+  const suggestedEnd = hasProposal ? Math.round(Number(active.startOdometer) + Number(active.proposedRouteKm)) : ''; 
   openModal(`
     <div class="modal-head"><h2>Aankomst</h2><button class="close" data-action="close-modal">×</button></div>
     <form id="arrivalForm">
       ${gps ? `<div class="notice ${defaultId ? 'success':''}">${matches.length ? `Locatieherkenning: ${matches.map(m=>`${esc(m.location.name)} (${Math.round(m.distance)} m)`).join(', ')}` : `Geen bekende locatie binnen ${state.settings.recognitionRadius||500} m. Huidige GPS-locatie wordt voorgesteld.`}</div>` : '<div class="notice warning">GPS kon niet worden opgehaald. Kies een bekende locatie.</div>'}
       <div class="form-group"><label>Bestemmingslocatie</label><select name="destinationId" id="arrivalDestination"><option value="">Kies locatie…</option>${locationOptions(defaultId)}${current ? `<option value="__current__" ${!defaultId?'selected':''}>Huidige locatie · ${esc(current.address)}</option>`:''}</select></div>
       <input type="hidden" name="currentJson" value='${attr(JSON.stringify(current))}'>
-      <div class="grid-2"><div class="metric"><span>Startstand</span><strong>${fmtOdo(active.startOdometer)}</strong></div><div class="metric"><span>Routevoorstel</span><strong>${fmtKm(active.proposedRouteKm)} km</strong></div></div>
-      <div class="form-group" style="margin-top:15px"><label>Eindkilometerstand</label><input id="arrivalEndOdo" name="endOdometer" type="number" step="1" required value="${suggestedEnd}"><div id="arrivalDistancePreview" class="hint">Werkelijk gereden: ${fmtKm(suggestedEnd-active.startOdometer)} km</div></div>
+      <div class="grid-2"><div class="metric"><span>Startstand</span><strong>${fmtOdo(active.startOdometer)}</strong></div><div class="metric"><span>Routevoorstel</span><strong>${hasProposal ? `${fmtKm(active.proposedRouteKm)} km` : '—'}</strong></div></div>
+      <div class="form-group" style="margin-top:15px"><label>Eindkilometerstand</label><input id="arrivalEndOdo" name="endOdometer" type="number" step="1" required value="${suggestedEnd}"><div id="arrivalDistancePreview" class="hint">${hasProposal ? `Werkelijk gereden: ${fmtKm(Number(suggestedEnd)-Number(active.startOdometer))} km` : 'Vul de actuele eindstand van de auto in.'}</div></div>
       <div class="form-group"><label>Type rit</label><select name="category" id="arrivalCategory"><option value="commute">Woon-werk</option><option value="business">Zakelijk</option><option value="private">Privé</option></select></div>
       <div class="form-group"><label>Reden / omschrijving</label><input name="reason" placeholder="Bijv. overleg, projectbezoek of afspraak"></div>
       <div class="form-group" id="privateKmGroup"><label>Privékilometers binnen deze rit</label><input name="privateKm" type="number" min="0" step="1" value="0"><div class="hint">De resterende kilometers worden toegekend aan woon-werk of zakelijk.</div></div>
@@ -423,7 +432,7 @@ async function saveArrival(fd) {
     origin: active.origin,
     destination: snapshotLocation(destination),
     startOdometer: Number(active.startOdometer), endOdometer, actualKm,
-    proposedRouteKm: Number(active.proposedRouteKm || 0), routeProvider: active.routeProvider,
+    proposedRouteKm: active.proposedRouteKm == null ? null : Number(active.proposedRouteKm), routeProvider: active.routeProvider,
     category, reason: String(fd.get('reason') || '').trim(),
     privateKm: split.private, businessKm: split.business, commuteKm: split.commute,
     createdAt: active.createdAt, completedAt: new Date().toISOString()
@@ -509,15 +518,76 @@ async function saveTripEdit(fd){const t=state.trips.find(x=>x.id===fd.get('id'))
 async function deleteTrip(id){if(!confirm('Deze rit verwijderen?'))return;await idbDelete('trips',id);await rebuildLastEndpoint();await refreshData();closeModal();render();toast('Rit verwijderd.');}
 
 async function openLocationEditor(id=null,useCurrent=false) {
-  const existing=id?state.locations.find(x=>x.id===id):null; let gps=null,address='';
-  if(useCurrent){try{gps=await getCurrentPosition();address=await reverseGeocode(gps.lat,gps.lng);}catch{toast('Huidige locatie kon niet worden opgehaald.');}}
-  openModal(`<div class="modal-head"><h2>${existing?'Locatie wijzigen':'Locatie toevoegen'}</h2><button class="close" data-action="close-modal">×</button></div><form id="locationForm"><input type="hidden" name="id" value="${existing?.id||''}">${field('Naam','name',existing?.name||'')}${field('Adres','address',existing?.address||address)}<div class="grid-2">${field('Latitude','lat',existing?.lat??gps?.lat??'','number')}${field('Longitude','lng',existing?.lng??gps?.lng??'','number')}</div><div class="form-group"><label>Type</label><select name="type"><option value="home" ${existing?.type==='home'?'selected':''}>Thuis</option><option value="work" ${existing?.type==='work'?'selected':''}>Werk</option><option value="business" ${existing?.type==='business'?'selected':''}>Zakelijk</option><option value="private" ${existing?.type==='private'?'selected':''}>Privé</option><option value="other" ${!existing||existing?.type==='other'?'selected':''}>Overig</option></select></div><button class="btn full">Opslaan</button></form>`);
+  const existing=id?state.locations.find(x=>x.id===id):null;
+  let gps=null,address='';
+  if(useCurrent){
+    try{
+      gps=await getCurrentPosition();
+      address=await reverseGeocode(gps.lat,gps.lng);
+    }catch(err){
+      toast(err.message || 'Huidige locatie kon niet worden opgehaald.');
+    }
+  }
+  openModal(`<div class="modal-head"><h2>${existing?'Locatie wijzigen':'Locatie toevoegen'}</h2><button class="close" data-action="close-modal">×</button></div>
+    <form id="locationForm">
+      <input type="hidden" name="id" value="${existing?.id||''}">
+      ${field('Naam','name',existing?.name||'')}
+      ${field('Adres','address',existing?.address||address)}
+      <div class="button-row location-tools">
+        <button class="btn secondary" type="button" data-action="use-location-gps">Gebruik huidige GPS</button>
+      </div>
+      <div class="hint location-hint">Een adres kan altijd worden opgeslagen. GPS-coördinaten zijn alleen nodig om de locatie automatisch binnen ${state.settings.recognitionRadius||500} meter te herkennen. Zonder externe kaart-API voeg je GPS het makkelijkst toe terwijl je op de locatie bent.</div>
+      <div class="grid-2">${coordinateField('Latitude','lat',existing?.lat??gps?.lat??'')}${coordinateField('Longitude','lng',existing?.lng??gps?.lng??'')}</div>
+      <div class="form-group"><label>Type</label><select name="type"><option value="home" ${existing?.type==='home'?'selected':''}>Thuis</option><option value="work" ${existing?.type==='work'?'selected':''}>Werk</option><option value="business" ${existing?.type==='business'?'selected':''}>Zakelijk</option><option value="private" ${existing?.type==='private'?'selected':''}>Privé</option><option value="other" ${!existing||existing?.type==='other'?'selected':''}>Overig</option></select></div>
+      <button class="btn full">Opslaan</button>
+    </form>`);
 }
-async function saveLocation(fd){const id=fd.get('id')||crypto.randomUUID();const old=state.locations.find(x=>x.id===id);const loc={id,name:String(fd.get('name')||'').trim(),address:String(fd.get('address')||'').trim(),lat:Number(fd.get('lat')),lng:Number(fd.get('lng')),type:fd.get('type'),useCount:old?.useCount||0,createdAt:old?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};if(!loc.name)throw new Error('Geef de locatie een naam.');if(!Number.isFinite(loc.lat)||!Number.isFinite(loc.lng))throw new Error('Latitude en longitude zijn nodig voor herkenning.');await idbPut('locations',loc);await refreshData();closeModal();render();toast('Locatie opgeslagen.');}
+
+async function fillLocationFromGps(){
+  const form=document.getElementById('locationForm');
+  if(!form)return;
+  const btn=document.querySelector('[data-action="use-location-gps"]');
+  if(btn){btn.disabled=true;btn.textContent='GPS ophalen…';}
+  try{
+    const gps=await getCurrentPosition();
+    form.elements.lat.value=String(gps.lat);
+    form.elements.lng.value=String(gps.lng);
+    const address=await reverseGeocode(gps.lat,gps.lng);
+    if(address && !String(form.elements.address.value||'').trim()) form.elements.address.value=address;
+    toast(`GPS toegevoegd${gps.accuracy?` (±${Math.round(gps.accuracy)} m)`:''}.`);
+  }catch(err){
+    toast(err.message || 'Huidige locatie kon niet worden opgehaald.');
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='Gebruik huidige GPS';}
+  }
+}
+
+async function saveLocation(fd){
+  const id=fd.get('id')||crypto.randomUUID();
+  const old=state.locations.find(x=>x.id===id);
+  const name=String(fd.get('name')||'').trim();
+  let address=String(fd.get('address')||'').trim();
+  let lat=parseCoordinate(fd.get('lat'));
+  let lng=parseCoordinate(fd.get('lng'));
+  if(!name)throw new Error('Geef de locatie een naam.');
+
+
+  if((lat==null)!==(lng==null))throw new Error('Vul zowel latitude als longitude in, of laat beide leeg.');
+  if(lat!=null && (lat < -90 || lat > 90))throw new Error('Latitude moet tussen -90 en 90 liggen.');
+  if(lng!=null && (lng < -180 || lng > 180))throw new Error('Longitude moet tussen -180 en 180 liggen.');
+  if(!address && lat==null)throw new Error('Vul minimaal een adres in of gebruik je huidige GPS-locatie.');
+
+  const loc={id,name,address,lat,lng,type:fd.get('type'),useCount:old?.useCount||0,createdAt:old?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};
+  await idbPut('locations',loc);
+  await refreshData();
+  closeModal();
+  render();
+  toast(lat!=null?'Locatie opgeslagen en GPS-herkenning is actief.':'Locatie opgeslagen. Voeg later GPS toe voor automatische herkenning.');
+}
 async function deleteLocation(id){if(!confirm('Locatie verwijderen? Bestaande ritten behouden hun opgeslagen locatiegegevens.'))return;await idbDelete('locations',id);await refreshData();render();}
 
 async function saveSettings(fd) {
-  state.settings={...state.settings,id:'main',name:String(fd.get('name')||''),vehicleBrand:String(fd.get('vehicleBrand')||''),vehicleModel:String(fd.get('vehicleModel')||''),plate:String(fd.get('plate')||''),initialOdometer:String(fd.get('initialOdometer')||''),registrationStart:String(fd.get('registrationStart')||''),reportEmail:String(fd.get('reportEmail')||''),recognitionRadius:Number(fd.get('recognitionRadius')||500),googleApiKey:String(fd.get('googleApiKey')||'').trim(),defaultReportPeriod:String(fd.get('defaultReportPeriod')||'week')};
+  state.settings={...state.settings,id:'main',name:String(fd.get('name')||''),vehicleBrand:String(fd.get('vehicleBrand')||''),vehicleModel:String(fd.get('vehicleModel')||''),plate:String(fd.get('plate')||''),initialOdometer:String(fd.get('initialOdometer')||''),registrationStart:String(fd.get('registrationStart')||''),reportEmail:String(fd.get('reportEmail')||''),recognitionRadius:Number(fd.get('recognitionRadius')||500),defaultReportPeriod:String(fd.get('defaultReportPeriod')||'week')};
   await idbPut('settings',state.settings); state.reportRange=null; render(); toast('Instellingen opgeslagen.');
 }
 
@@ -547,29 +617,44 @@ async function startGpsTracking(tripId){
 function stopGpsTracking(){if(state.gps.watchId!=null)navigator.geolocation.clearWatch(state.gps.watchId);if(state.gps.intervalId)clearInterval(state.gps.intervalId);state.gps={watchId:null,intervalId:null,latest:null};}
 async function persistTrackPoint(tripId,pos){const id=`${tripId}_${new Date().toISOString().slice(0,16)}`;await idbPut('trackPoints',{id,tripId,time:new Date().toISOString(),lat:pos.lat,lng:pos.lng,accuracy:pos.accuracy??null});}
 
-let googleLoadPromise=null;
-function loadGoogleMaps(){
-  if(window.google?.maps?.importLibrary)return Promise.resolve();
-  const key=state.settings.googleApiKey;if(!key)return Promise.reject(new Error('Geen Google Maps API-key ingesteld.'));
-  if(googleLoadPromise)return googleLoadPromise;
-  googleLoadPromise=new Promise((resolve,reject)=>{const cb='__kmGoogleReady';window[cb]=()=>{delete window[cb];resolve();};const s=document.createElement('script');s.async=true;s.src=`https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&loading=async&v=weekly&libraries=routes,geocoding&language=nl&region=NL&callback=${cb}`;s.onerror=()=>reject(new Error('Google Maps kon niet worden geladen.'));document.head.appendChild(s);});
-  return googleLoadPromise;
-}
-async function reverseGeocode(lat,lng){if(!state.settings.googleApiKey)return '';try{await loadGoogleMaps();const {Geocoder}=await google.maps.importLibrary('geocoding');const g=new Geocoder();const {results}=await g.geocode({location:{lat,lng}});return results?.[0]?.formatted_address||'';}catch{return '';}}
+async function reverseGeocode(){ return ''; }
 
-async function getRouteProposal(origin,destination,departureTime){
-  if(state.settings.googleApiKey){
-    try{
-      await loadGoogleMaps(); const {Route}=await google.maps.importLibrary('routes');
-      const request={origin:routePoint(origin),destination:routePoint(destination),travelMode:'DRIVING',routingPreference:'TRAFFIC_AWARE_OPTIMAL',departureTime:new Date(departureTime),fields:['distanceMeters','durationMillis']};
-      const {routes}=await Route.computeRoutes(request); if(routes?.[0]?.distanceMeters!=null){return{km:routes[0].distanceMeters/1000,durationMin:routes[0].durationMillis?routes[0].durationMillis/60000:null,provider:'google_traffic',providerLabel:'Google verkeer'}};
-    }catch(err){console.warn('Route API fallback',err);}
-  }
-  const hist=historicalRouteKm(origin,destination);if(hist!=null)return{km:hist,durationMin:null,provider:'history',providerLabel:'eerdere ritten'};
-  if(origin?.lat!=null&&destination?.lat!=null){return{km:(distanceMeters(origin,destination)/1000)*1.25,durationMin:null,provider:'estimate',providerLabel:'grove schatting'};}
-  throw new Error('Route kon niet worden berekend.');
+function appleMapsLocationValue(location){
+  if(!location)return '';
+  if(location.lat!=null && location.lng!=null && Number.isFinite(Number(location.lat)) && Number.isFinite(Number(location.lng))) return `${Number(location.lat)},${Number(location.lng)}`;
+  return location.address || location.name || '';
 }
-function routePoint(l){if(l?.lat!=null&&l?.lng!=null)return{lat:Number(l.lat),lng:Number(l.lng)};if(l?.address)return l.address;return l?.name||'';}
+function appleMapsUrl(origin,destination){
+  const source=appleMapsLocationValue(origin);
+  const dest=appleMapsLocationValue(destination);
+  if(!dest)return '';
+  const params=new URLSearchParams();
+  if(source)params.set('source',source);
+  params.set('destination',dest);
+  params.set('mode','driving');
+  return `https://maps.apple.com/directions?${params.toString()}`;
+}
+function openAppleMaps(origin,destination){
+  if(!destination)return toast('Kies eerst een bestemming.');
+  const url=appleMapsUrl(origin,destination);
+  if(!url)return toast('Bestemming heeft geen bruikbaar adres of GPS-coördinaten.');
+  window.location.href=url;
+}
+function openAppleMapsFromStartForm(){
+  const form=document.getElementById('startTripForm');
+  if(!form)return;
+  let origin=null;
+  try{origin=JSON.parse(form.elements.originJson.value);}catch{}
+  const destination=state.locations.find(l=>l.id===form.elements.destinationId.value);
+  if(!destination)return toast('Kies eerst een bestemming.');
+  openAppleMaps(origin,destination);
+}
+function getRouteProposal(origin,destination,manualKm=null){
+  if(manualKm!=null && Number.isFinite(manualKm) && manualKm>=0) return {km:manualKm,provider:'apple_manual',providerLabel:'Apple Kaarten'};
+  const hist=historicalRouteKm(origin,destination);
+  if(hist!=null)return{km:hist,provider:'history',providerLabel:'eerdere ritten'};
+  return{km:null,provider:'none',providerLabel:'geen voorstel'};
+}
 function historicalRouteKm(origin,dest){const values=state.trips.filter(t=>sameLocation(t.origin,origin)&&sameLocation(t.destination,dest)&&Number.isFinite(Number(t.actualKm))).slice(0,8).map(t=>Number(t.actualKm)).sort((a,b)=>a-b);if(!values.length)return null;const mid=Math.floor(values.length/2);return values.length%2?values[mid]:(values[mid-1]+values[mid])/2;}
 function sameLocation(a,b){if(!a||!b)return false;if(a.id&&b.id)return a.id===b.id;if(a.lat!=null&&b.lat!=null)return distanceMeters(a,b)<150;return (a.address&&b.address&&a.address===b.address);}
 
@@ -611,6 +696,12 @@ function fmtOdo(v){return new Intl.NumberFormat('nl-NL',{maximumFractionDigits:0
 function categoryLabel(v){return ({commute:'Woon-werk',business:'Zakelijk',private:'Privé'})[v]||v||'-';}
 function typeLabel(v){return ({home:'Thuis',work:'Werk',business:'Zakelijk',private:'Privé',other:'Overig'})[v]||'Overig';}
 function distanceMeters(a,b){if(a?.lat==null||a?.lng==null||b?.lat==null||b?.lng==null)return Infinity;const R=6371000,p1=a.lat*Math.PI/180,p2=b.lat*Math.PI/180,dp=(b.lat-a.lat)*Math.PI/180,dl=(b.lng-a.lng)*Math.PI/180;const h=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;return 2*R*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));}
+function parseLocaleNumber(v){const t=String(v??'').trim().replace(',','.');if(!t)return null;const n=Number(t);return Number.isFinite(n)?n:null;}
+function parseCoordinate(v){
+  if(v===''||v==null)return null;
+  const n=Number(String(v).trim().replace(',','.'));
+  return Number.isFinite(n)?n:null;
+}
 function numOrNull(v){const n=Number(v);return v===''||v==null||!Number.isFinite(n)?null:n;}
 function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function attr(v){return esc(v).replace(/`/g,'&#96;');}
