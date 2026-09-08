@@ -1,0 +1,13 @@
+{
+  "name": "Kilometerregistratie",
+  "short_name": "Kilometers",
+  "description": "Lokale kilometerregistratie met ritten, locaties, GPS-trackpunten en weekrapportage.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b0d10",
+  "theme_color": "#0b0d10",
+  "lang": "nl-NL",
+  "icons": [
+    {"src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ]
+}
