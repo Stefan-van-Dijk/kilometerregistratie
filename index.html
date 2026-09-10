@@ -14,7 +14,7 @@
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 body{min-height:100dvh}
 button,input,select,textarea{font:inherit}
-.shell{max-width:820px;margin:auto;min-height:100dvh;padding:env(safe-area-inset-top) 16px calc(94px + env(safe-area-inset-bottom))}
+.shell{max-width:820px;margin:auto;min-height:100dvh;padding:env(safe-area-inset-top) 16px calc(28px + env(safe-area-inset-bottom))}
 .top{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;justify-content:space-between;align-items:center;padding:16px 0 20px}
 .eyebrow,.kicker{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
 .top h1{font-size:24px;margin:3px 0 0}
@@ -92,25 +92,52 @@ button,input,select,textarea{font:inherit}
 .divider{height:1px;background:var(--line);margin:16px 0}
 .status{display:inline-flex;gap:7px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:12px;color:var(--muted)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--good)}
-.week-nav{display:flex;align-items:center;justify-content:space-between}
-.week-nav .center{text-align:center}
-.week-nav h2{margin:0}
-.week-nav small{display:block;margin-top:4px}
-.nav{position:fixed;z-index:20;bottom:0;left:0;right:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:rgba(13,17,23,.95);backdrop-filter:blur(18px);display:flex;justify-content:center;border-top:1px solid var(--line)}
-.nav-inner{width:min(820px,100%);display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
-.nav button{border:0;background:transparent;color:var(--muted);padding:8px 4px;border-radius:12px}
-.nav button span,.nav button small{display:block}
-.nav button span{font-size:20px}
-.nav button small{font-size:10px}
-.nav button.active{background:var(--card2);color:var(--text)}
+
 .modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.62);padding:22px 12px calc(22px + env(safe-area-inset-bottom));overflow:auto}
 .modal[hidden]{display:none}
 .modal-panel{max-width:620px;margin:4vh auto 0;background:var(--bg);border:1px solid var(--line);border-radius:22px;padding:16px}
 .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .modal-head h2{margin:0}
 .close{border:0;background:var(--card2);color:var(--text);font-size:24px;width:40px;height:40px;border-radius:50%}
-.toast{position:fixed;z-index:90;left:50%;bottom:105px;transform:translate(-50%,15px);background:#f4f7fb;color:#111;padding:11px 15px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;max-width:86vw;text-align:center;font-weight:700}
+
+.toast{position:fixed;z-index:90;left:50%;bottom:32px;transform:translate(-50%,15px);background:#f4f7fb;color:#111;padding:11px 15px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;max-width:86vw;text-align:center;font-weight:700}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+
+.week-panel{margin-top:18px}
+.week-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.week-panel-center{text-align:center;min-width:0}
+.week-panel-center strong{display:block;font-size:18px}
+.week-panel-center small{display:block;margin-top:3px}
+.current-week-link{margin-top:10px;text-align:center}
+.current-week-link button{background:transparent;border:0;color:var(--accent);font-weight:700;padding:8px}
+
+.settings-block{margin-top:18px}
+.settings-card-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.settings-card-title h3{margin:0}
+.settings-card-title small{text-align:right}
+
+.settings-action-list{display:grid;gap:8px;margin-top:12px}
+.settings-action{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;padding:13px 14px;background:#101722;border:1px solid var(--line);border-radius:13px;color:var(--text)}
+.settings-action-main{min-width:0}
+.settings-action strong,.settings-action small{display:block}
+.settings-action small{margin-top:3px}
+.settings-action-arrow{color:var(--muted);font-size:22px}
+
+.settings-location-list{display:grid;gap:8px;margin-top:12px}
+.settings-location{display:flex;align-items:center;gap:10px;padding:12px;background:#101722;border:1px solid var(--line);border-radius:13px}
+.settings-location-main{flex:1;min-width:0}
+.settings-location-main strong,.settings-location-main small{display:block}
+.settings-location-main small{margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.settings-location-actions{display:flex;gap:6px}
+
+.subtle-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.subtle-row .btn{flex:1;min-width:130px}
+
+.report-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.report-buttons .btn{width:100%}
+
+.settings-save{position:sticky;bottom:12px;z-index:5;margin-top:18px;padding-top:10px;background:linear-gradient(180deg,rgba(13,17,23,0),var(--bg) 35%)}
+
 .print-only{display:none}
 
 @media(max-width:460px){
@@ -120,47 +147,52 @@ button,input,select,textarea{font:inherit}
   .button-row .btn,.detail-actions .btn{width:100%}
   .km-summary-breakdown{flex-wrap:wrap}
   .km-part{flex:1 1 33%}
+  .report-buttons{grid-template-columns:1fr}
+  .settings-location{align-items:flex-start}
 }
 
 @media print{
   body{background:#fff;color:#000}
-  .top,.nav,.no-print,.modal,.toast{display:none!important}
-  .shell{max-width:none;padding:0}
-  .print-only{display:block}
-  .card,.list-item,.km-summary{background:#fff;color:#000;border-color:#ccc}
-  .muted,small,.hint{color:#555}
+  .shell,.top,.no-print,.modal,.toast{display:none!important}
+  .print-only{display:block;padding:0;color:#000}
+  .print-only .card,.print-only .list-item,.print-only .km-summary{background:#fff;color:#000;border-color:#ccc}
+  .print-only .muted,.print-only small,.print-only .hint{color:#555}
 }
 </style>
 </head>
+
 <body>
 
 <div class="shell">
+
   <header class="top">
+
     <div>
       <div id="today" class="eyebrow"></div>
       <h1>Kilometerregistratie</h1>
     </div>
-    <button class="iconbtn" data-action="settings">⚙︎</button>
+
+    <button
+      id="topAction"
+      class="iconbtn"
+      data-action="settings"
+    >
+      ⚙︎
+    </button>
+
   </header>
 
   <main id="app"></main>
-</div>
 
-<nav class="nav">
-  <div class="nav-inner">
-    <button data-view="ride" class="active"><span>↗</span><small>Rit</small></button>
-    <button data-view="week"><span>◫</span><small>Week</small></button>
-    <button data-view="locations"><span>⌖</span><small>Locaties</small></button>
-    <button data-view="report"><span>↥</span><small>Rapport</small></button>
-    <button data-view="more"><span>•••</span><small>Meer</small></button>
-  </div>
-</nav>
+</div>
 
 <div id="modal" class="modal" hidden>
   <div class="modal-panel" id="modalPanel"></div>
 </div>
 
 <div id="toast" class="toast"></div>
+
+<div id="printReport" class="print-only"></div>
 
 <script>
 (() => {
@@ -200,6 +232,8 @@ const app=document.getElementById('app');
 const modal=document.getElementById('modal');
 const modalPanel=document.getElementById('modalPanel');
 const toastEl=document.getElementById('toast');
+const topAction=document.getElementById('topAction');
+const printReportEl=document.getElementById('printReport');
 
 document.getElementById('today').textContent=
   new Intl.DateTimeFormat(
@@ -209,7 +243,8 @@ document.getElementById('today').textContent=
       day:'numeric',
       month:'long'
     }
-  ).format(new Date())+' · v10';
+  ).format(new Date())+
+  ' · v11';
 
 render();
 
@@ -230,12 +265,14 @@ function load(){
       localStorage.getItem(KEY);
 
     if(raw){
+
       return normalize(
         JSON.parse(raw)
       );
     }
 
   }catch(error){
+
     console.error(error);
   }
 
@@ -294,6 +331,7 @@ function save(){
     localStorage.getItem(KEY);
 
   if(!check){
+
     throw new Error(
       'Lokale opslag is mislukt.'
     );
@@ -306,6 +344,7 @@ function save(){
 
 
 function clone(value){
+
   return JSON.parse(
     JSON.stringify(value)
   );
@@ -315,16 +354,17 @@ function clone(value){
 function uid(){
 
   if(
-    window.crypto &&
+    window.crypto&&
     window.crypto.randomUUID
   ){
+
     return window.crypto.randomUUID();
   }
 
   return (
-    'id-' +
-    Date.now().toString(36) +
-    '-' +
+    'id-'+
+    Date.now().toString(36)+
+    '-'+
     Math.random().toString(36).slice(2)
   );
 }
@@ -338,22 +378,6 @@ document.addEventListener(
   'click',
   async event=>{
 
-    const viewButton=
-      event.target.closest(
-        '[data-view]'
-      );
-
-    if(viewButton){
-
-      view=
-        viewButton.dataset.view;
-
-      render();
-
-      return;
-    }
-
-
     const element=
       event.target.closest(
         '[data-action]'
@@ -363,16 +387,21 @@ document.addEventListener(
       return;
     }
 
-
     const action=
       element.dataset.action;
-
 
     try{
 
       if(action==='settings'){
 
         view='settings';
+        render();
+      }
+
+
+      else if(action==='home'){
+
+        view='ride';
         render();
       }
 
@@ -480,7 +509,9 @@ document.addEventListener(
       else if(action==='edit-location'){
 
         openLocation(
-          element.closest('[data-id]').dataset.id
+          element
+            .closest('[data-id]')
+            .dataset.id
         );
       }
 
@@ -488,7 +519,9 @@ document.addEventListener(
       else if(action==='delete-location'){
 
         deleteLocation(
-          element.closest('[data-id]').dataset.id
+          element
+            .closest('[data-id]')
+            .dataset.id
         );
       }
 
@@ -582,7 +615,7 @@ document.addEventListener(
 
       else if(action==='print'){
 
-        window.print();
+        printSelectedWeek();
       }
 
     }catch(error){
@@ -605,6 +638,7 @@ document.addEventListener(
     if(
       !(event.target instanceof HTMLFormElement)
     ){
+
       return;
     }
 
@@ -615,7 +649,6 @@ document.addEventListener(
 
     const formData=
       new FormData(form);
-
 
     try{
 
@@ -684,7 +717,7 @@ document.addEventListener(
   async event=>{
 
     if(
-      event.target.id==='importFile' &&
+      event.target.id==='importFile'&&
       event.target.files?.[0]
     ){
 
@@ -702,47 +735,44 @@ document.addEventListener(
 
 function render(){
 
-  document
-    .querySelectorAll(
-      '[data-view]'
-    )
-    .forEach(
-      button=>
-        button.classList.toggle(
-          'active',
-          button.dataset.view===view
-        )
+  if(view==='settings'){
+
+    topAction.dataset.action=
+      'home';
+
+    topAction.textContent=
+      '←';
+
+    topAction.setAttribute(
+      'aria-label',
+      'Terug naar overzicht'
     );
 
-
-  if(view==='ride'){
-    renderRide();
-  }
-
-  else if(view==='week'){
-    renderWeek();
-  }
-
-  else if(view==='locations'){
-    renderLocations();
-  }
-
-  else if(view==='report'){
-    renderReport();
-  }
-
-  else if(view==='more'){
-    renderMore();
-  }
-
-  else if(view==='settings'){
     renderSettings();
+
+  }else{
+
+    view=
+      'ride';
+
+    topAction.dataset.action=
+      'settings';
+
+    topAction.textContent=
+      '⚙︎';
+
+    topAction.setAttribute(
+      'aria-label',
+      'Instellingen'
+    );
+
+    renderRide();
   }
 }
 
 
 /* =========================
-   KM-TOTALEN
+   KM SAMENVATTING
 ========================= */
 
 function kmSummary(
@@ -755,7 +785,10 @@ function kmSummary(
 
 
   if(
-    Number(total.business||0)>0
+    Number(
+      total.business||
+      0
+    )>0
   ){
 
     parts.push([
@@ -766,7 +799,10 @@ function kmSummary(
 
 
   if(
-    Number(total.commute||0)>0
+    Number(
+      total.commute||
+      0
+    )>0
   ){
 
     parts.push([
@@ -777,7 +813,10 @@ function kmSummary(
 
 
   if(
-    Number(total.private||0)>0
+    Number(
+      total.private||
+      0
+    )>0
   ){
 
     parts.push([
@@ -797,20 +836,32 @@ function kmSummary(
           ${esc(title)}
         </div>
 
+
         <div class="km-summary-main">
 
           <strong>
             ${km(total.total)} km
           </strong>
 
+
           ${
             tripCount!==null
+
             ?`
+
               <small>
+
                 ${tripCount}
-                ${tripCount===1?'rit':'ritten'}
+
+                ${
+                  tripCount===1
+                  ?'rit'
+                  :'ritten'
+                }
+
               </small>
             `
+
             :''
           }
 
@@ -818,10 +869,12 @@ function kmSummary(
 
       </div>
 
+
       ${
         parts.length
 
         ?`
+
           <div class="km-summary-breakdown">
 
             ${
@@ -840,7 +893,8 @@ function kmSummary(
 
                   </div>
                 `
-              ).join('')
+              )
+              .join('')
             }
 
           </div>
@@ -868,22 +922,43 @@ function renderRide(){
     inferLast();
 
   const start=
-    startOfWeek(
-      new Date()
+    selectedWeek;
+
+  const end=
+    addDays(
+      start,
+      7
     );
 
   const week=
     tripsRange(
       start,
-      addDays(
-        start,
-        7
-      )
+      end
     );
 
   const total=
     totals(
       week
+    );
+
+  const tanks=
+    data.events.filter(
+      event=>
+
+        event.type==='tank'&&
+
+        inRange(
+          new Date(
+            event.time
+          ),
+          start,
+          end
+        )
+    );
+
+  const current=
+    isCurrentWeek(
+      start
     );
 
 
@@ -921,15 +996,20 @@ function renderRide(){
           <p>
 
             Startstand
+
             ${odo(active.startOdometer)}
+
             km
 
             ${
               active.proposedRouteKm!=null
 
               ?`
+
                 · routevoorstel
+
                 ${km(active.proposedRouteKm)}
+
                 km
               `
 
@@ -944,6 +1024,7 @@ function renderRide(){
             <span class="dot"></span>
 
             Gestart
+
             ${time(active.departureTime)}
 
           </span>
@@ -978,7 +1059,9 @@ function renderRide(){
 
             ${
               last
+
               ?odo(last.odometer)+' km'
+
               :'Nog geen beginstand'
             }
 
@@ -991,12 +1074,20 @@ function renderRide(){
               last?.location
 
               ?`
+
                 Laatste bestemming:
-                ${esc(labelLoc(last.location))}
+
+                ${esc(
+                  labelLoc(
+                    last.location
+                  )
+                )}
               `
 
               :`
+
                 Vul bij Instellingen
+
                 je auto en beginstand in.
               `
             }
@@ -1016,31 +1107,173 @@ function renderRide(){
     </section>
 
 
-    ${
-      kmSummary(
-        total,
-        'Deze week',
-        week.length
-      )
-    }
+    <section class="week-panel">
+
+      <div class="week-panel-head">
+
+        <button
+          class="mini"
+          data-action="week-prev"
+          aria-label="Vorige week"
+        >
+          ‹
+        </button>
+
+
+        <div class="week-panel-center">
+
+          <strong>
+            Week ${isoWeek(start)}
+          </strong>
+
+
+          <small>
+
+            ${date(start)}
+
+            –
+
+            ${date(addDays(end,-1))}
+
+          </small>
+
+        </div>
+
+
+        <button
+          class="mini"
+          data-action="week-next"
+          aria-label="Volgende week"
+        >
+          ›
+        </button>
+
+      </div>
+
+
+      ${
+        kmSummary(
+          total,
+          'Weekoverzicht',
+          week.length
+        )
+      }
+
+
+      ${
+        !current
+
+        ?`
+
+          <div class="current-week-link">
+
+            <button
+              data-action="week-now"
+            >
+              Terug naar huidige week
+            </button>
+
+          </div>
+        `
+
+        :''
+      }
+
+    </section>
 
 
     <div class="section">
 
       <div class="section-title">
+
         <h2>
-          Laatste ritten
+          Ritten
         </h2>
+
+        <span class="muted">
+          ${week.length}
+        </span>
+
       </div>
 
-      ${
-        tripList(
-          sortedTrips()
-            .slice(0,4)
-        )
-      }
+
+      ${tripList(week)}
 
     </div>
+
+
+    ${
+      tanks.length
+
+      ?`
+
+        <div class="section">
+
+          <div class="section-title">
+
+            <h2>
+              Tankmomenten
+            </h2>
+
+            <span class="muted">
+              ${tanks.length}
+            </span>
+
+          </div>
+
+
+          <div class="list">
+
+            ${
+              tanks.map(
+                event=>`
+
+                  <div class="list-item">
+
+                    <div class="list-main">
+
+                      <strong>
+
+                        ${
+                          esc(
+                            labelLoc(
+                              event.location
+                            )||
+                            'Tanklocatie'
+                          )
+                        }
+
+                      </strong>
+
+
+                      <small>
+                        ${dateTime(event.time)}
+                      </small>
+
+                    </div>
+
+
+                    <strong>
+
+                      ${odo(event.odometer)}
+
+                      km
+
+                    </strong>
+
+                  </div>
+                `
+              )
+              .join('')
+            }
+
+          </div>
+
+        </div>
+      `
+
+      :''
+    }
   `;
 }
 
@@ -1054,6 +1287,7 @@ function tripList(trips){
   if(!trips.length){
 
     return `
+
       <div class="empty">
         Nog geen ritten.
       </div>
@@ -1106,7 +1340,12 @@ function tripList(trips){
 
                   ${
                     trip.reason
-                    ?' · '+esc(trip.reason)
+
+                    ?`
+                      ·
+                      ${esc(trip.reason)}
+                    `
+
                     :''
                   }
 
@@ -1125,7 +1364,13 @@ function tripList(trips){
 
                   ${
                     trip.privateKm
-                    ?` · ${km(trip.privateKm)} km privé`
+
+                    ?`
+                      ·
+                      ${km(trip.privateKm)}
+                      km privé
+                    `
+
                     :''
                   }
 
@@ -1143,8 +1388,13 @@ function tripList(trips){
               >
 
                 <div class="trip-km">
-                  ${km(trip.actualKm)} km
+
+                  ${km(trip.actualKm)}
+
+                  km
+
                 </div>
+
 
                 <div class="trip-chevron">
                   ›
@@ -1154,7 +1404,8 @@ function tripList(trips){
 
             </div>
           `
-        ).join('')
+        )
+        .join('')
       }
 
     </div>
@@ -1227,7 +1478,12 @@ function openTripDetail(id){
 
         →
 
-        ${time(trip.arrivalTime||trip.departureTime)}
+        ${
+          time(
+            trip.arrivalTime||
+            trip.departureTime
+          )
+        }
 
       </div>
 
@@ -1257,8 +1513,11 @@ function openTripDetail(id){
               trip.origin?.address
 
               ?`
+
                 Vertrek:
+
                 ${esc(trip.origin.address)}
+
                 <br>
               `
 
@@ -1270,7 +1529,9 @@ function openTripDetail(id){
               trip.destination?.address
 
               ?`
+
                 Bestemming:
+
                 ${esc(trip.destination.address)}
               `
 
@@ -1289,7 +1550,9 @@ function openTripDetail(id){
     <div class="button-row">
 
       <span class="pill">
+
         ${esc(categoryLabel(trip.category))}
+
       </span>
 
 
@@ -1297,9 +1560,13 @@ function openTripDetail(id){
         trip.privateKm
 
         ?`
+
           <span class="pill">
+
             ${km(trip.privateKm)}
+
             km privé
+
           </span>
         `
 
@@ -1318,7 +1585,11 @@ function openTripDetail(id){
         </span>
 
         <strong>
-          ${km(trip.actualKm)} km
+
+          ${km(trip.actualKm)}
+
+          km
+
         </strong>
 
       </div>
@@ -1331,9 +1602,13 @@ function openTripDetail(id){
         </span>
 
         <strong>
+
           ${odo(trip.startOdometer)}
+
           →
+
           ${odo(trip.endOdometer)}
+
         </strong>
 
       </div>
@@ -1349,7 +1624,9 @@ function openTripDetail(id){
 
           ${
             trip.proposedRouteKm!=null
+
             ?km(trip.proposedRouteKm)+' km'
+
             :'—'
           }
 
@@ -1382,12 +1659,14 @@ function openTripDetail(id){
         Reden / omschrijving
       </div>
 
+
       ${
         trip.reason
 
         ?esc(trip.reason)
 
         :`
+
           <span class="muted">
             Geen omschrijving ingevuld.
           </span>
@@ -1432,12 +1711,14 @@ function editLocationOptions(current){
     current?.id||
     '';
 
+
   const exists=
     id&&
     data.locations.some(
       location=>
         location.id===id
     );
+
 
   let html='';
 
@@ -1452,10 +1733,13 @@ function editLocationOptions(current){
       >
 
         Huidig:
-        ${esc(
-          labelLoc(current)||
-          'Onbekende locatie'
-        )}
+
+        ${
+          esc(
+            labelLoc(current)||
+            'Onbekende locatie'
+          )
+        }
 
       </option>
     `;
@@ -1489,7 +1773,12 @@ function editLocationOptions(current){
 
             ${
               location.address
-              ?` · ${esc(location.address)}`
+
+              ?`
+                ·
+                ${esc(location.address)}
+              `
+
               :''
             }
 
@@ -1648,6 +1937,7 @@ function openTripEdit(id){
           Type rit
         </label>
 
+
         <select name="category">
 
           <option
@@ -1661,6 +1951,7 @@ function openTripEdit(id){
             Woon-werk
           </option>
 
+
           <option
             value="business"
             ${
@@ -1671,6 +1962,7 @@ function openTripEdit(id){
           >
             Zakelijk
           </option>
+
 
           <option
             value="private"
@@ -1932,7 +2224,8 @@ function saveTripEditDirect(){
 
 
   const actual=
-    end-start;
+    end-
+    start;
 
 
   const category=
@@ -2151,7 +2444,6 @@ function rebuildLast(){
 
       time:
         trip.arrivalTime
-
     }
 
     :null;
@@ -2161,171 +2453,6 @@ function rebuildLast(){
 /* =========================
    LOCATIES
 ========================= */
-
-function renderLocations(){
-
-  const locations=
-    [...data.locations]
-
-      .sort(
-        (a,b)=>
-
-          (b.useCount||0)-
-          (a.useCount||0)||
-
-          a.name.localeCompare(
-            b.name
-          )
-      );
-
-
-  app.innerHTML=`
-
-    <div class="section-title">
-
-      <div>
-
-        <div class="kicker">
-
-          Herkenning binnen
-
-          ${
-            Number(
-              data.settings.recognitionRadius
-            )||
-            500
-          }
-
-          m
-
-        </div>
-
-
-        <h2>
-          Bekende locaties
-        </h2>
-
-      </div>
-
-    </div>
-
-
-    <div class="button-row">
-
-      <button
-        class="btn"
-        data-action="current-location"
-      >
-        Huidige locatie toevoegen
-      </button>
-
-
-      <button
-        class="btn secondary"
-        data-action="add-location"
-      >
-        Handmatig toevoegen
-      </button>
-
-    </div>
-
-
-    <div class="section">
-
-      ${
-        locations.length
-
-        ?`
-
-          <div class="list">
-
-            ${
-              locations.map(
-                location=>`
-
-                  <div
-                    class="list-item"
-                    data-id="${location.id}"
-                  >
-
-                    <div class="list-main">
-
-                      <strong>
-                        ${esc(location.name)}
-                      </strong>
-
-
-                      <small>
-
-                        ${
-                          esc(
-                            location.address||
-                            coords(location)||
-                            'Nog geen adres/GPS'
-                          )
-                        }
-
-                      </small>
-
-
-                      <small>
-
-                        ${esc(
-                          typeLabel(
-                            location.type
-                          )
-                        )}
-
-                        ·
-
-                        ${location.useCount||0}
-
-                        × gebruikt
-
-                      </small>
-
-                    </div>
-
-
-                    <div class="list-actions">
-
-                      <button
-                        class="mini"
-                        data-action="edit-location"
-                      >
-                        Wijzig
-                      </button>
-
-
-                      <button
-                        class="mini"
-                        data-action="delete-location"
-                      >
-                        ×
-                      </button>
-
-                    </div>
-
-                  </div>
-                `
-              ).join('')
-            }
-
-          </div>
-        `
-
-        :`
-
-          <div class="empty">
-            Nog geen locaties.
-          </div>
-        `
-      }
-
-    </div>
-  `;
-}
-
 
 function openLocation(
   id=null,
@@ -2551,6 +2678,7 @@ async function fillGps(){
 
 
   if(!form){
+
     return;
   }
 
@@ -2829,12 +2957,13 @@ async function openStart(){
 
   if(!data.locations.length){
 
-    view='locations';
+    view=
+      'settings';
 
     render();
 
     toast(
-      'Voeg eerst minimaal één bestemming toe.'
+      'Voeg eerst minimaal één bestemming toe bij Locaties.'
     );
 
     return;
@@ -2847,7 +2976,7 @@ async function openStart(){
     null;
 
 
-  let startOdo=
+  let startOdometer=
     data.lastEndpoint?.odometer??
     inferLast()?.odometer??
     num(
@@ -2929,8 +3058,10 @@ async function openStart(){
         <small>
 
           ${
-            startOdo!=null
-            ?odo(startOdo)+' km'
+            startOdometer!=null
+
+            ?odo(startOdometer)+' km'
+
             :'Geen beginstand'
           }
 
@@ -2943,7 +3074,8 @@ async function openStart(){
         field(
           'Startkilometerstand',
           'startOdometer',
-          startOdo??'',
+          startOdometer??
+          '',
           'number'
         )
       }
@@ -2965,6 +3097,7 @@ async function openStart(){
           <option value="">
             Kies locatie…
           </option>
+
 
           ${locationOptions()}
 
@@ -3023,6 +3156,7 @@ function openAppleFromForm(){
 
 
   if(!form){
+
     return;
   }
 
@@ -3144,9 +3278,13 @@ async function saveStart(formData){
 
     routeSource:
       manual!=null
+
       ?'Apple Kaarten ingevuld'
+
       :historic!=null
+
       ?'historie'
+
       :null
   };
 
@@ -3291,15 +3429,20 @@ async function openArrival(){
         <small>
 
           Start
+
           ${odo(active.startOdometer)}
+
           km
 
           ${
             active.proposedRouteKm!=null
 
             ?`
+
               · voorstel
+
               ${km(active.proposedRouteKm)}
+
               km
             `
 
@@ -3338,13 +3481,19 @@ async function openArrival(){
 
                   ${
                     location.address
-                    ?` · ${esc(location.address)}`
+
+                    ?`
+                      ·
+                      ${esc(location.address)}
+                    `
+
                     :''
                   }
 
                 </option>
               `
-            ).join('')
+            )
+            .join('')
           }
 
 
@@ -3352,6 +3501,7 @@ async function openArrival(){
             current
 
             ?`
+
               <option value="current">
                 Huidige GPS-locatie
               </option>
@@ -3684,111 +3834,7 @@ function saveArrival(formData){
 
 
 /* =========================
-   MEER
-========================= */
-
-function renderMore(){
-
-  app.innerHTML=`
-
-    <div class="section-title">
-
-      <div>
-
-        <div class="kicker">
-          Losse registraties
-        </div>
-
-        <h2>
-          Meer
-        </h2>
-
-      </div>
-
-    </div>
-
-
-    <div class="action-grid">
-
-      <button
-        class="action"
-        data-action="tank"
-      >
-
-        <div class="ico">
-          ⛽︎
-        </div>
-
-        <div>
-
-          <strong>
-            Tanken
-          </strong>
-
-          <small>
-            Kilometerstand en locatie,
-            zonder de A→B-rit te onderbreken.
-          </small>
-
-        </div>
-
-      </button>
-
-
-      <button
-        class="action"
-        data-action="manual"
-      >
-
-        <div class="ico">
-          ＋
-        </div>
-
-        <div>
-
-          <strong>
-            Rit toevoegen
-          </strong>
-
-          <small>
-            Een rit achteraf handmatig registreren.
-          </small>
-
-        </div>
-
-      </button>
-
-
-      <button
-        class="action"
-        data-action="private"
-      >
-
-        <div class="ico">
-          ⌁
-        </div>
-
-        <div>
-
-          <strong>
-            Privékilometers aanpassen
-          </strong>
-
-          <small>
-            Ken een privédeel toe aan een bestaande rit.
-          </small>
-
-        </div>
-
-      </button>
-
-    </div>
-  `;
-}
-
-
-/* =========================
-   TANKEN
+   EXTRA REGISTRATIES
 ========================= */
 
 async function openTank(){
@@ -3801,6 +3847,7 @@ async function openTank(){
 
     gps=
       await getPosition();
+
 
     location=
       matches(gps)[0]?.location||
@@ -3824,6 +3871,7 @@ async function openTank(){
       <h2>
         Tanken
       </h2>
+
 
       <button
         class="close"
@@ -3859,15 +3907,21 @@ async function openTank(){
 
         <strong>
 
-          ${esc(
-            labelLoc(location)||
-            'Locatie niet beschikbaar'
-          )}
+          ${
+            esc(
+              labelLoc(location)||
+              'Locatie niet beschikbaar'
+            )
+          }
 
         </strong>
 
+
         <small>
-          Dit meetpunt verandert vertrek of bestemming niet.
+
+          Dit meetpunt verandert vertrek
+          of bestemming niet.
+
         </small>
 
       </div>
@@ -3960,10 +4014,6 @@ function saveTank(formData){
 }
 
 
-/* =========================
-   HANDMATIGE RIT
-========================= */
-
 function openManual(){
 
   if(
@@ -3991,6 +4041,7 @@ function openManual(){
         Rit toevoegen
       </h2>
 
+
       <button
         class="close"
         data-action="close"
@@ -4008,6 +4059,7 @@ function openManual(){
         <label>
           Van
         </label>
+
 
         <select name="originId">
 
@@ -4027,6 +4079,7 @@ function openManual(){
         <label>
           Naar
         </label>
+
 
         <select name="destinationId">
 
@@ -4063,6 +4116,7 @@ function openManual(){
         <label>
           Type
         </label>
+
 
         <select name="category">
 
@@ -4196,7 +4250,8 @@ function saveManual(formData){
 
 
   const actual=
-    end-start;
+    end-
+    start;
 
 
   const category=
@@ -4317,10 +4372,6 @@ function saveManual(formData){
 }
 
 
-/* =========================
-   PRIVÉDEEL
-========================= */
-
 function openPrivate(){
 
   const trips=
@@ -4345,6 +4396,7 @@ function openPrivate(){
         Privékilometers
       </h2>
 
+
       <button
         class="close"
         data-action="close"
@@ -4362,6 +4414,7 @@ function openPrivate(){
         <label>
           Rit
         </label>
+
 
         <select name="tripId">
 
@@ -4501,355 +4554,101 @@ function savePrivate(formData){
 
 
 /* =========================
-   WEEK
-========================= */
-
-function renderWeek(){
-
-  const start=
-    selectedWeek;
-
-
-  const end=
-    addDays(
-      start,
-      7
-    );
-
-
-  const trips=
-    tripsRange(
-      start,
-      end
-    );
-
-
-  const total=
-    totals(
-      trips
-    );
-
-
-  const tanks=
-    data.events.filter(
-      event=>
-
-        event.type==='tank'&&
-
-        inRange(
-          new Date(event.time),
-          start,
-          end
-        )
-    );
-
-
-  app.innerHTML=`
-
-    <div class="week-nav">
-
-      <button
-        class="mini"
-        data-action="week-prev"
-      >
-        ‹
-      </button>
-
-
-      <div class="center">
-
-        <h2>
-          Week ${isoWeek(start)}
-        </h2>
-
-
-        <small>
-
-          ${date(start)}
-
-          –
-
-          ${date(addDays(end,-1))}
-
-        </small>
-
-      </div>
-
-
-      <button
-        class="mini"
-        data-action="week-next"
-      >
-        ›
-      </button>
-
-    </div>
-
-
-    <div class="section">
-
-      <button
-        class="btn secondary full"
-        data-action="week-now"
-      >
-        Huidige week
-      </button>
-
-    </div>
-
-
-    <div class="section">
-
-      ${
-        kmSummary(
-          total,
-          `Week ${isoWeek(start)}`,
-          trips.length
-        )
-      }
-
-    </div>
-
-
-    <div class="section">
-
-      <div class="section-title">
-
-        <h2>
-          Ritten
-        </h2>
-
-      </div>
-
-
-      ${tripList(trips)}
-
-    </div>
-
-
-    <div class="section">
-
-      <div class="section-title">
-
-        <h2>
-          Tankmomenten
-        </h2>
-
-        <span class="muted">
-          ${tanks.length}
-        </span>
-
-      </div>
-
-
-      ${
-        tanks.length
-
-        ?`
-
-          <div class="list">
-
-            ${
-              tanks.map(
-                event=>`
-
-                  <div class="list-item">
-
-                    <div class="list-main">
-
-                      <strong>
-
-                        ${esc(
-                          labelLoc(event.location)||
-                          'Tanklocatie'
-                        )}
-
-                      </strong>
-
-
-                      <small>
-                        ${dateTime(event.time)}
-                      </small>
-
-                    </div>
-
-
-                    <strong>
-                      ${odo(event.odometer)}
-                      km
-                    </strong>
-
-                  </div>
-                `
-              ).join('')
-            }
-
-          </div>
-        `
-
-        :`
-
-          <div class="empty">
-            Geen tankmomenten.
-          </div>
-        `
-      }
-
-    </div>
-  `;
-}
-
-
-/* =========================
-   RAPPORT
-========================= */
-
-function renderReport(){
-
-  const start=
-    startOfWeek(
-      new Date()
-    );
-
-
-  const end=
-    addDays(
-      start,
-      7
-    );
-
-
-  const trips=
-    tripsRange(
-      start,
-      end
-    );
-
-
-  const total=
-    totals(
-      trips
-    );
-
-
-  app.innerHTML=`
-
-    <div class="no-print">
-
-      <div class="section-title">
-
-        <div>
-
-          <div class="kicker">
-            Huidige week
-          </div>
-
-          <h2>
-            Weekrapport
-          </h2>
-
-        </div>
-
-      </div>
-
-
-      ${
-        kmSummary(
-          total,
-          `Week ${isoWeek(start)}`,
-          trips.length
-        )
-      }
-
-
-      <div class="section button-row">
-
-        <button
-          class="btn"
-          data-action="email"
-        >
-          E-mail
-        </button>
-
-
-        <button
-          class="btn secondary"
-          data-action="share"
-        >
-          Deel CSV
-        </button>
-
-
-        <button
-          class="btn secondary"
-          data-action="csv"
-        >
-          Download CSV
-        </button>
-
-
-        <button
-          class="btn secondary"
-          data-action="print"
-        >
-          Print / PDF
-        </button>
-
-      </div>
-
-
-      <div class="section">
-
-        ${tripList(trips)}
-
-      </div>
-
-    </div>
-
-
-    <div class="print-only">
-
-      <h1>
-        Kilometerregistratie
-        week
-        ${isoWeek(start)}
-      </h1>
-
-
-      <p>
-
-        ${esc(data.settings.name||'')}
-
-        ·
-
-        ${esc(data.settings.plate||'')}
-
-      </p>
-
-
-      ${
-        kmSummary(
-          total,
-          `Week ${isoWeek(start)}`,
-          trips.length
-        )
-      }
-
-
-      <div style="margin-top:20px">
-
-        ${tripList(trips)}
-
-      </div>
-
-    </div>
-  `;
-}
-
-
-/* =========================
    INSTELLINGEN
 ========================= */
+
+function settingsLocationList(){
+
+  const locations=
+    [...data.locations]
+
+      .sort(
+        (a,b)=>
+          (b.useCount||0)-
+          (a.useCount||0)||
+          a.name.localeCompare(
+            b.name
+          )
+      );
+
+
+  if(!locations.length){
+
+    return `
+
+      <div class="hint">
+        Nog geen locaties opgeslagen.
+      </div>
+    `;
+  }
+
+
+  return `
+
+    <div class="settings-location-list">
+
+      ${
+        locations.map(
+          location=>`
+
+            <div
+              class="settings-location"
+              data-id="${location.id}"
+            >
+
+              <div class="settings-location-main">
+
+                <strong>
+                  ${esc(location.name)}
+                </strong>
+
+
+                <small>
+
+                  ${
+                    esc(
+                      location.address||
+                      coords(location)||
+                      'Geen adres/GPS'
+                    )
+                  }
+
+                </small>
+
+              </div>
+
+
+              <div class="settings-location-actions">
+
+                <button
+                  type="button"
+                  class="mini"
+                  data-action="edit-location"
+                >
+                  Wijzig
+                </button>
+
+
+                <button
+                  type="button"
+                  class="mini"
+                  data-action="delete-location"
+                >
+                  ×
+                </button>
+
+              </div>
+
+            </div>
+          `
+        )
+        .join('')
+      }
+
+    </div>
+  `;
+}
+
 
 function renderSettings(){
 
@@ -4857,32 +4656,46 @@ function renderSettings(){
     data.settings;
 
 
+  const trips=
+    reportTrips();
+
+
+  const total=
+    totals(
+      trips
+    );
+
+
   app.innerHTML=`
 
-    <form id="settingsForm">
+    <div class="section-title">
 
-      <div class="section-title">
+      <div>
 
-        <div>
-
-          <div class="kicker">
-            Basisgegevens
-          </div>
-
-          <h2>
-            Instellingen
-          </h2>
-
+        <div class="kicker">
+          Beheer
         </div>
+
+        <h2>
+          Instellingen
+        </h2>
 
       </div>
 
+    </div>
+
+
+    <form id="settingsForm">
 
       <div class="card">
 
-        <h3>
-          Bestuurder & auto
-        </h3>
+        <div class="settings-card-title">
+
+          <h3>
+            Bestuurder & auto
+          </h3>
+
+        </div>
 
 
         ${
@@ -4943,11 +4756,24 @@ function renderSettings(){
       </div>
 
 
-      <div class="card">
+      <div class="card settings-block">
 
-        <h3>
-          Locatie
-        </h3>
+        <div class="settings-card-title">
+
+          <h3>
+            Locaties
+          </h3>
+
+
+          <small>
+
+            ${data.locations.length}
+
+            opgeslagen
+
+          </small>
+
+        </div>
 
 
         ${
@@ -4959,14 +4785,145 @@ function renderSettings(){
           )
         }
 
+
+        <div class="subtle-row">
+
+          <button
+            type="button"
+            class="btn secondary"
+            data-action="current-location"
+          >
+            Huidige locatie
+          </button>
+
+
+          <button
+            type="button"
+            class="btn secondary"
+            data-action="add-location"
+          >
+            Locatie toevoegen
+          </button>
+
+        </div>
+
+
+        ${settingsLocationList()}
+
       </div>
 
 
-      <div class="card">
+      <div class="card settings-block">
 
-        <h3>
-          Rapportage
-        </h3>
+        <div class="settings-card-title">
+
+          <h3>
+            Extra registraties
+          </h3>
+
+
+          <small>
+            Handmatig
+          </small>
+
+        </div>
+
+
+        <div class="settings-action-list">
+
+          <button
+            type="button"
+            class="settings-action"
+            data-action="tank"
+          >
+
+            <span class="settings-action-main">
+
+              <strong>
+                Tanken
+              </strong>
+
+              <small>
+                Kilometerstand en locatie vastleggen
+              </small>
+
+            </span>
+
+            <span class="settings-action-arrow">
+              ›
+            </span>
+
+          </button>
+
+
+          <button
+            type="button"
+            class="settings-action"
+            data-action="manual"
+          >
+
+            <span class="settings-action-main">
+
+              <strong>
+                Rit toevoegen
+              </strong>
+
+              <small>
+                Een rit achteraf registreren
+              </small>
+
+            </span>
+
+            <span class="settings-action-arrow">
+              ›
+            </span>
+
+          </button>
+
+
+          <button
+            type="button"
+            class="settings-action"
+            data-action="private"
+          >
+
+            <span class="settings-action-main">
+
+              <strong>
+                Privékilometers aanpassen
+              </strong>
+
+              <small>
+                Privédeel van een bestaande rit wijzigen
+              </small>
+
+            </span>
+
+            <span class="settings-action-arrow">
+              ›
+            </span>
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="card settings-block">
+
+        <div class="settings-card-title">
+
+          <h3>
+            Rapportage
+          </h3>
+
+
+          <small>
+            Week ${isoWeek(selectedWeek)}
+          </small>
+
+        </div>
 
 
         ${
@@ -4978,49 +4935,113 @@ function renderSettings(){
           )
         }
 
+
+        ${
+          kmSummary(
+            total,
+            'Te rapporteren week',
+            trips.length
+          )
+        }
+
+
+        <div class="report-buttons">
+
+          <button
+            type="button"
+            class="btn secondary"
+            data-action="email"
+          >
+            E-mail
+          </button>
+
+
+          <button
+            type="button"
+            class="btn secondary"
+            data-action="share"
+          >
+            Deel CSV
+          </button>
+
+
+          <button
+            type="button"
+            class="btn secondary"
+            data-action="csv"
+          >
+            Download CSV
+          </button>
+
+
+          <button
+            type="button"
+            class="btn secondary"
+            data-action="print"
+          >
+            Print / PDF
+          </button>
+
+        </div>
+
       </div>
 
 
-      <button
-        class="btn full"
-        type="submit"
-      >
-        Instellingen opslaan
-      </button>
+      <div class="card settings-block">
+
+        <div class="settings-card-title">
+
+          <h3>
+            Data
+          </h3>
+
+        </div>
+
+
+        <div class="subtle-row">
+
+          <button
+            type="button"
+            class="btn secondary"
+            data-action="export"
+          >
+            Backup exporteren
+          </button>
+
+
+          <button
+            type="button"
+            class="btn secondary"
+            data-action="import"
+          >
+            Backup importeren
+          </button>
+
+        </div>
+
+
+        <input
+          id="importFile"
+          type="file"
+          accept="application/json"
+          hidden
+        >
+
+      </div>
+
+
+      <div class="settings-save">
+
+        <button
+          class="btn full"
+          type="submit"
+        >
+          Instellingen opslaan
+        </button>
+
+      </div>
 
     </form>
-
-
-    <div class="section">
-
-      <div class="button-row">
-
-        <button
-          class="btn secondary"
-          data-action="export"
-        >
-          Backup exporteren
-        </button>
-
-
-        <button
-          class="btn secondary"
-          data-action="import"
-        >
-          Backup importeren
-        </button>
-
-      </div>
-
-
-      <input
-        id="importFile"
-        type="file"
-        accept="application/json"
-        hidden
-      >
-
-    </div>
   `;
 }
 
@@ -5255,7 +5276,9 @@ function stopTracking(){
 
 
   gpsWatch=null;
+
   gpsTimer=null;
+
   gpsLatest=null;
 }
 
@@ -5388,7 +5411,7 @@ function matches(gps){
 
 function distance(a,b){
 
-  const R=
+  const earth=
     6371000;
 
 
@@ -5434,7 +5457,7 @@ function distance(a,b){
 
   return (
     2*
-    R*
+    earth*
     Math.asin(
       Math.sqrt(h)
     )
@@ -5636,6 +5659,7 @@ function sameLoc(a,b){
 function incrementUse(id){
 
   if(!id){
+
     return;
   }
 
@@ -5709,7 +5733,9 @@ function split(
 
   const privateAmount=
     category==='private'
+
     ?total
+
     :privateKm;
 
 
@@ -5720,12 +5746,18 @@ function split(
 
     business:
       category==='business'
-      ?total-privateAmount
+
+      ?total-
+       privateAmount
+
       :0,
 
     commute:
       category==='commute'
-      ?total-privateAmount
+
+      ?total-
+       privateAmount
+
       :0
   };
 }
@@ -5824,7 +5856,14 @@ function locationOptions(
 
           ${
             location.address
-            ?` · ${esc(location.address)}`
+
+            ?`
+
+              ·
+
+              ${esc(location.address)}
+            `
+
             :''
           }
 
@@ -5859,13 +5898,18 @@ function parseCoord(value){
 
 
   return Number.isFinite(number)
+
     ?number
+
     :null;
 }
 
 
 function parseNum(value){
-  return parseCoord(value);
+
+  return parseCoord(
+    value
+  );
 }
 
 
@@ -5885,7 +5929,9 @@ function num(value){
 
 
   return Number.isFinite(number)
+
     ?number
+
     :null;
 }
 
@@ -5910,13 +5956,21 @@ function snap(location){
 
       lat:
         location.lat==null
+
         ?null
-        :Number(location.lat),
+
+        :Number(
+          location.lat
+        ),
 
       lng:
         location.lng==null
+
         ?null
-        :Number(location.lng),
+
+        :Number(
+          location.lng
+        ),
 
       type:
         location.type||
@@ -5957,8 +6011,12 @@ function sortedTrips(){
 
     .sort(
       (a,b)=>
-        new Date(b.departureTime)-
-        new Date(a.departureTime)
+        new Date(
+          b.departureTime
+        )-
+        new Date(
+          a.departureTime
+        )
     );
 }
 
@@ -6263,7 +6321,10 @@ function km(value){
       maximumFractionDigits:1
     }
   ).format(
-    Number(value||0)
+    Number(
+      value||
+      0
+    )
   );
 }
 
@@ -6276,7 +6337,10 @@ function odo(value){
       maximumFractionDigits:0
     }
   ).format(
-    Number(value||0)
+    Number(
+      value||
+      0
+    )
   );
 }
 
@@ -6330,8 +6394,10 @@ function openModal(html){
   modalPanel.innerHTML=
     html;
 
+
   modal.hidden=
     false;
+
 
   document.body.style.overflow=
     'hidden';
@@ -6343,8 +6409,10 @@ function closeModal(){
   modal.hidden=
     true;
 
+
   modalPanel.innerHTML=
     '';
+
 
   document.body.style.overflow=
     '';
@@ -6356,13 +6424,16 @@ function toast(message){
   toastEl.textContent=
     message;
 
+
   toastEl.classList.add(
     'show'
   );
 
+
   clearTimeout(
     toastEl._timer
   );
+
 
   toastEl._timer=
     setTimeout(
@@ -6384,6 +6455,7 @@ function showError(message){
     'Fout: '+
     message
   );
+
 
   setTimeout(
     ()=>{
@@ -6430,7 +6502,7 @@ function attr(value){
 
 
 /* =========================
-   EXPORT
+   RAPPORT / EXPORT
 ========================= */
 
 function exportJson(){
@@ -6500,9 +6572,7 @@ async function importJson(file){
 function reportTrips(){
 
   const start=
-    startOfWeek(
-      new Date()
-    );
+    selectedWeek;
 
 
   return tripsRange(
@@ -6618,7 +6688,7 @@ function downloadCsv(){
       }
     ),
 
-    `kilometerregistratie-week-${isoWeek(new Date())}.csv`
+    `kilometerregistratie-week-${isoWeek(selectedWeek)}.csv`
   );
 }
 
@@ -6632,7 +6702,7 @@ async function shareCsv(){
         csvText()
       ],
 
-      `kilometerregistratie-week-${isoWeek(new Date())}.csv`,
+      `kilometerregistratie-week-${isoWeek(selectedWeek)}.csv`,
 
       {
         type:
@@ -6674,13 +6744,23 @@ function emailReport(){
     );
 
 
+  const emailField=
+    document.querySelector(
+      '#settingsForm [name="reportEmail"]'
+    );
+
+
   const to=
-    data.settings.reportEmail||
+    (
+      emailField
+      ?emailField.value
+      :data.settings.reportEmail
+    )||
     '';
 
 
   const subject=
-    `Kilometerregistratie week ${isoWeek(new Date())}`;
+    `Kilometerregistratie week ${isoWeek(selectedWeek)}`;
 
 
   const lines=[
@@ -6719,6 +6799,102 @@ function emailReport(){
     `?subject=${encodeURIComponent(subject)}`+
 
     `&body=${encodeURIComponent(lines.join('\n'))}`;
+}
+
+
+function printSelectedWeek(){
+
+  const trips=
+    reportTrips();
+
+
+  const total=
+    totals(
+      trips
+    );
+
+
+  printReportEl.innerHTML=`
+
+    <h1>
+
+      Kilometerregistratie
+
+      – week
+
+      ${isoWeek(selectedWeek)}
+
+    </h1>
+
+
+    <p>
+
+      ${esc(data.settings.name||'')}
+
+      ${
+        data.settings.plate
+
+        ?`
+          ·
+          ${esc(data.settings.plate)}
+        `
+
+        :''
+      }
+
+    </p>
+
+
+    <p>
+
+      ${date(selectedWeek)}
+
+      –
+
+      ${date(addDays(selectedWeek,6))}
+
+    </p>
+
+
+    ${
+      kmSummary(
+        total,
+        'Weekoverzicht',
+        trips.length
+      )
+    }
+
+
+    <div style="margin-top:20px">
+
+      ${tripList(trips)}
+
+    </div>
+  `;
+
+
+  window.print();
+
+
+  setTimeout(
+    ()=>{
+
+      printReportEl.innerHTML=
+        '';
+
+    },
+    1000
+  );
+}
+
+
+function isCurrentWeek(value){
+
+  return (
+    startOfWeek(value).getTime()
+    ===
+    startOfWeek(new Date()).getTime()
+  );
 }
 
 
