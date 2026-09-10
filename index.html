@@ -8,997 +8,459 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kilometers">
 <title>Kilometerregistratie</title>
-
 <style>
-:root{
-  --bg:#0d1117;
-  --card:#161b22;
-  --card2:#1d2430;
-  --text:#f4f7fb;
-  --muted:#9aa7b7;
-  --line:#2a3442;
-  --accent:#4da3ff;
-  --good:#49d17d;
-  --bad:#ff6767;
-  --radius:18px;
-}
-
-*{
-  box-sizing:border-box;
-}
-
-html,body{
-  margin:0;
-  min-height:100%;
-  background:var(--bg);
-  color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
-
-body{
-  min-height:100dvh;
-}
-
-button,input,select,textarea{
-  font:inherit;
-}
-
-.shell{
-  max-width:820px;
-  margin:auto;
-  min-height:100dvh;
-  padding:
-    env(safe-area-inset-top)
-    16px
-    calc(95px + env(safe-area-inset-bottom));
-}
-
-.top{
-  position:sticky;
-  top:0;
-  z-index:10;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:16px 0 20px;
-  background:var(--bg);
-}
-
-.top h1{
-  margin:3px 0 0;
-  font-size:24px;
-}
-
-.eyebrow,
-.kicker{
-  color:var(--muted);
-  text-transform:uppercase;
-  letter-spacing:.08em;
-  font-size:12px;
-  font-weight:700;
-}
-
-.card,
-.hero,
-.metric,
-.list-item,
-.action{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:18px;
-}
-
-.hero{
-  padding:22px;
-  margin-bottom:14px;
-}
-
-.hero h2{
-  margin:8px 0;
-  font-size:28px;
-}
-
-.hero p,
-small,
-.hint,
-.muted{
-  color:var(--muted);
-}
-
-.grid2{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-
-.metric{
-  padding:16px;
-}
-
-.metric span{
-  color:var(--muted);
-  font-size:13px;
-}
-
-.metric strong{
-  display:block;
-  margin-top:5px;
-  font-size:24px;
-}
-
-.section{
-  margin-top:22px;
-}
-
-.section-title{
-  display:flex;
-  justify-content:space-between;
-  align-items:end;
-  margin-bottom:10px;
-}
-
-.section-title h2{
-  margin:0;
-}
-
-.btn,
-.iconbtn,
-.mini{
-  border:0;
-  cursor:pointer;
-}
-
-.btn{
-  min-height:48px;
-  padding:14px 16px;
-  border-radius:14px;
-  background:var(--accent);
-  color:#fff;
-  font-weight:750;
-}
-
-.btn.secondary{
-  background:var(--card2);
-  border:1px solid var(--line);
-}
-
-.btn.full{
-  width:100%;
-}
-
-.iconbtn,
-.mini{
-  padding:10px 12px;
-  border-radius:12px;
-  color:var(--text);
-  background:var(--card);
-  border:1px solid var(--line);
-}
-
-.button-row{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.button-row .btn{
-  flex:1;
-}
-
-.list{
-  display:grid;
-  gap:10px;
-}
-
-.list-item{
-  padding:14px;
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  align-items:center;
-}
-
-.list-main{
-  min-width:0;
-  flex:1;
-}
-
-.list-main strong,
-.list-main small{
-  display:block;
-}
-
-.list-main small{
-  margin-top:4px;
-}
-
-.list-actions{
-  display:flex;
-  gap:6px;
-}
-
-.action-grid{
-  display:grid;
-  gap:12px;
-}
-
-.action{
-  width:100%;
-  padding:18px;
-  display:flex;
-  align-items:center;
-  gap:14px;
-  text-align:left;
-  color:var(--text);
-}
-
-.action .ico{
-  width:36px;
-  text-align:center;
-  font-size:26px;
-}
-
-.action strong,
-.action small{
-  display:block;
-}
-
-.action small{
-  margin-top:4px;
-}
-
-.form-group{
-  margin:14px 0;
-}
-
-.form-group label{
-  display:block;
-  margin-bottom:7px;
-  font-size:13px;
-  font-weight:700;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea{
-  width:100%;
-  min-height:46px;
-  padding:13px;
-  border-radius:12px;
-  border:1px solid var(--line);
-  color:var(--text);
-  background:#0f141b;
-}
-
-.hint{
-  margin-top:7px;
-  font-size:12px;
-  line-height:1.4;
-}
-
-.route-box{
-  margin:12px 0;
-  padding:14px;
-  background:#101722;
-  border:1px solid var(--line);
-  border-radius:14px;
-}
-
-.route-box strong,
-.route-box small{
-  display:block;
-}
-
-.route-box small{
-  margin-top:5px;
-}
-
-.nav{
-  position:fixed;
-  z-index:20;
-  left:0;
-  right:0;
-  bottom:0;
-  display:flex;
-  justify-content:center;
-  padding:8px 8px calc(8px + env(safe-area-inset-bottom));
-  border-top:1px solid var(--line);
-  background:rgba(13,17,23,.96);
-  backdrop-filter:blur(18px);
-}
-
-.nav-inner{
-  width:min(820px,100%);
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:4px;
-}
-
-.nav button{
-  border:0;
-  border-radius:12px;
-  padding:8px 4px;
-  background:transparent;
-  color:var(--muted);
-}
-
-.nav button.active{
-  background:var(--card2);
-  color:var(--text);
-}
-
-.nav button span,
-.nav button small{
-  display:block;
-}
-
-.nav button span{
-  font-size:20px;
-}
-
-.nav button small{
-  font-size:10px;
-}
-
-.modal{
-  position:fixed;
-  z-index:50;
-  inset:0;
-  padding:22px 12px calc(22px + env(safe-area-inset-bottom));
-  overflow:auto;
-  background:rgba(0,0,0,.65);
-}
-
-.modal[hidden]{
-  display:none;
-}
-
-.modal-panel{
-  max-width:620px;
-  margin:4vh auto 0;
-  padding:16px;
-  border:1px solid var(--line);
-  border-radius:22px;
-  background:var(--bg);
-}
-
-.modal-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-
-.modal-head h2{
-  margin:0;
-}
-
-.close{
-  width:40px;
-  height:40px;
-  border:0;
-  border-radius:50%;
-  background:var(--card2);
-  color:var(--text);
-  font-size:24px;
-}
-
-.toast{
-  position:fixed;
-  z-index:90;
-  bottom:105px;
-  left:50%;
-  max-width:88vw;
-  padding:12px 16px;
-  transform:translate(-50%,15px);
-  opacity:0;
-  pointer-events:none;
-  border-radius:999px;
-  background:#f4f7fb;
-  color:#111;
-  text-align:center;
-  font-weight:700;
-  transition:.2s;
-}
-
-.toast.show{
-  opacity:1;
-  transform:translate(-50%,0);
-}
-
-.week-nav{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.week-nav .center{
-  text-align:center;
-}
-
-.week-nav h2{
-  margin:0;
-}
-
-.empty{
-  padding:22px;
-  text-align:center;
-  color:var(--muted);
-  border:1px solid var(--line);
-  border-radius:18px;
-  background:var(--card);
-}
-
-@media(max-width:460px){
-  .grid2{
-    grid-template-columns:1fr;
-  }
-
-  .button-row{
-    flex-direction:column;
-  }
-
-  .button-row .btn{
-    width:100%;
-  }
-}
+:root{--bg:#0d1117;--card:#161b22;--card2:#1d2430;--text:#f4f7fb;--muted:#9aa7b7;--line:#2a3442;--accent:#4da3ff;--good:#49d17d;--warn:#ffbd4a;--bad:#ff6767;--radius:18px;--shadow:0 10px 30px rgba(0,0,0,.22)}*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{min-height:100dvh}.shell{max-width:820px;margin:auto;min-height:100dvh;padding:env(safe-area-inset-top) 16px calc(92px + env(safe-area-inset-bottom))}.top{position:sticky;top:0;z-index:10;background:linear-gradient(var(--bg) 72%,rgba(13,17,23,0));display:flex;justify-content:space-between;align-items:center;padding:16px 0 20px}.eyebrow,.kicker{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700}.top h1{font-size:24px;margin:3px 0 0}.iconbtn,.mini,.btn,.nav button,.action{font:inherit}.iconbtn,.mini{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:12px;padding:10px 12px}.hero,.card,.metric,.action,.notice,.empty,.list-item{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}.hero{padding:22px;margin-bottom:14px}.hero h2{font-size:28px;margin:8px 0}.hero p,.card p,.hint,.muted,small{color:var(--muted)}.hero .primary{margin-top:18px}.btn{border:0;border-radius:14px;padding:14px 16px;background:var(--accent);color:white;font-weight:750;min-height:48px}.btn.secondary{background:var(--card2);border:1px solid var(--line)}.btn.ghost{background:transparent;border:1px solid var(--line)}.btn.danger{background:#4b1f24}.btn.full{width:100%}.button-row{display:flex;gap:10px;flex-wrap:wrap}.button-row .btn{flex:1}.section{margin-top:22px}.section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:10px}.section-title h2,.card h3{margin:0}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.metric{padding:16px}.metric span{color:var(--muted);font-size:13px}.metric strong{display:block;font-size:24px;margin-top:5px}.action-grid{display:grid;grid-template-columns:1fr;gap:12px}.action{display:flex;text-align:left;align-items:center;gap:14px;padding:18px;color:var(--text);width:100%}.action .ico{font-size:26px;width:36px;text-align:center}.action strong{display:block;font-size:17px}.action small{display:block;margin-top:3px}.list{display:grid;gap:10px}.list-item{padding:14px;display:flex;gap:12px;justify-content:space-between;align-items:center}.list-main{min-width:0}.list-main strong,.trip-path strong{display:block}.list-main small,.trip-path small{display:block;margin-top:4px}.list-actions{display:flex;gap:7px}.trip-date{font-size:12px;color:var(--muted);min-width:58px}.trip-path{flex:1;min-width:0}.trip-km{font-weight:800;white-space:nowrap}.empty{padding:22px;text-align:center;color:var(--muted)}.card{padding:16px;margin-bottom:12px}.notice{padding:14px;color:var(--muted);margin:12px 0}.notice.warning{border-color:#6b5424;color:#ffd98a}.form-group{margin:13px 0}.form-group label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}.form-group input,.form-group select,.form-group textarea{width:100%;font:inherit;color:var(--text);background:#0f141b;border:1px solid var(--line);border-radius:12px;padding:13px;min-height:46px}.form-group textarea{min-height:90px;resize:vertical}.hint{font-size:12px;margin-top:6px;line-height:1.35}.status{display:inline-flex;gap:7px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:12px;color:var(--muted)}.dot{width:8px;height:8px;border-radius:50%;background:var(--good)}.nav{position:fixed;z-index:20;bottom:0;left:0;right:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:rgba(13,17,23,.94);backdrop-filter:blur(18px);display:flex;justify-content:center;border-top:1px solid var(--line)}.nav-inner{width:min(820px,100%);display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.nav button{border:0;background:transparent;color:var(--muted);padding:8px 4px;border-radius:12px}.nav button span{display:block;font-size:20px}.nav button small{font-size:10px}.nav button.active{background:var(--card2);color:var(--text)}.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.62);padding:22px 12px calc(22px + env(safe-area-inset-bottom));overflow:auto}.modal[hidden]{display:none}.modal-panel{max-width:620px;margin:4vh auto 0;background:var(--bg);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:0 25px 80px rgba(0,0,0,.45)}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.modal-head h2{margin:0}.close{border:0;background:var(--card2);color:var(--text);font-size:24px;width:40px;height:40px;border-radius:50%}.toast{position:fixed;z-index:90;left:50%;bottom:105px;transform:translate(-50%,15px);background:#f4f7fb;color:#111;padding:11px 15px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;max-width:86vw;text-align:center;font-weight:700}.toast.show{opacity:1;transform:translate(-50%,0)}.week-nav{display:flex;align-items:center;justify-content:space-between}.week-nav .center{text-align:center}.week-nav h2{margin:0}.week-nav small{display:block;margin-top:4px}.nowrap{white-space:nowrap}.divider{height:1px;background:var(--line);margin:16px 0}.route-box{background:#101722;border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}.route-box strong{display:block}.route-box small{display:block;margin-top:5px}.save-ok{color:var(--good);font-size:12px;margin-top:8px}.print-only{display:none}@media(max-width:460px){.grid2{grid-template-columns:1fr}.hero h2{font-size:24px}.button-row{flex-direction:column}.button-row .btn{width:100%}}@media print{body{background:white;color:black}.top,.nav,.no-print,.modal,.toast{display:none!important}.shell{max-width:none;padding:0}.print-only{display:block}.card,.list-item,.metric{box-shadow:none;border-color:#ccc;background:white;color:black}.card p,.hint,.muted,small{color:#555}}
 </style>
 </head>
-
 <body>
-
 <div class="shell">
-
-  <header class="top">
-    <div>
-      <div id="today" class="eyebrow"></div>
-      <h1>Kilometerregistratie</h1>
-    </div>
-
-    <button class="iconbtn" data-action="settings">
-      ⚙︎
-    </button>
-  </header>
-
+  <header class="top"><div><div id="today" class="eyebrow"></div><h1>Kilometerregistratie</h1></div><button class="iconbtn" data-action="settings">⚙︎</button></header>
   <main id="app"></main>
-
 </div>
-
-<nav class="nav">
-  <div class="nav-inner">
-
-    <button data-view="ride" class="active">
-      <span>↗</span>
-      <small>Rit</small>
-    </button>
-
-    <button data-view="week">
-      <span>◫</span>
-      <small>Week</small>
-    </button>
-
-    <button data-view="locations">
-      <span>⌖</span>
-      <small>Locaties</small>
-    </button>
-
-    <button data-view="report">
-      <span>↥</span>
-      <small>Rapport</small>
-    </button>
-
-    <button data-view="more">
-      <span>•••</span>
-      <small>Meer</small>
-    </button>
-
-  </div>
-</nav>
-
-<div id="modal" class="modal" hidden>
-  <div id="modalPanel" class="modal-panel"></div>
-</div>
-
+<nav class="nav"><div class="nav-inner">
+  <button data-view="ride" class="active"><span>↗</span><small>Rit</small></button>
+  <button data-view="week"><span>◫</span><small>Week</small></button>
+  <button data-view="locations"><span>⌖</span><small>Locaties</small></button>
+  <button data-view="report"><span>↥</span><small>Rapport</small></button>
+  <button data-view="more"><span>•••</span><small>Meer</small></button>
+</div></nav>
+<div id="modal" class="modal" hidden><div class="modal-panel" id="modalPanel"></div></div>
 <div id="toast" class="toast"></div>
-
 <script>
 (() => {
-
 'use strict';
 
-const STORAGE_KEY = 'kilometerregistratie-v6';
+const KEY='kmreg-v4-data';
 
-const DEFAULT_DATA = {
+const DEFAULT={
   settings:{
     name:'',
     vehicleBrand:'',
     vehicleModel:'',
     plate:'',
     initialOdometer:'',
+    registrationStart:new Date().toISOString().slice(0,10),
     reportEmail:'',
     recognitionRadius:500
   },
   locations:[],
   trips:[],
-  tankEvents:[],
+  events:[],
   trackPoints:[],
   activeTrip:null,
   lastEndpoint:null
 };
 
-let data = loadData();
-let currentView = 'ride';
-let selectedWeek = startOfWeek(new Date());
+let data=load();
+let view='ride';
+let selectedWeek=startOfWeek(new Date());
+let gpsWatch=null,gpsTimer=null,gpsLatest=null;
 
-let gpsWatch = null;
-let gpsTimer = null;
-let latestGps = null;
+const app=document.getElementById('app'),
+      modal=document.getElementById('modal'),
+      modalPanel=document.getElementById('modalPanel'),
+      toastEl=document.getElementById('toast');
 
-const app = document.getElementById('app');
-const modal = document.getElementById('modal');
-const modalPanel = document.getElementById('modalPanel');
-const toastEl = document.getElementById('toast');
+document.getElementById('today').textContent=
+  new Intl.DateTimeFormat('nl-NL',{
+    weekday:'long',
+    day:'numeric',
+    month:'long'
+  }).format(new Date())+' · v7';
 
-document.getElementById('today').textContent =
-  new Intl.DateTimeFormat(
-    'nl-NL',
-    {
-      weekday:'long',
-      day:'numeric',
-      month:'long'
+cleanupOldApp().finally(()=>{
+  attemptLegacyMigration().finally(()=>{
+    render();
+    if(data.activeTrip) startTracking();
+  });
+});
+
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(raw){
+      const x=JSON.parse(raw);
+      return normalize(x);
     }
-  ).format(new Date()) + ' · v6';
-
-render();
-
-if(data.activeTrip){
-  startGpsTracking();
+  }catch(e){}
+  return structuredCloneSafe(DEFAULT);
 }
 
-
-/* =========================
-   OPSLAG
-========================= */
-
-function loadData(){
-
-  try{
-
-    const value =
-      localStorage.getItem(STORAGE_KEY);
-
-    if(!value){
-      return clone(DEFAULT_DATA);
-    }
-
-    const parsed =
-      JSON.parse(value);
-
-    return {
-      ...clone(DEFAULT_DATA),
-      ...parsed,
-      settings:{
-        ...DEFAULT_DATA.settings,
-        ...(parsed.settings || {})
-      },
-      locations:Array.isArray(parsed.locations) ? parsed.locations : [],
-      trips:Array.isArray(parsed.trips) ? parsed.trips : [],
-      tankEvents:Array.isArray(parsed.tankEvents) ? parsed.tankEvents : [],
-      trackPoints:Array.isArray(parsed.trackPoints) ? parsed.trackPoints : []
-    };
-
-  }catch(error){
-
-    console.error(
-      'Laden mislukt',
-      error
-    );
-
-    return clone(DEFAULT_DATA);
-  }
+function normalize(x){
+  return {
+    settings:{...DEFAULT.settings,...(x.settings||{})},
+    locations:Array.isArray(x.locations)?x.locations:[],
+    trips:Array.isArray(x.trips)?x.trips:[],
+    events:Array.isArray(x.events)?x.events:[],
+    trackPoints:Array.isArray(x.trackPoints)?x.trackPoints:[],
+    activeTrip:x.activeTrip||null,
+    lastEndpoint:x.lastEndpoint||null
+  };
 }
 
-
-function saveData(){
-
-  const json =
-    JSON.stringify(data);
-
+function save(){
   try{
-
-    localStorage.setItem(
-      STORAGE_KEY,
-      json
-    );
-
-    const control =
-      localStorage.getItem(
-        STORAGE_KEY
-      );
-
-    if(!control){
-      throw new Error(
-        'De browser heeft niets opgeslagen.'
-      );
-    }
-
-    JSON.parse(control);
-
+    localStorage.setItem(KEY,JSON.stringify(data));
+    const check=localStorage.getItem(KEY);
+    if(!check)throw new Error('Opslagcontrole mislukt');
     return true;
-
-  }catch(error){
-
-    console.error(
-      'Opslagfout',
-      error
-    );
-
-    throw new Error(
-      'Lokale opslag is mislukt: ' +
-      error.message
-    );
+  }catch(e){
+    console.error(e);
+    throw new Error('Opslaan op deze iPhone is mislukt. Controleer of Safari lokale websitegegevens mag bewaren.');
   }
 }
-
-
-function clone(value){
-  return JSON.parse(
-    JSON.stringify(value)
-  );
-}
-
 
 function uid(){
-
-  if(
-    window.crypto &&
-    crypto.randomUUID
-  ){
-    return crypto.randomUUID();
-  }
-
-  return (
-    Date.now().toString(36) +
-    '-' +
-    Math.random().toString(36).slice(2)
-  );
+  return (crypto&&crypto.randomUUID)
+    ?crypto.randomUUID()
+    :'id-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
 }
 
+function structuredCloneSafe(x){
+  return JSON.parse(JSON.stringify(x));
+}
 
-/* =========================
-   ALGEMENE EVENTS
-========================= */
-
-document.addEventListener(
-  'click',
-  async event => {
-
-    const viewButton =
-      event.target.closest(
-        '[data-view]'
-      );
-
-    if(viewButton){
-
-      currentView =
-        viewButton.dataset.view;
-
-      render();
-
-      return;
+async function cleanupOldApp(){
+  try{
+    if('serviceWorker'in navigator){
+      const r=await navigator.serviceWorker.getRegistration();
+      if(r)await r.unregister();
     }
 
-    const button =
-      event.target.closest(
-        '[data-action]'
-      );
-
-    if(!button){
-      return;
+    if('caches'in window){
+      for(const k of await caches.keys()){
+        if(k.startsWith('kmreg-'))await caches.delete(k);
+      }
     }
-
-    const action =
-      button.dataset.action;
-
-    try{
-
-      if(action === 'settings'){
-
-        currentView = 'settings';
-        render();
-      }
-
-      else if(action === 'close-modal'){
-
-        closeModal();
-      }
-
-      else if(action === 'add-location'){
-
-        openLocationForm();
-      }
-
-      else if(action === 'add-current-location'){
-
-        await openCurrentLocationForm();
-      }
-
-      else if(action === 'get-gps'){
-
-        await fillCurrentGps();
-      }
-
-      else if(action === 'save-location'){
-
-        saveLocationDirect();
-      }
-
-      else if(action === 'edit-location'){
-
-        const id =
-          button.closest('[data-id]')
-            ?.dataset.id;
-
-        openLocationForm(id);
-      }
-
-      else if(action === 'delete-location'){
-
-        const id =
-          button.closest('[data-id]')
-            ?.dataset.id;
-
-        deleteLocation(id);
-      }
-
-      else if(action === 'start-trip'){
-
-        await openStartTrip();
-      }
-
-      else if(action === 'arrival'){
-
-        await openArrival();
-      }
-
-      else if(action === 'apple-active'){
-
-        openAppleMaps(
-          data.activeTrip?.origin,
-          data.activeTrip?.expectedDestination
-        );
-      }
-
-      else if(action === 'apple-form'){
-
-        openAppleMapsFromStartForm();
-      }
-
-      else if(action === 'tank'){
-
-        await openTankForm();
-      }
-
-      else if(action === 'previous-week'){
-
-        selectedWeek =
-          addDays(
-            selectedWeek,
-            -7
-          );
-
-        render();
-      }
-
-      else if(action === 'next-week'){
-
-        selectedWeek =
-          addDays(
-            selectedWeek,
-            7
-          );
-
-        render();
-      }
-
-      else if(action === 'current-week'){
-
-        selectedWeek =
-          startOfWeek(
-            new Date()
-          );
-
-        render();
-      }
-
-      else if(action === 'export'){
-
-        exportJson();
-      }
-
-      else if(action === 'csv'){
-
-        exportCsv();
-      }
-
-      else if(action === 'email'){
-
-        emailReport();
-      }
-
-    }catch(error){
-
-      console.error(error);
-
-      showError(
-        error.message ||
-        'Er ging iets mis.'
-      );
-    }
-  }
-);
-
-
-document.addEventListener(
-  'submit',
-  async event => {
-
-    if(
-      !(event.target instanceof HTMLFormElement)
-    ){
-      return;
-    }
-
-    event.preventDefault();
-
-    const form =
-      event.target;
-
-    const formData =
-      new FormData(form);
-
-    try{
-
-      if(form.id === 'settingsForm'){
-
-        saveSettings(
-          formData
-        );
-      }
-
-      else if(form.id === 'startForm'){
-
-        await saveStartTrip(
-          formData
-        );
-      }
-
-      else if(form.id === 'arrivalForm'){
-
-        saveArrival(
-          formData
-        );
-      }
-
-      else if(form.id === 'tankForm'){
-
-        saveTank(
-          formData
-        );
-      }
-
-    }catch(error){
-
-      console.error(error);
-
-      showError(
-        error.message ||
-        'Opslaan mislukt.'
-      );
-    }
-  }
-);
-
-
-/* =========================
-   RENDER
-========================= */
-
-function render(){
-
-  document
-    .querySelectorAll(
-      '[data-view]'
-    )
-    .forEach(button => {
-
-      button.classList.toggle(
-        'active',
-        button.dataset.view === currentView
-      );
+  }catch(e){}
+}
+
+async function attemptLegacyMigration(){
+  if(localStorage.getItem(KEY))return;
+  if(!('indexedDB'in window))return;
+
+  try{
+    const req=indexedDB.open('kmreg-db');
+
+    const db=await new Promise((res,rej)=>{
+      req.onsuccess=()=>res(req.result);
+      req.onerror=()=>rej(req.error);
+      req.onupgradeneeded=()=>{};
     });
 
-  if(currentView === 'ride'){
-    renderRide();
-  }
+    const names=[...db.objectStoreNames];
 
-  else if(currentView === 'week'){
-    renderWeek();
-  }
+    if(!names.length){
+      db.close();
+      return;
+    }
 
-  else if(currentView === 'locations'){
-    renderLocations();
-  }
+    const getAll=s=>new Promise((res)=>{
+      if(!names.includes(s))return res([]);
 
-  else if(currentView === 'report'){
-    renderReport();
-  }
+      const tx=db.transaction(s,'readonly'),
+            r=tx.objectStore(s).getAll();
 
-  else if(currentView === 'more'){
-    renderMore();
-  }
+      r.onsuccess=()=>res(r.result||[]);
+      r.onerror=()=>res([]);
+    });
 
-  else if(currentView === 'settings'){
-    renderSettings();
+    const getOne=(s,id)=>new Promise((res)=>{
+      if(!names.includes(s))return res(null);
+
+      const tx=db.transaction(s,'readonly'),
+            r=tx.objectStore(s).get(id);
+
+      r.onsuccess=()=>res(r.result||null);
+      r.onerror=()=>res(null);
+    });
+
+    const [
+      settings,
+      locations,
+      trips,
+      events,
+      trackPoints,
+      activeTrip,
+      lastEndpoint
+    ]=await Promise.all([
+      getOne('settings','main'),
+      getAll('locations'),
+      getAll('trips'),
+      getAll('events'),
+      getAll('trackPoints'),
+      getOne('appState','activeTrip'),
+      getOne('appState','lastEndpoint')
+    ]);
+
+    if(settings||locations.length||trips.length||events.length){
+      data=normalize({
+        settings,
+        locations,
+        trips,
+        events,
+        trackPoints,
+        activeTrip,
+        lastEndpoint
+      });
+
+      save();
+      toast('Bestaande gegevens zijn overgenomen.');
+    }
+
+    db.close();
+
+  }catch(e){
+    console.warn('Legacy migration',e);
   }
 }
 
+document.addEventListener('click',async e=>{
+  const vb=e.target.closest('[data-view]');
 
-/* =========================
-   STARTSCHERM
-========================= */
+  if(vb){
+    view=vb.dataset.view;
+    render();
+    return;
+  }
+
+  const el=e.target.closest('[data-action]');
+
+  if(!el)return;
+
+  const a=el.dataset.action;
+
+  try{
+    if(a==='settings'){
+      view='settings';
+      render();
+    }
+    else if(a==='close'){
+      closeModal();
+    }
+    else if(a==='start'){
+      await openStart();
+    }
+    else if(a==='arrive'){
+      await openArrival();
+    }
+    else if(a==='apple-active'){
+      openApple(
+        data.activeTrip?.origin,
+        data.activeTrip?.expectedDestination
+      );
+    }
+    else if(a==='apple-form'){
+      openAppleFromForm();
+    }
+    else if(a==='add-location'){
+      openLocation();
+    }
+    else if(a==='current-location'){
+      await openLocation(null,true);
+    }
+    else if(a==='gps-location'){
+      await fillGps();
+    }
+    else if(a==='save-location'){
+      const f=document.getElementById('locationForm');
+
+      if(!f){
+        throw new Error('Locatieformulier niet gevonden.');
+      }
+
+      saveLocation(new FormData(f));
+    }
+    else if(a==='edit-location'){
+      openLocation(
+        el.closest('[data-id]').dataset.id
+      );
+    }
+    else if(a==='delete-location'){
+      deleteLocation(
+        el.closest('[data-id]').dataset.id
+      );
+    }
+    else if(a==='tank'){
+      await openTank();
+    }
+    else if(a==='manual'){
+      openManual();
+    }
+    else if(a==='private'){
+      openPrivate();
+    }
+    else if(a==='week-prev'){
+      selectedWeek=addDays(selectedWeek,-7);
+      render();
+    }
+    else if(a==='week-next'){
+      selectedWeek=addDays(selectedWeek,7);
+      render();
+    }
+    else if(a==='week-now'){
+      selectedWeek=startOfWeek(new Date());
+      render();
+    }
+    else if(a==='edit-trip'){
+      openTripEdit(
+        el.closest('[data-id]').dataset.id
+      );
+    }
+    else if(a==='delete-trip'){
+      deleteTrip(
+        el.dataset.id||
+        el.closest('[data-id]')?.dataset.id
+      );
+    }
+    else if(a==='export'){
+      exportJson();
+    }
+    else if(a==='import'){
+      document.getElementById('importFile')?.click();
+    }
+    else if(a==='csv'){
+      downloadCsv();
+    }
+    else if(a==='email'){
+      emailReport();
+    }
+    else if(a==='share'){
+      await shareCsv();
+    }
+    else if(a==='print'){
+      window.print();
+    }
+
+  }catch(err){
+    console.error(err);
+
+    toast(
+      err.message||
+      'Er ging iets mis'
+    );
+
+    if(a==='save-location'){
+      setTimeout(
+        ()=>alert(err.message||'Opslaan mislukt'),
+        50
+      );
+    }
+  }
+});
+
+document.addEventListener('submit',async e=>{
+  if(!(e.target instanceof HTMLFormElement))return;
+
+  e.preventDefault();
+
+  const f=e.target,
+        fd=new FormData(f);
+
+  try{
+    if(f.id==='locationForm'){
+      saveLocation(fd);
+    }
+    else if(f.id==='settingsForm'){
+      saveSettings(fd);
+    }
+    else if(f.id==='startForm'){
+      await saveStart(fd);
+    }
+    else if(f.id==='arrivalForm'){
+      saveArrival(fd);
+    }
+    else if(f.id==='tankForm'){
+      saveTank(fd);
+    }
+    else if(f.id==='manualForm'){
+      saveManual(fd);
+    }
+    else if(f.id==='privateForm'){
+      savePrivate(fd);
+    }
+    else if(f.id==='tripEditForm'){
+      saveTripEdit(fd);
+    }
+
+  }catch(err){
+    console.error(err);
+    toast(err.message||'Opslaan mislukt');
+  }
+});
+
+document.addEventListener('change',async e=>{
+  if(
+    e.target.id==='importFile'&&
+    e.target.files?.[0]
+  ){
+    await importJson(e.target.files[0]);
+  }
+
+  if(e.target.id==='arrivalCategory'){
+    updatePrivateHint();
+  }
+});
+
+document.addEventListener('input',e=>{
+  if(e.target.id==='arrivalEnd'){
+    updateArrivalPreview();
+  }
+});
+
+function render(){
+  document.querySelectorAll('[data-view]').forEach(
+    b=>b.classList.toggle(
+      'active',
+      b.dataset.view===view
+    )
+  );
+
+  if(view==='ride')renderRide();
+  else if(view==='week')renderWeek();
+  else if(view==='locations')renderLocations();
+  else if(view==='report')renderReport();
+  else if(view==='more')renderMore();
+  else if(view==='settings')renderSettings();
+}
 
 function renderRide(){
+  const active=data.activeTrip,
+        last=data.lastEndpoint||inferLast(),
+        week=tripsRange(
+          startOfWeek(new Date()),
+          addDays(startOfWeek(new Date()),7)
+        ),
+        total=sum(week,'actualKm');
 
-  const active =
-    data.activeTrip;
-
-  const last =
-    data.lastEndpoint ||
-    inferLastEndpoint();
-
-  const thisWeek =
-    tripsInRange(
-      startOfWeek(new Date()),
-      addDays(
-        startOfWeek(new Date()),
-        7
-      )
-    );
-
-  const weekKm =
-    sum(
-      thisWeek,
-      'actualKm'
-    );
-
-  app.innerHTML = `
-
+  app.innerHTML=`
     <section class="hero">
-
-      <div class="kicker">
-        ${
-          active
-          ? 'Actieve rit'
-          : 'Huidige kilometerstand'
-        }
-      </div>
+      <div class="kicker">${active?'Actieve rit':'Huidige stand'}</div>
 
       ${
         active
-        ? `
+        ?`
           <h2>
-            ${escapeHtml(locationLabel(active.origin))}
+            ${esc(labelLoc(active.origin))}
             →
-            ${escapeHtml(locationLabel(active.expectedDestination))}
+            ${esc(labelLoc(active.expectedDestination))}
           </h2>
 
           <p>
-            Startstand:
-            ${formatOdo(active.startOdometer)} km
+            Startstand ${odo(active.startOdometer)} km
+            ${
+              active.proposedRouteKm!=null
+              ?` · routevoorstel ${km(active.proposedRouteKm)} km`
+              :''
+            }
           </p>
 
-          <div class="button-row">
+          <span class="status">
+            <span class="dot"></span>
+            Gestart ${time(active.departureTime)}
+          </span>
 
+          <div class="button-row primary">
             <button
               class="btn secondary"
               data-action="apple-active"
@@ -1008,108 +470,255 @@ function renderRide(){
 
             <button
               class="btn"
-              data-action="arrival"
+              data-action="arrive"
             >
-              Aankomst
+              Aankomst registreren
             </button>
-
           </div>
         `
-        : `
+        :`
           <h2>
             ${
               last
-              ? formatOdo(last.odometer) + ' km'
-              : 'Nog geen kilometerstand'
+              ?odo(last.odometer)+' km'
+              :'Nog geen beginstand'
             }
           </h2>
 
           <p>
             ${
-              last?.location
-              ? 'Laatste locatie: ' +
-                escapeHtml(
-                  locationLabel(
-                    last.location
-                  )
-                )
-              : 'Stel eerst je auto en beginstand in.'
+              last
+              ?`Laatste bestemming: ${esc(labelLoc(last.location))}`
+              :'Vul bij Instellingen je auto en beginstand in.'
             }
           </p>
 
-          <button
-            class="btn full"
-            data-action="start-trip"
-          >
-            Vertrek registreren
-          </button>
+          <div class="primary">
+            <button
+              class="btn full"
+              data-action="start"
+            >
+              Vertrek registreren
+            </button>
+          </div>
         `
       }
-
     </section>
 
     <div class="grid2">
+      ${metric('Deze week',km(total)+' km')}
+      ${metric('Ritten',String(week.length))}
+    </div>
 
-      ${metric(
-        'Deze week',
-        formatKm(weekKm) + ' km'
-      )}
+    <div class="section">
+      <div class="section-title">
+        <h2>Laatste ritten</h2>
+      </div>
 
-      ${metric(
-        'Ritten',
-        String(thisWeek.length)
-      )}
-
+      ${tripList(sortedTrips().slice(0,4))}
     </div>
   `;
 }
 
+function renderMore(){
+  app.innerHTML=`
+    <div class="section-title">
+      <div>
+        <div class="kicker">
+          Losse registraties
+        </div>
+        <h2>Meer</h2>
+      </div>
+    </div>
 
-/* =========================
-   LOCATIES
-========================= */
+    <div class="action-grid">
+      <button
+        class="action"
+        data-action="tank"
+      >
+        <div class="ico">⛽︎</div>
+
+        <div>
+          <strong>Tanken</strong>
+          <small>
+            Kilometerstand en locatie, zonder de A→B-rit te onderbreken.
+          </small>
+        </div>
+      </button>
+
+      <button
+        class="action"
+        data-action="manual"
+      >
+        <div class="ico">＋</div>
+
+        <div>
+          <strong>Rit toevoegen</strong>
+          <small>
+            Een rit achteraf handmatig registreren.
+          </small>
+        </div>
+      </button>
+
+      <button
+        class="action"
+        data-action="private"
+      >
+        <div class="ico">⌁</div>
+
+        <div>
+          <strong>
+            Privékilometers aanpassen
+          </strong>
+
+          <small>
+            Ken een privédeel toe aan een bestaande rit.
+          </small>
+        </div>
+      </button>
+    </div>
+  `;
+}
+
+function renderWeek(){
+  const start=selectedWeek,
+        end=addDays(start,7),
+        trips=tripsRange(start,end),
+        tanks=data.events.filter(
+          x=>
+            x.type==='tank'&&
+            inRange(new Date(x.time),start,end)
+        ),
+        t=totals(trips);
+
+  app.innerHTML=`
+    <div class="week-nav">
+      <button
+        class="mini"
+        data-action="week-prev"
+      >
+        ‹
+      </button>
+
+      <div class="center">
+        <h2>
+          Week ${isoWeek(start)}
+        </h2>
+
+        <small>
+          ${date(start)} – ${date(addDays(end,-1))}
+        </small>
+      </div>
+
+      <button
+        class="mini"
+        data-action="week-next"
+      >
+        ›
+      </button>
+    </div>
+
+    <div class="button-row section">
+      <button
+        class="btn ghost"
+        data-action="week-now"
+      >
+        Huidige week
+      </button>
+    </div>
+
+    <div class="section grid2">
+      ${metric('Totaal',km(t.total)+' km')}
+      ${metric('Zakelijk',km(t.business)+' km')}
+      ${metric('Woon-werk',km(t.commute)+' km')}
+      ${metric('Privé',km(t.private)+' km')}
+    </div>
+
+    <div class="section">
+      <div class="section-title">
+        <h2>Ritten</h2>
+        <span class="muted">
+          ${trips.length}
+        </span>
+      </div>
+
+      ${tripList(trips)}
+    </div>
+
+    <div class="section">
+      <div class="section-title">
+        <h2>Tankmomenten</h2>
+
+        <span class="muted">
+          ${tanks.length}
+        </span>
+      </div>
+
+      ${
+        tanks.length
+        ?`
+          <div class="list">
+            ${
+              tanks.map(
+                x=>`
+                  <div class="list-item">
+                    <div class="list-main">
+                      <strong>
+                        ${esc(labelLoc(x.location)||'Tanklocatie')}
+                      </strong>
+
+                      <small>
+                        ${dateTime(x.time)}
+                      </small>
+                    </div>
+
+                    <strong>
+                      ${odo(x.odometer)} km
+                    </strong>
+                  </div>
+                `
+              ).join('')
+            }
+          </div>
+        `
+        :`
+          <div class="empty">
+            Geen tankmomenten.
+          </div>
+        `
+      }
+    </div>
+  `;
+}
 
 function renderLocations(){
+  const list=[...data.locations].sort(
+    (a,b)=>
+      (b.useCount||0)-
+      (a.useCount||0)||
+      a.name.localeCompare(b.name)
+  );
 
-  const locations =
-    [...data.locations]
-      .sort(
-        (a,b) =>
-          (b.useCount || 0) -
-          (a.useCount || 0)
-      );
-
-  app.innerHTML = `
-
+  app.innerHTML=`
     <div class="section-title">
-
       <div>
-
         <div class="kicker">
           Herkenning binnen
-          ${
-            Number(
-              data.settings.recognitionRadius
-            ) || 500
-          }
-          meter
+          ${Number(data.settings.recognitionRadius)||500} m
         </div>
 
         <h2>
           Bekende locaties
         </h2>
-
       </div>
-
     </div>
 
     <div class="button-row">
-
       <button
         class="btn"
-        data-action="add-current-location"
+        data-action="current-location"
       >
-        Huidige locatie
+        Huidige locatie toevoegen
       </button>
 
       <button
@@ -1118,716 +727,715 @@ function renderLocations(){
       >
         Handmatig toevoegen
       </button>
-
     </div>
 
     <div class="section">
-
       ${
-        locations.length
-        ? `
+        list.length
+        ?`
           <div class="list">
-
             ${
-              locations
-                .map(
-                  location => `
+              list.map(
+                l=>`
+                  <div
+                    class="list-item"
+                    data-id="${l.id}"
+                  >
+                    <div class="list-main">
+                      <strong>
+                        ${esc(l.name)}
+                      </strong>
 
-                    <div
-                      class="list-item"
-                      data-id="${location.id}"
-                    >
+                      <small>
+                        ${
+                          esc(
+                            l.address||
+                            coords(l)||
+                            'Nog geen adres/GPS'
+                          )
+                        }
+                      </small>
 
-                      <div class="list-main">
-
-                        <strong>
-                          ${escapeHtml(location.name)}
-                        </strong>
-
-                        <small>
-                          ${
-                            escapeHtml(
-                              location.address ||
-                              coordinatesLabel(location) ||
-                              'Geen adres of GPS'
-                            )
-                          }
-                        </small>
-
-                        <small>
-                          ${locationTypeLabel(location.type)}
-                          ·
-                          ${location.useCount || 0}× gebruikt
-                        </small>
-
-                      </div>
-
-                      <div class="list-actions">
-
-                        <button
-                          class="mini"
-                          data-action="edit-location"
-                        >
-                          Wijzig
-                        </button>
-
-                        <button
-                          class="mini"
-                          data-action="delete-location"
-                        >
-                          ×
-                        </button>
-
-                      </div>
-
+                      <small>
+                        ${esc(typeLabel(l.type))}
+                        ·
+                        ${l.useCount||0}× gebruikt
+                      </small>
                     </div>
 
-                  `
-                )
-                .join('')
-            }
+                    <div class="list-actions">
+                      <button
+                        class="mini"
+                        data-action="edit-location"
+                      >
+                        Wijzig
+                      </button>
 
+                      <button
+                        class="mini"
+                        data-action="delete-location"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                `
+              ).join('')
+            }
           </div>
         `
-        : `
+        :`
           <div class="empty">
-            Nog geen locaties opgeslagen.
+            Nog geen locaties. Een locatie kan al met alleen een naam worden opgeslagen; adres of GPS kun je later toevoegen.
           </div>
         `
       }
-
     </div>
   `;
 }
 
+function renderReport(){
+  const start=startOfWeek(new Date()),
+        end=addDays(start,7),
+        trips=tripsRange(start,end),
+        t=totals(trips);
 
-function openLocationForm(
-  id = null,
-  gps = null
-){
+  app.innerHTML=`
+    <div class="no-print">
+      <div class="section-title">
+        <div>
+          <div class="kicker">
+            Huidige week
+          </div>
 
-  const existing =
-    id
-    ? data.locations.find(
-        item =>
-          item.id === id
-      )
-    : null;
+          <h2>
+            Weekrapport
+          </h2>
+        </div>
+      </div>
 
-  openModal(`
+      <div class="grid2">
+        ${metric('Totaal',km(t.total)+' km')}
+        ${metric('Ritten',String(trips.length))}
+        ${metric('Zakelijk',km(t.business)+' km')}
+        ${metric('Privé',km(t.private)+' km')}
+      </div>
 
+      <div class="section button-row">
+        <button
+          class="btn"
+          data-action="email"
+        >
+          E-mail
+        </button>
+
+        <button
+          class="btn secondary"
+          data-action="share"
+        >
+          Deel CSV
+        </button>
+
+        <button
+          class="btn secondary"
+          data-action="csv"
+        >
+          Download CSV
+        </button>
+
+        <button
+          class="btn secondary"
+          data-action="print"
+        >
+          Print / PDF
+        </button>
+      </div>
+
+      <div class="section">
+        ${tripList(trips)}
+      </div>
+    </div>
+
+    <div class="print-only">
+      <h1>
+        Kilometerregistratie week ${isoWeek(start)}
+      </h1>
+
+      <p>
+        ${esc(data.settings.name||'')}
+        ·
+        ${esc(data.settings.plate||'')}
+      </p>
+
+      <p>
+        Totaal ${km(t.total)} km
+        ·
+        Zakelijk ${km(t.business)} km
+        ·
+        Woon-werk ${km(t.commute)} km
+        ·
+        Privé ${km(t.private)} km
+      </p>
+
+      ${tripList(trips)}
+    </div>
+  `;
+}
+
+function renderSettings(){
+  const s=data.settings;
+
+  app.innerHTML=`
+    <form id="settingsForm">
+      <div class="section-title">
+        <div>
+          <div class="kicker">
+            Basisgegevens
+          </div>
+
+          <h2>
+            Instellingen
+          </h2>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>
+          Bestuurder & auto
+        </h3>
+
+        ${field('Naam','name',s.name)}
+
+        <div class="grid2">
+          ${field('Automerk','vehicleBrand',s.vehicleBrand)}
+          ${field('Model / type','vehicleModel',s.vehicleModel)}
+        </div>
+
+        <div class="grid2">
+          ${field('Kenteken','plate',s.plate)}
+          ${field('Beginstand km','initialOdometer',s.initialOdometer,'number')}
+        </div>
+
+        ${field('Start registratie','registrationStart',s.registrationStart,'date')}
+      </div>
+
+      <div class="card">
+        <h3>
+          Locatie
+        </h3>
+
+        ${field(
+          'Herkenningsstraal (meter)',
+          'recognitionRadius',
+          s.recognitionRadius,
+          'number'
+        )}
+
+        <div class="notice">
+          De app gebruikt iPhone-GPS voor herkenning.
+          Apple Kaarten wordt alleen geopend voor navigatie;
+          er is geen API-key nodig.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>
+          Rapportage
+        </h3>
+
+        ${field(
+          'E-mailadres',
+          'reportEmail',
+          s.reportEmail,
+          'email'
+        )}
+      </div>
+
+      <button class="btn full">
+        Instellingen opslaan
+      </button>
+    </form>
+
+    <div class="section">
+      <div class="section-title">
+        <h2>
+          Data
+        </h2>
+      </div>
+
+      <div class="button-row">
+        <button
+          class="btn secondary"
+          data-action="export"
+        >
+          Backup exporteren
+        </button>
+
+        <button
+          class="btn secondary"
+          data-action="import"
+        >
+          Backup importeren
+        </button>
+      </div>
+
+      <input
+        id="importFile"
+        type="file"
+        accept="application/json"
+        hidden
+      >
+    </div>
+  `;
+}
+
+function metric(a,b){
+  return `
+    <div class="metric">
+      <span>${esc(a)}</span>
+      <strong>${esc(b)}</strong>
+    </div>
+  `;
+}
+
+function tripList(arr){
+  if(!arr.length){
+    return '<div class="empty">Nog geen ritten.</div>';
+  }
+
+  return `
+    <div class="list">
+      ${
+        arr.map(
+          t=>`
+            <div
+              class="list-item"
+              data-id="${t.id}"
+              data-action="edit-trip"
+              style="cursor:pointer"
+            >
+              <div class="trip-date">
+                ${shortDate(t.departureTime)}
+                <br>
+                ${time(t.departureTime)}
+              </div>
+
+              <div class="trip-path">
+                <strong>
+                  ${esc(labelLoc(t.origin))}
+                  →
+                  ${esc(labelLoc(t.destination))}
+                </strong>
+
+                <small>
+                  ${esc(categoryLabel(t.category))}
+                  ${
+                    t.reason
+                    ?' · '+esc(t.reason)
+                    :''
+                  }
+                </small>
+
+                <small>
+                  ${odo(t.startOdometer)}
+                  →
+                  ${odo(t.endOdometer)} km
+                  ${
+                    t.privateKm
+                    ?` · ${km(t.privateKm)} km privé`
+                    :''
+                  }
+                </small>
+              </div>
+
+              <div>
+                <div class="trip-km">
+                  ${km(t.actualKm)} km
+                </div>
+
+                <button
+                  type="button"
+                  class="mini"
+                  data-action="edit-trip"
+                >
+                  Open
+                </button>
+              </div>
+            </div>
+          `
+        ).join('')
+      }
+    </div>
+  `;
+}
+
+function openModal(html){
+  modalPanel.innerHTML=html;
+  modal.hidden=false;
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  modal.hidden=true;
+  modalPanel.innerHTML='';
+  document.body.style.overflow='';
+}
+
+function toast(msg){
+  toastEl.textContent=msg;
+  toastEl.classList.add('show');
+
+  clearTimeout(toastEl._t);
+
+  toastEl._t=setTimeout(
+    ()=>toastEl.classList.remove('show'),
+    3000
+  );
+}
+
+function openLocation(id=null,useCurrent=false){
+  const l=id
+    ?data.locations.find(x=>x.id===id)
+    :null;
+
+  const build=(gps=null)=>openModal(`
     <div class="modal-head">
-
       <h2>
-        ${
-          existing
-          ? 'Locatie wijzigen'
-          : 'Locatie toevoegen'
-        }
+        ${l?'Locatie wijzigen':'Locatie toevoegen'}
       </h2>
 
       <button
         class="close"
-        data-action="close-modal"
+        data-action="close"
       >
         ×
       </button>
-
     </div>
 
-    <form
-      id="locationForm"
-      onsubmit="return false;"
-    >
-
+    <form id="locationForm">
       <input
         type="hidden"
         name="id"
-        value="${
-          escapeAttribute(
-            existing?.id || ''
-          )
-        }"
+        value="${l?.id||''}"
       >
 
-      ${field(
-        'Naam',
-        'name',
-        existing?.name || ''
-      )}
-
-      ${field(
-        'Adres',
-        'address',
-        existing?.address || ''
-      )}
+      ${field('Naam','name',l?.name||'')}
+      ${field('Adres','address',l?.address||'')}
 
       <div class="button-row">
-
         <button
           type="button"
           class="btn secondary"
-          data-action="get-gps"
+          data-action="gps-location"
         >
           Gebruik huidige GPS
         </button>
-
       </div>
 
       <div class="grid2">
-
-        ${coordinateField(
+        ${coordField(
           'Latitude',
-          'latitude',
-          existing?.latitude ??
-          existing?.lat ??
-          gps?.latitude ??
-          ''
+          'lat',
+          l?.lat??gps?.lat??''
         )}
 
-        ${coordinateField(
+        ${coordField(
           'Longitude',
-          'longitude',
-          existing?.longitude ??
-          existing?.lng ??
-          gps?.longitude ??
-          ''
+          'lng',
+          l?.lng??gps?.lng??''
         )}
-
       </div>
 
       <div class="form-group">
-
         <label>
           Type
         </label>
 
         <select name="type">
-
-          <option
-            value="home"
-            ${
-              existing?.type === 'home'
-              ? 'selected'
-              : ''
-            }
-          >
-            Thuis
-          </option>
-
-          <option
-            value="work"
-            ${
-              existing?.type === 'work'
-              ? 'selected'
-              : ''
-            }
-          >
-            Werk
-          </option>
-
-          <option
-            value="business"
-            ${
-              existing?.type === 'business'
-              ? 'selected'
-              : ''
-            }
-          >
-            Zakelijk
-          </option>
-
-          <option
-            value="private"
-            ${
-              existing?.type === 'private'
-              ? 'selected'
-              : ''
-            }
-          >
-            Privé
-          </option>
-
-          <option
-            value="other"
-            ${
-              !existing ||
-              existing?.type === 'other'
-              ? 'selected'
-              : ''
-            }
-          >
-            Overig
-          </option>
-
+          ${
+            [
+              'home',
+              'work',
+              'business',
+              'private',
+              'other'
+            ]
+            .map(
+              v=>`
+                <option
+                  value="${v}"
+                  ${(l?.type||'other')===v?'selected':''}
+                >
+                  ${typeLabel(v)}
+                </option>
+              `
+            )
+            .join('')
+          }
         </select>
-
       </div>
 
       <div class="hint">
-        Vul minimaal een naam, adres of GPS-locatie in.
+        Naam en GPS zijn optioneel.
+        Vul minimaal een adres in, of gebruik huidige GPS.
+        Als je geen naam invult, gebruikt de app het adres als naam.
       </div>
 
       <div
-        id="locationStatus"
+        id="locationSaveStatus"
         class="hint"
       ></div>
 
       <button
-        type="button"
         class="btn full"
+        type="button"
         data-action="save-location"
       >
         Locatie opslaan
       </button>
-
     </form>
   `);
-}
 
-
-async function openCurrentLocationForm(){
-
-  showToast(
-    'GPS-locatie ophalen…'
-  );
-
-  try{
-
-    const gps =
-      await getCurrentGps();
-
-    openLocationForm(
-      null,
-      gps
-    );
-
-  }catch(error){
-
-    showError(
-      error.message
-    );
+  if(useCurrent){
+    getPosition()
+      .then(g=>build(g))
+      .catch(err=>{
+        toast(err.message);
+        build(null);
+      });
+  }else{
+    build(null);
   }
 }
 
+async function fillGps(){
+  const f=document.getElementById('locationForm');
 
-async function fillCurrentGps(){
+  if(!f)return;
 
-  const form =
-    document.getElementById(
-      'locationForm'
-    );
+  const g=await getPosition();
 
-  if(!form){
-    throw new Error(
-      'Locatieformulier niet gevonden.'
-    );
-  }
+  f.elements.lat.value=String(g.lat);
+  f.elements.lng.value=String(g.lng);
 
-  const gps =
-    await getCurrentGps();
-
-  form.elements.latitude.value =
-    gps.latitude;
-
-  form.elements.longitude.value =
-    gps.longitude;
-
-  showToast(
-    'GPS-locatie ingevuld.'
+  toast(
+    `GPS toegevoegd${
+      g.accuracy
+      ?` (±${Math.round(g.accuracy)} m)`
+      :''
+    }`
   );
 }
 
-
-function saveLocationDirect(){
-
-  const form =
-    document.getElementById(
-      'locationForm'
-    );
-
-  if(!form){
-
-    showError(
-      'Locatieformulier niet gevonden.'
-    );
-
-    return;
-  }
-
-  const status =
-    document.getElementById(
-      'locationStatus'
-    );
+function saveLocation(fd){
+  const status=document.getElementById('locationSaveStatus');
 
   if(status){
-    status.textContent =
-      'Bezig met opslaan…';
+    status.textContent='Bezig met opslaan…';
   }
 
-  try{
+  const id=String(fd.get('id')||uid()),
+        old=data.locations.find(x=>x.id===id),
+        rawName=String(fd.get('name')||'').trim(),
+        address=String(fd.get('address')||'').trim(),
+        lat=parseCoord(fd.get('lat')),
+        lng=parseCoord(fd.get('lng'));
 
-    const fd =
-      new FormData(form);
-
-    const existingId =
-      String(
-        fd.get('id') || ''
-      );
-
-    const existing =
-      existingId
-      ? data.locations.find(
-          item =>
-            item.id === existingId
-        )
-      : null;
-
-    const address =
-      String(
-        fd.get('address') || ''
-      ).trim();
-
-    const enteredName =
-      String(
-        fd.get('name') || ''
-      ).trim();
-
-    const latitude =
-      parseDecimal(
-        fd.get('latitude')
-      );
-
-    const longitude =
-      parseDecimal(
-        fd.get('longitude')
-      );
-
-    if(
-      latitude === null &&
-      longitude !== null
-    ){
-      throw new Error(
-        'Latitude ontbreekt.'
-      );
-    }
-
-    if(
-      longitude === null &&
-      latitude !== null
-    ){
-      throw new Error(
-        'Longitude ontbreekt.'
-      );
-    }
-
-    if(
-      latitude !== null &&
-      (
-        latitude < -90 ||
-        latitude > 90
-      )
-    ){
-      throw new Error(
-        'Latitude is ongeldig.'
-      );
-    }
-
-    if(
-      longitude !== null &&
-      (
-        longitude < -180 ||
-        longitude > 180
-      )
-    ){
-      throw new Error(
-        'Longitude is ongeldig.'
-      );
-    }
-
-    if(
-      !enteredName &&
-      !address &&
-      latitude === null
-    ){
-      throw new Error(
-        'Vul minimaal een naam, adres of GPS-locatie in.'
-      );
-    }
-
-    const name =
-      enteredName ||
-      address ||
-      `Locatie ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-
-    const location = {
-      id:
-        existing?.id ||
-        uid(),
-
-      name,
-
-      address,
-
-      latitude,
-
-      longitude,
-
-      type:
-        String(
-          fd.get('type') ||
-          'other'
-        ),
-
-      useCount:
-        existing?.useCount ||
-        0,
-
-      createdAt:
-        existing?.createdAt ||
-        new Date().toISOString(),
-
-      updatedAt:
-        new Date().toISOString()
-    };
-
-    if(existing){
-
-      const index =
-        data.locations.findIndex(
-          item =>
-            item.id === existing.id
-        );
-
-      data.locations[index] =
-        location;
-
-    }else{
-
-      data.locations.push(
-        location
-      );
-    }
-
-    saveData();
-
-    /*
-      Extra controle:
-      lees de data opnieuw rechtstreeks
-      uit Safari/localStorage.
-    */
-
-    const controlData =
-      JSON.parse(
-        localStorage.getItem(
-          STORAGE_KEY
-        )
-      );
-
-    const found =
-      controlData.locations
-        .find(
-          item =>
-            item.id === location.id
-        );
-
-    if(!found){
-
-      throw new Error(
-        'De locatie werd niet teruggevonden na het opslaan.'
-      );
-    }
-
-    if(status){
-
-      status.textContent =
-        'Opgeslagen ✓';
-    }
-
-    showToast(
-      'Locatie opgeslagen: ' +
-      name
-    );
-
-    setTimeout(
-      () => {
-        closeModal();
-        render();
-      },
-      350
-    );
-
-  }catch(error){
-
-    console.error(
-      'Locatie opslaan mislukt',
-      error
-    );
-
-    if(status){
-
-      status.textContent =
-        'Fout: ' +
-        error.message;
-    }
-
-    showError(
-      error.message ||
-      'Locatie opslaan is mislukt.'
+  if((lat==null)!==(lng==null)){
+    throw new Error(
+      'Vul beide GPS-coördinaten in, of laat beide leeg.'
     );
   }
+
+  if(lat!=null&&Math.abs(lat)>90){
+    throw new Error(
+      'Latitude is ongeldig.'
+    );
+  }
+
+  if(lng!=null&&Math.abs(lng)>180){
+    throw new Error(
+      'Longitude is ongeldig.'
+    );
+  }
+
+  if(!rawName&&!address&&lat==null){
+    throw new Error(
+      'Vul minimaal een adres in of gebruik huidige GPS.'
+    );
+  }
+
+  const name=
+    rawName||
+    address||
+    (
+      lat!=null
+      ?`Locatie ${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}`
+      :'Locatie'
+    );
+
+  const loc={
+    id,
+    name,
+    address,
+    lat,
+    lng,
+    type:String(fd.get('type')||'other'),
+    useCount:old?.useCount||0,
+    createdAt:old?.createdAt||new Date().toISOString(),
+    updatedAt:new Date().toISOString()
+  };
+
+  const i=data.locations.findIndex(
+    x=>x.id===id
+  );
+
+  if(i>=0){
+    data.locations[i]=loc;
+  }else{
+    data.locations.push(loc);
+  }
+
+  save();
+
+  const stored=JSON.parse(
+    localStorage.getItem(KEY)||'{}'
+  );
+
+  const verified=
+    Array.isArray(stored.locations)&&
+    stored.locations.some(
+      x=>
+        x.id===id&&
+        x.address===address
+    );
+
+  if(!verified){
+    throw new Error(
+      'De locatie is niet teruggevonden in de lokale opslag.'
+    );
+  }
+
+  closeModal();
+  render();
+
+  toast(
+    `Locatie opgeslagen: ${name}`
+  );
 }
 
-
 function deleteLocation(id){
-
-  if(!id){
-    return;
-  }
-
   if(
     !confirm(
-      'Deze locatie verwijderen?'
+      'Locatie verwijderen? Bestaande ritten blijven intact.'
     )
   ){
     return;
   }
 
-  data.locations =
-    data.locations.filter(
-      item =>
-        item.id !== id
-    );
+  data.locations=data.locations.filter(
+    x=>x.id!==id
+  );
 
-  saveData();
+  save();
   render();
 
-  showToast(
+  toast(
     'Locatie verwijderd.'
   );
 }
 
-
-/* =========================
-   RIT STARTEN
-========================= */
-
-async function openStartTrip(){
-
+async function openStart(){
   if(data.activeTrip){
-
-    showError(
+    return toast(
       'Er is al een actieve rit.'
     );
-
-    return;
   }
 
   if(!data.locations.length){
-
-    currentView =
-      'locations';
-
+    view='locations';
     render();
 
-    showError(
-      'Voeg eerst een bestemming toe.'
+    return toast(
+      'Voeg eerst minimaal één bestemming toe.'
     );
-
-    return;
   }
 
-  let origin =
-    data.lastEndpoint?.location ||
-    null;
+  let origin=
+        data.lastEndpoint?.location||
+        inferLast()?.location||
+        null,
 
-  let startOdometer =
-    data.lastEndpoint?.odometer ??
-    numberOrNull(
-      data.settings.initialOdometer
-    );
+      startOdo=
+        data.lastEndpoint?.odometer??
+        inferLast()?.odometer??
+        num(data.settings.initialOdometer);
 
   if(!origin){
-
     try{
+      const g=await getPosition(),
+            m=matches(g);
 
-      const gps =
-        await getCurrentGps();
+      origin=
+        m[0]?.location||
+        currentLoc(g);
 
-      const nearby =
-        findNearbyLocations(gps);
-
-      origin =
-        nearby[0]?.location ||
-        currentGpsLocation(gps);
-
-    }catch(error){
-
-      console.warn(error);
-    }
+    }catch(e){}
   }
 
   if(!origin){
-
     throw new Error(
-      'Er is nog geen vertrekadres bekend. Gebruik eerst een locatie met GPS.'
+      'Geen vertrekpunt bekend. Voeg een locatie toe of geef locatietoegang.'
     );
   }
 
   openModal(`
-
     <div class="modal-head">
-
       <h2>
-        Vertrek registreren
+        Vertrek
       </h2>
 
       <button
         class="close"
-        data-action="close-modal"
+        data-action="close"
       >
         ×
       </button>
-
     </div>
 
     <form id="startForm">
-
       <input
         type="hidden"
         name="origin"
-        value='${
-          escapeAttribute(
-            JSON.stringify(origin)
-          )
-        }'
+        value='${attr(JSON.stringify(origin))}'
       >
 
       <div class="route-box">
-
         <div class="kicker">
-          Vertrekpunt
+          Automatisch beginpunt
         </div>
 
         <strong>
-          ${
-            escapeHtml(
-              locationLabel(origin)
-            )
-          }
+          ${esc(labelLoc(origin))}
         </strong>
 
+        <small>
+          ${
+            startOdo!=null
+            ?odo(startOdo)+' km'
+            :'Geen beginstand'
+          }
+        </small>
       </div>
 
       ${field(
         'Startkilometerstand',
         'startOdometer',
-        startOdometer ?? '',
+        startOdo??'',
         'number'
       )}
 
       <div class="form-group">
-
         <label>
           Verwachte bestemming
         </label>
@@ -1837,36 +1445,36 @@ async function openStartTrip(){
           id="destinationId"
           required
         >
-
           <option value="">
-            Kies bestemming…
+            Kies locatie…
           </option>
 
           ${locationOptions()}
-
         </select>
-
       </div>
 
-      <button
-        type="button"
-        class="btn secondary full"
-        data-action="apple-form"
-      >
-        Open Apple Kaarten
-      </button>
+      <div class="button-row">
+        <button
+          type="button"
+          class="btn secondary"
+          data-action="apple-form"
+        >
+          Open route in Apple Kaarten
+        </button>
+      </div>
 
       ${field(
         'Routeafstand uit Apple Kaarten (optioneel)',
         'routeKm',
         '',
-        'text'
+        'text',
+        'Je kunt de getoonde afstand overnemen. Laat leeg om een eerdere A→B-afstand te gebruiken.'
       )}
 
       ${field(
         'Vertrektijd',
         'departureTime',
-        localDateTime(new Date()),
+        localInput(new Date()),
         'datetime-local'
       )}
 
@@ -1876,254 +1484,201 @@ async function openStartTrip(){
       >
         Vertrek opslaan
       </button>
-
     </form>
   `);
 }
 
+function openAppleFromForm(){
+  const f=document.getElementById('startForm');
 
-function openAppleMapsFromStartForm(){
+  if(!f)return;
 
-  const form =
-    document.getElementById(
-      'startForm'
-    );
+  const o=JSON.parse(
+          f.elements.origin.value
+        ),
 
-  if(!form){
-    return;
-  }
+        d=data.locations.find(
+          x=>
+            x.id===
+            f.elements.destinationId.value
+        );
 
-  const origin =
-    JSON.parse(
-      form.elements.origin.value
-    );
-
-  const destination =
-    data.locations.find(
-      item =>
-        item.id ===
-        form.elements.destinationId.value
-    );
-
-  if(!destination){
-
-    showError(
+  if(!d){
+    return toast(
       'Kies eerst een bestemming.'
     );
-
-    return;
   }
 
-  openAppleMaps(
-    origin,
-    destination
-  );
+  openApple(o,d);
 }
 
+async function saveStart(fd){
+  const origin=JSON.parse(
+          String(fd.get('origin'))
+        ),
 
-async function saveStartTrip(fd){
+        dest=data.locations.find(
+          x=>
+            x.id===
+            fd.get('destinationId')
+        );
 
-  const origin =
-    JSON.parse(
-      String(
-        fd.get('origin')
-      )
-    );
-
-  const destination =
-    data.locations.find(
-      item =>
-        item.id ===
-        fd.get('destinationId')
-    );
-
-  if(!destination){
-
+  if(!dest){
     throw new Error(
       'Kies een bestemming.'
     );
   }
 
-  const startOdometer =
-    numberOrNull(
-      fd.get('startOdometer')
-    );
+  const start=num(
+    fd.get('startOdometer')
+  );
 
-  if(startOdometer === null){
-
+  if(start==null){
     throw new Error(
       'Vul de startkilometerstand in.'
     );
   }
 
-  const manualDistance =
-    parseDecimal(
-      fd.get('routeKm')
-    );
+  const manual=parseNum(
+          fd.get('routeKm')
+        ),
 
-  const historicalDistance =
-    findHistoricalDistance(
-      origin,
-      destination
-    );
+        hist=historyDistance(
+          origin,
+          dest
+        ),
 
-  data.activeTrip = {
+        proposal=
+          manual??
+          hist;
+
+  data.activeTrip={
     id:uid(),
-    origin:snapshotLocation(origin),
-    expectedDestination:snapshotLocation(destination),
-    startOdometer,
-    departureTime:
-      new Date(
-        String(
-          fd.get('departureTime')
-        )
-      ).toISOString(),
-    proposedRouteKm:
-      manualDistance ??
-      historicalDistance
+    origin:snap(origin),
+    expectedDestination:snap(dest),
+    startOdometer:start,
+    departureTime:new Date(
+      String(fd.get('departureTime'))
+    ).toISOString(),
+    proposedRouteKm:proposal,
+    routeSource:
+      manual!=null
+      ?'Apple Kaarten ingevuld'
+      :hist!=null
+      ?'historie'
+      :null
   };
 
-  incrementLocationUse(
-    destination.id
-  );
+  incrementUse(dest.id);
 
-  saveData();
-
+  save();
   closeModal();
   render();
 
-  startGpsTracking();
+  await startTracking();
 
-  showToast(
+  toast(
     'Vertrek opgeslagen.'
   );
 }
 
-
-/* =========================
-   AANKOMST
-========================= */
-
 async function openArrival(){
+  const a=data.activeTrip;
 
-  const active =
-    data.activeTrip;
-
-  if(!active){
-
-    showError(
+  if(!a){
+    return toast(
       'Er is geen actieve rit.'
     );
-
-    return;
   }
 
-  let gps = null;
-  let nearby = [];
+  let g=null,
+      m=[];
 
   try{
+    g=await getPosition();
+    m=matches(g);
+  }catch(e){}
 
-    gps =
-      await getCurrentGps();
+  const expected=data.locations.find(
+    l=>
+      l.id===
+      a.expectedDestination?.id
+  );
 
-    nearby =
-      findNearbyLocations(gps);
-
-  }catch(error){
-
-    console.warn(error);
-  }
-
-  const expected =
-    data.locations.find(
-      item =>
-        item.id ===
-        active.expectedDestination?.id
-    );
-
-  const possible =
-    nearby.map(
-      item =>
-        item.location
-    );
+  let candidates=[
+    ...m.map(x=>x.location)
+  ];
 
   if(
-    expected &&
-    !possible.some(
-      item =>
-        item.id === expected.id
+    expected&&
+    !candidates.some(
+      x=>x.id===expected.id
     )
   ){
-    possible.push(
-      expected
-    );
+    candidates.push(expected);
   }
 
-  const current =
-    gps
-    ? currentGpsLocation(gps)
-    : null;
+  const current=
+    g
+    ?currentLoc(g)
+    :null;
 
-  const predictedOdometer =
-    active.proposedRouteKm !== null &&
-    active.proposedRouteKm !== undefined
-
-    ? Math.round(
-        active.startOdometer +
-        active.proposedRouteKm
-      )
-
-    : '';
+  const predicted=
+    a.proposedRouteKm!=null
+    ?a.startOdometer+a.proposedRouteKm
+    :'';
 
   openModal(`
-
     <div class="modal-head">
-
       <h2>
-        Aankomst registreren
+        Aankomst
       </h2>
 
       <button
         class="close"
-        data-action="close-modal"
+        data-action="close"
       >
         ×
       </button>
-
     </div>
 
     <form id="arrivalForm">
-
       <div class="route-box">
-
         <strong>
-          ${escapeHtml(locationLabel(active.origin))}
+          ${esc(labelLoc(a.origin))}
           →
-          ${escapeHtml(locationLabel(active.expectedDestination))}
+          ${esc(labelLoc(a.expectedDestination))}
         </strong>
 
         <small>
-          Startstand:
-          ${formatOdo(active.startOdometer)} km
+          Start ${odo(a.startOdometer)} km
+          ${
+            a.proposedRouteKm!=null
+            ?` · voorstel ${km(a.proposedRouteKm)} km`
+            :''
+          }
         </small>
-
       </div>
 
       <div class="form-group">
-
         <label>
           Bestemming
         </label>
 
         <select name="destinationChoice">
-
           ${
-            possible.map(
-              location => `
+            candidates.map(
+              (l,i)=>`
                 <option
-                  value="known:${location.id}"
+                  value="known:${l.id}"
+                  ${i===0?'selected':''}
                 >
-                  ${escapeHtml(location.name)}
+                  ${esc(l.name)}
+                  ${
+                    l.address
+                    ?' · '+esc(l.address)
+                    :''
+                  }
                 </option>
               `
             ).join('')
@@ -2131,43 +1686,45 @@ async function openArrival(){
 
           ${
             current
-            ? `
+            ?`
               <option value="current">
                 Huidige GPS-locatie
               </option>
             `
-            : ''
+            :''
           }
-
         </select>
-
       </div>
 
       <input
         type="hidden"
-        name="currentLocation"
-        value='${
-          escapeAttribute(
-            JSON.stringify(current)
-          )
-        }'
+        name="currentJson"
+        value='${attr(JSON.stringify(current))}'
       >
 
       ${field(
         'Eindkilometerstand',
         'endOdometer',
-        predictedOdometer,
+        predicted
+        ?Math.round(predicted)
+        :'',
         'number'
       )}
 
-      <div class="form-group">
+      <div
+        id="arrivalPreview"
+        class="hint"
+      ></div>
 
+      <div class="form-group">
         <label>
           Type rit
         </label>
 
-        <select name="category">
-
+        <select
+          name="category"
+          id="arrivalCategory"
+        >
           <option value="commute">
             Woon-werk
           </option>
@@ -2179,9 +1736,7 @@ async function openArrival(){
           <option value="private">
             Privé
           </option>
-
         </select>
-
       </div>
 
       ${field(
@@ -2197,10 +1752,17 @@ async function openArrival(){
         'number'
       )}
 
+      <div
+        id="privateHint"
+        class="hint"
+      >
+        Bij woon-werk of zakelijk kan een deel privé worden toegekend.
+      </div>
+
       ${field(
         'Aankomsttijd',
         'arrivalTime',
-        localDateTime(new Date()),
+        localInput(new Date()),
         'datetime-local'
       )}
 
@@ -2210,1035 +1772,1113 @@ async function openArrival(){
       >
         Aankomst opslaan
       </button>
-
     </form>
   `);
+
+  updateArrivalPreview();
 }
 
+function updateArrivalPreview(){
+  const f=document.getElementById('arrivalForm');
+
+  if(!f)return;
+
+  const end=num(
+          f.elements.endOdometer.value
+        ),
+
+        a=data.activeTrip,
+
+        p=document.getElementById(
+          'arrivalPreview'
+        );
+
+  p.textContent=
+    end!=null
+    ?`Werkelijk gereden: ${km(end-a.startOdometer)} km`
+    :'';
+}
+
+function updatePrivateHint(){
+  const f=document.getElementById('arrivalForm');
+
+  if(!f)return;
+
+  const isPriv=
+    f.elements.category.value===
+    'private';
+
+  f.elements.privateKm.disabled=
+    isPriv;
+
+  document.getElementById(
+    'privateHint'
+  ).textContent=
+    isPriv
+    ?'De volledige rit wordt privé geregistreerd.'
+    :'Een deel van de rit kan privé worden toegewezen.';
+}
 
 function saveArrival(fd){
+  const a=data.activeTrip;
 
-  const active =
-    data.activeTrip;
-
-  if(!active){
-
+  if(!a){
     throw new Error(
       'Actieve rit ontbreekt.'
     );
   }
 
-  const endOdometer =
-    numberOrNull(
-      fd.get('endOdometer')
-    );
+  const end=num(
+    fd.get('endOdometer')
+  );
 
   if(
-    endOdometer === null ||
-    endOdometer <
-    active.startOdometer
+    end==null||
+    end<a.startOdometer
   ){
-
     throw new Error(
       'Controleer de eindkilometerstand.'
     );
   }
 
-  const actualKm =
-    endOdometer -
-    active.startOdometer;
+  const actual=
+          end-a.startOdometer,
 
-  const choice =
-    String(
-      fd.get('destinationChoice') ||
-      ''
+        choice=
+          String(
+            fd.get('destinationChoice')
+          ),
+
+        current=
+          JSON.parse(
+            String(
+              fd.get('currentJson')||
+              'null'
+            )
+          );
+
+  let dest;
+
+  if(choice.startsWith('known:')){
+    dest=data.locations.find(
+      x=>x.id===choice.slice(6)
     );
-
-  let destination =
-    null;
-
-  if(
-    choice.startsWith(
-      'known:'
-    )
-  ){
-
-    destination =
-      data.locations.find(
-        item =>
-          item.id ===
-          choice.substring(6)
-      );
-
-  }else if(
-    choice === 'current'
-  ){
-
-    destination =
-      JSON.parse(
-        String(
-          fd.get('currentLocation') ||
-          'null'
-        )
-      );
+  }else{
+    dest=current;
   }
 
-  if(!destination){
-
+  if(!dest){
     throw new Error(
       'Kies een bestemming.'
     );
   }
 
-  const category =
-    String(
-      fd.get('category')
-    );
+  const cat=
+          String(fd.get('category')),
 
-  let privateKm =
-    numberOrNull(
-      fd.get('privateKm')
-    ) || 0;
-
-  if(category === 'private'){
-
-    privateKm =
-      actualKm;
-  }
+        privateKm=
+          cat==='private'
+          ?actual
+          :(num(fd.get('privateKm'))||0);
 
   if(
-    privateKm < 0 ||
-    privateKm > actualKm
+    privateKm<0||
+    privateKm>actual
   ){
-
     throw new Error(
-      'Privékilometers zijn ongeldig.'
+      'Privékilometers moeten tussen 0 en het totaal liggen.'
     );
   }
 
-  let businessKm = 0;
-  let commuteKm = 0;
-
-  if(category === 'business'){
-
-    businessKm =
-      actualKm -
-      privateKm;
-  }
-
-  if(category === 'commute'){
-
-    commuteKm =
-      actualKm -
-      privateKm;
-  }
-
-  const trip = {
-    id:active.id,
-    origin:active.origin,
-    destination:snapshotLocation(destination),
-    departureTime:active.departureTime,
-    arrivalTime:
-      new Date(
-        String(
-          fd.get('arrivalTime')
-        )
-      ).toISOString(),
-    startOdometer:active.startOdometer,
-    endOdometer,
-    actualKm,
-    proposedRouteKm:
-      active.proposedRouteKm ?? null,
-    category,
-    reason:
-      String(
-        fd.get('reason') ||
-        ''
-      ).trim(),
-    privateKm,
-    businessKm,
-    commuteKm
-  };
-
-  data.trips.push(
-    trip
+  const z=split(
+    actual,
+    cat,
+    privateKm
   );
 
-  data.lastEndpoint = {
-    location:snapshotLocation(destination),
-    odometer:endOdometer,
+  const trip={
+    id:a.id,
+    origin:a.origin,
+    destination:snap(dest),
+    departureTime:a.departureTime,
+    arrivalTime:new Date(
+      String(fd.get('arrivalTime'))
+    ).toISOString(),
+    startOdometer:a.startOdometer,
+    endOdometer:end,
+    actualKm:actual,
+    proposedRouteKm:a.proposedRouteKm??null,
+    category:cat,
+    reason:String(fd.get('reason')||'').trim(),
+    privateKm:z.private,
+    businessKm:z.business,
+    commuteKm:z.commute
+  };
+
+  data.trips.push(trip);
+
+  data.lastEndpoint={
+    location:snap(dest),
+    odometer:end,
     time:trip.arrivalTime
   };
 
-  data.activeTrip =
-    null;
+  data.activeTrip=null;
 
-  incrementLocationUse(
-    destination.id
-  );
+  if(dest.id){
+    incrementUse(dest.id);
+  }
 
-  saveData();
-
-  stopGpsTracking();
-
+  save();
+  stopTracking();
   closeModal();
   render();
 
-  showToast(
-    `Rit opgeslagen: ${formatKm(actualKm)} km`
+  toast(
+    `Rit opgeslagen: ${km(actual)} km.`
   );
 }
 
-
-/* =========================
-   TANKEN
-========================= */
-
-function renderMore(){
-
-  app.innerHTML = `
-
-    <div class="section-title">
-      <div>
-        <div class="kicker">
-          Losse registraties
-        </div>
-
-        <h2>
-          Meer
-        </h2>
-      </div>
-    </div>
-
-    <div class="action-grid">
-
-      <button
-        class="action"
-        data-action="tank"
-      >
-
-        <div class="ico">
-          ⛽︎
-        </div>
-
-        <div>
-          <strong>
-            Tanken
-          </strong>
-
-          <small>
-            Kilometerstand en GPS-locatie,
-            zonder de A→B-route te wijzigen.
-          </small>
-        </div>
-
-      </button>
-
-    </div>
-  `;
-}
-
-
-async function openTankForm(){
-
-  let location =
-    null;
+async function openTank(){
+  let g=null,
+      loc=null;
 
   try{
+    g=await getPosition();
 
-    const gps =
-      await getCurrentGps();
+    loc=
+      matches(g)[0]?.location||
+      currentLoc(g);
 
-    const nearby =
-      findNearbyLocations(gps);
+  }catch(e){}
 
-    location =
-      nearby[0]?.location ||
-      currentGpsLocation(gps);
-
-  }catch(error){
-
-    console.warn(error);
-  }
-
-  const last =
-    data.lastEndpoint ||
-    inferLastEndpoint();
+  const last=
+    data.lastEndpoint||
+    inferLast();
 
   openModal(`
-
     <div class="modal-head">
-
       <h2>
         Tanken
       </h2>
 
       <button
         class="close"
-        data-action="close-modal"
+        data-action="close"
       >
         ×
       </button>
-
     </div>
 
     <form id="tankForm">
-
       <input
         type="hidden"
-        name="location"
-        value='${
-          escapeAttribute(
-            JSON.stringify(location)
-          )
-        }'
+        name="loc"
+        value='${attr(JSON.stringify(loc))}'
       >
 
       ${field(
         'Kilometerstand',
         'odometer',
-        last?.odometer ?? '',
+        last?.odometer??'',
         'number'
       )}
 
       <div class="route-box">
-
         <strong>
-          ${
-            escapeHtml(
-              locationLabel(location) ||
-              'Locatie niet beschikbaar'
-            )
-          }
+          ${esc(labelLoc(loc)||'Locatie niet beschikbaar')}
         </strong>
 
         <small>
-          Dit wijzigt het vertrek- of bestemmingsadres van de rit niet.
+          Dit meetpunt verandert het vertrek- of bestemmingspunt van je rit niet.
         </small>
-
       </div>
 
-      <button
-        class="btn full"
-        type="submit"
-      >
+      ${field(
+        'Tijd',
+        'time',
+        localInput(new Date()),
+        'datetime-local'
+      )}
+
+      <button class="btn full">
         Tankmoment opslaan
       </button>
-
     </form>
   `);
 }
 
-
 function saveTank(fd){
+  const o=num(
+    fd.get('odometer')
+  );
 
-  const odometer =
-    numberOrNull(
-      fd.get('odometer')
-    );
-
-  if(odometer === null){
-
+  if(o==null){
     throw new Error(
       'Vul de kilometerstand in.'
     );
   }
 
-  const location =
-    JSON.parse(
-      String(
-        fd.get('location') ||
-        'null'
-      )
-    );
+  const loc=JSON.parse(
+    String(
+      fd.get('loc')||
+      'null'
+    )
+  );
 
-  data.tankEvents.push({
+  data.events.push({
     id:uid(),
-    time:new Date().toISOString(),
-    odometer,
-    location:snapshotLocation(location)
+    type:'tank',
+    odometer:o,
+    location:snap(loc),
+    time:new Date(
+      String(fd.get('time'))
+    ).toISOString()
   });
 
-  saveData();
-
+  save();
   closeModal();
   render();
 
-  showToast(
+  toast(
     'Tankmoment opgeslagen.'
   );
 }
 
-
-/* =========================
-   WEEK
-========================= */
-
-function renderWeek(){
-
-  const start =
-    selectedWeek;
-
-  const end =
-    addDays(
-      start,
-      7
+function openManual(){
+  if(data.locations.length<1){
+    return toast(
+      'Voeg eerst locaties toe.'
     );
+  }
 
-  const trips =
-    tripsInRange(
-      start,
-      end
-    );
+  const last=
+    data.lastEndpoint||
+    inferLast();
 
-  const total =
-    calculateTotals(
-      trips
-    );
-
-  app.innerHTML = `
-
-    <div class="week-nav">
+  openModal(`
+    <div class="modal-head">
+      <h2>
+        Rit toevoegen
+      </h2>
 
       <button
-        class="mini"
-        data-action="previous-week"
+        class="close"
+        data-action="close"
       >
-        ‹
+        ×
       </button>
+    </div>
 
-      <div class="center">
+    <form id="manualForm">
+      <div class="form-group">
+        <label>
+          Van
+        </label>
 
-        <h2>
-          Week ${isoWeek(start)}
-        </h2>
-
-        <small>
-          ${formatDate(start)}
-          –
-          ${formatDate(addDays(end,-1))}
-        </small>
-
+        <select name="originId">
+          ${locationOptions(last?.location?.id)}
+        </select>
       </div>
 
-      <button
-        class="mini"
-        data-action="next-week"
-      >
-        ›
-      </button>
+      <div class="form-group">
+        <label>
+          Naar
+        </label>
 
-    </div>
-
-    <div class="section">
-
-      <button
-        class="btn secondary full"
-        data-action="current-week"
-      >
-        Huidige week
-      </button>
-
-    </div>
-
-    <div class="section grid2">
-
-      ${metric(
-        'Totaal',
-        formatKm(total.total) + ' km'
-      )}
-
-      ${metric(
-        'Zakelijk',
-        formatKm(total.business) + ' km'
-      )}
-
-      ${metric(
-        'Woon-werk',
-        formatKm(total.commute) + ' km'
-      )}
-
-      ${metric(
-        'Privé',
-        formatKm(total.private) + ' km'
-      )}
-
-    </div>
-
-    <div class="section">
-
-      <div class="section-title">
-
-        <h2>
-          Ritten
-        </h2>
-
-        <span class="muted">
-          ${trips.length}
-        </span>
-
+        <select name="destinationId">
+          ${locationOptions()}
+        </select>
       </div>
 
-      ${tripList(trips)}
-
-    </div>
-  `;
-}
-
-
-/* =========================
-   RAPPORT
-========================= */
-
-function renderReport(){
-
-  const trips =
-    tripsInRange(
-      startOfWeek(new Date()),
-      addDays(
-        startOfWeek(new Date()),
-        7
-      )
-    );
-
-  const total =
-    calculateTotals(
-      trips
-    );
-
-  app.innerHTML = `
-
-    <div class="section-title">
-
-      <div>
-
-        <div class="kicker">
-          Huidige week
-        </div>
-
-        <h2>
-          Weekrapport
-        </h2>
-
-      </div>
-
-    </div>
-
-    <div class="grid2">
-
-      ${metric(
-        'Totaal',
-        formatKm(total.total) + ' km'
-      )}
-
-      ${metric(
-        'Zakelijk',
-        formatKm(total.business) + ' km'
-      )}
-
-      ${metric(
-        'Woon-werk',
-        formatKm(total.commute) + ' km'
-      )}
-
-      ${metric(
-        'Privé',
-        formatKm(total.private) + ' km'
-      )}
-
-    </div>
-
-    <div class="section button-row">
-
-      <button
-        class="btn"
-        data-action="email"
-      >
-        E-mail
-      </button>
-
-      <button
-        class="btn secondary"
-        data-action="csv"
-      >
-        CSV
-      </button>
-
-    </div>
-
-    <div class="section">
-
-      ${tripList(trips)}
-
-    </div>
-  `;
-}
-
-
-/* =========================
-   INSTELLINGEN
-========================= */
-
-function renderSettings(){
-
-  const s =
-    data.settings;
-
-  app.innerHTML = `
-
-    <form id="settingsForm">
-
-      <div class="section-title">
-
-        <div>
-
-          <div class="kicker">
-            Basisgegevens
-          </div>
-
-          <h2>
-            Instellingen
-          </h2>
-
-        </div>
-
-      </div>
-
-      <div class="card" style="padding:16px;margin-bottom:12px">
-
+      <div class="grid2">
         ${field(
-          'Naam bestuurder',
-          'name',
-          s.name
-        )}
-
-        ${field(
-          'Automerk',
-          'vehicleBrand',
-          s.vehicleBrand
-        )}
-
-        ${field(
-          'Model',
-          'vehicleModel',
-          s.vehicleModel
-        )}
-
-        ${field(
-          'Kenteken',
-          'plate',
-          s.plate
-        )}
-
-        ${field(
-          'Beginstand kilometer',
-          'initialOdometer',
-          s.initialOdometer,
+          'Startstand',
+          'startOdometer',
+          last?.odometer??'',
           'number'
         )}
 
-      </div>
-
-      <div class="card" style="padding:16px;margin-bottom:12px">
-
         ${field(
-          'Locatieherkenning in meters',
-          'recognitionRadius',
-          s.recognitionRadius,
+          'Eindstand',
+          'endOdometer',
+          '',
           'number'
         )}
-
       </div>
 
-      <div class="card" style="padding:16px;margin-bottom:12px">
+      <div class="form-group">
+        <label>
+          Type
+        </label>
 
-        ${field(
-          'E-mailadres rapport',
-          'reportEmail',
-          s.reportEmail,
-          'email'
-        )}
+        <select name="category">
+          <option value="commute">
+            Woon-werk
+          </option>
 
+          <option value="business">
+            Zakelijk
+          </option>
+
+          <option value="private">
+            Privé
+          </option>
+        </select>
       </div>
 
-      <button
-        class="btn full"
-        type="submit"
-      >
-        Instellingen opslaan
+      ${field(
+        'Reden',
+        'reason',
+        ''
+      )}
+
+      ${field(
+        'Privédeel km',
+        'privateKm',
+        '0',
+        'number'
+      )}
+
+      ${field(
+        'Vertrektijd',
+        'departureTime',
+        localInput(new Date()),
+        'datetime-local'
+      )}
+
+      ${field(
+        'Aankomsttijd',
+        'arrivalTime',
+        localInput(new Date()),
+        'datetime-local'
+      )}
+
+      <button class="btn full">
+        Rit opslaan
       </button>
-
     </form>
-
-    <div class="section">
-
-      <button
-        class="btn secondary full"
-        data-action="export"
-      >
-        JSON-backup exporteren
-      </button>
-
-    </div>
-  `;
+  `);
 }
 
+function saveManual(fd){
+  const o=data.locations.find(
+          x=>x.id===fd.get('originId')
+        ),
 
-function saveSettings(fd){
+        d=data.locations.find(
+          x=>x.id===fd.get('destinationId')
+        );
 
-  data.settings = {
-    ...data.settings,
+  if(!o||!d){
+    throw new Error(
+      'Kies vertrek en bestemming.'
+    );
+  }
 
-    name:
-      String(
-        fd.get('name') ||
-        ''
-      ),
+  const s=num(
+          fd.get('startOdometer')
+        ),
 
-    vehicleBrand:
-      String(
-        fd.get('vehicleBrand') ||
-        ''
-      ),
+        e=num(
+          fd.get('endOdometer')
+        );
 
-    vehicleModel:
-      String(
-        fd.get('vehicleModel') ||
-        ''
-      ),
+  if(
+    s==null||
+    e==null||
+    e<s
+  ){
+    throw new Error(
+      'Controleer kilometerstanden.'
+    );
+  }
 
-    plate:
-      String(
-        fd.get('plate') ||
-        ''
-      ),
+  const actual=e-s,
+        cat=String(fd.get('category')),
+        p=
+          cat==='private'
+          ?actual
+          :(num(fd.get('privateKm'))||0);
 
-    initialOdometer:
-      String(
-        fd.get('initialOdometer') ||
-        ''
-      ),
+  if(
+    p<0||
+    p>actual
+  ){
+    throw new Error(
+      'Privédeel is ongeldig.'
+    );
+  }
 
-    reportEmail:
-      String(
-        fd.get('reportEmail') ||
-        ''
-      ),
+  const z=split(
+    actual,
+    cat,
+    p
+  );
 
-    recognitionRadius:
-      Math.max(
-        25,
-        numberOrNull(
-          fd.get('recognitionRadius')
-        ) || 500
-      )
+  const trip={
+    id:uid(),
+    origin:snap(o),
+    destination:snap(d),
+    startOdometer:s,
+    endOdometer:e,
+    actualKm:actual,
+    departureTime:new Date(
+      String(fd.get('departureTime'))
+    ).toISOString(),
+    arrivalTime:new Date(
+      String(fd.get('arrivalTime'))
+    ).toISOString(),
+    category:cat,
+    reason:String(fd.get('reason')||''),
+    privateKm:z.private,
+    businessKm:z.business,
+    commuteKm:z.commute,
+    proposedRouteKm:null
   };
 
-  saveData();
+  data.trips.push(trip);
+
+  if(
+    !data.lastEndpoint||
+    new Date(trip.arrivalTime)>=
+    new Date(data.lastEndpoint.time||0)
+  ){
+    data.lastEndpoint={
+      location:snap(d),
+      odometer:e,
+      time:trip.arrivalTime
+    };
+  }
+
+  save();
+  closeModal();
   render();
 
-  showToast(
+  toast(
+    'Rit opgeslagen.'
+  );
+}
+
+function openPrivate(){
+  const trips=sortedTrips();
+
+  if(!trips.length){
+    return toast(
+      'Er zijn nog geen ritten.'
+    );
+  }
+
+  openModal(`
+    <div class="modal-head">
+      <h2>
+        Privékilometers
+      </h2>
+
+      <button
+        class="close"
+        data-action="close"
+      >
+        ×
+      </button>
+    </div>
+
+    <form id="privateForm">
+      <div class="form-group">
+        <label>
+          Rit
+        </label>
+
+        <select name="tripId">
+          ${
+            trips.slice(0,30).map(
+              t=>`
+                <option value="${t.id}">
+                  ${dateTime(t.departureTime)}
+                  ·
+                  ${esc(labelLoc(t.origin))}
+                  →
+                  ${esc(labelLoc(t.destination))}
+                  ·
+                  ${km(t.actualKm)} km
+                </option>
+              `
+            ).join('')
+          }
+        </select>
+      </div>
+
+      ${field(
+        'Privékilometers',
+        'privateKm',
+        '0',
+        'number'
+      )}
+
+      <button class="btn full">
+        Opslaan
+      </button>
+    </form>
+  `);
+}
+
+function savePrivate(fd){
+  const t=data.trips.find(
+    x=>x.id===fd.get('tripId')
+  );
+
+  if(!t){
+    throw new Error(
+      'Rit niet gevonden.'
+    );
+  }
+
+  const p=
+    num(fd.get('privateKm'))||
+    0;
+
+  if(
+    p<0||
+    p>t.actualKm
+  ){
+    throw new Error(
+      'Privédeel is ongeldig.'
+    );
+  }
+
+  const z=split(
+    t.actualKm,
+    t.category,
+    p
+  );
+
+  Object.assign(
+    t,
+    {
+      privateKm:z.private,
+      businessKm:z.business,
+      commuteKm:z.commute
+    }
+  );
+
+  save();
+  closeModal();
+  render();
+
+  toast(
+    'Privéverdeling opgeslagen.'
+  );
+}
+
+function openTripEdit(id){
+  const t=data.trips.find(
+    x=>x.id===id
+  );
+
+  if(!t)return;
+
+  const originId=
+          t.origin?.id||'',
+
+        destinationId=
+          t.destination?.id||'';
+
+  openModal(`
+    <div class="modal-head">
+      <h2>
+        Rit openen / wijzigen
+      </h2>
+
+      <button
+        class="close"
+        data-action="close"
+      >
+        ×
+      </button>
+    </div>
+
+    <form id="tripEditForm">
+      <input
+        type="hidden"
+        name="id"
+        value="${t.id}"
+      >
+
+      <div class="form-group">
+        <label>
+          Vertrek
+        </label>
+
+        <select name="originId">
+          <option value="">
+            Huidige opgeslagen waarde:
+            ${esc(labelLoc(t.origin))}
+          </option>
+
+          ${locationOptions(originId)}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>
+          Bestemming
+        </label>
+
+        <select name="destinationId">
+          <option value="">
+            Huidige opgeslagen waarde:
+            ${esc(labelLoc(t.destination))}
+          </option>
+
+          ${locationOptions(destinationId)}
+        </select>
+      </div>
+
+      <div class="grid2">
+        ${field(
+          'Startstand',
+          'startOdometer',
+          t.startOdometer,
+          'number'
+        )}
+
+        ${field(
+          'Eindstand',
+          'endOdometer',
+          t.endOdometer,
+          'number'
+        )}
+      </div>
+
+      <div class="grid2">
+        ${field(
+          'Vertrektijd',
+          'departureTime',
+          localInput(new Date(t.departureTime)),
+          'datetime-local'
+        )}
+
+        ${field(
+          'Aankomsttijd',
+          'arrivalTime',
+          localInput(
+            new Date(
+              t.arrivalTime||
+              t.departureTime
+            )
+          ),
+          'datetime-local'
+        )}
+      </div>
+
+      <div class="form-group">
+        <label>
+          Type
+        </label>
+
+        <select name="category">
+          <option
+            value="commute"
+            ${t.category==='commute'?'selected':''}
+          >
+            Woon-werk
+          </option>
+
+          <option
+            value="business"
+            ${t.category==='business'?'selected':''}
+          >
+            Zakelijk
+          </option>
+
+          <option
+            value="private"
+            ${t.category==='private'?'selected':''}
+          >
+            Privé
+          </option>
+        </select>
+      </div>
+
+      ${field(
+        'Reden / omschrijving',
+        'reason',
+        t.reason||''
+      )}
+
+      ${field(
+        'Privédeel km',
+        'privateKm',
+        t.privateKm||0,
+        'number'
+      )}
+
+      <div class="notice warning">
+        Let op: als je een kilometerstand van een historische rit wijzigt, kan de aansluiting met de rit ervoor of erna afwijken. De app past andere ritten niet automatisch aan.
+      </div>
+
+      <button class="btn full">
+        Wijzigingen opslaan
+      </button>
+
+      <div class="divider"></div>
+
+      <button
+        type="button"
+        class="btn danger full"
+        data-action="delete-trip"
+        data-id="${t.id}"
+      >
+        Rit verwijderen
+      </button>
+    </form>
+  `);
+}
+
+function saveTripEdit(fd){
+  const t=data.trips.find(
+    x=>x.id===fd.get('id')
+  );
+
+  if(!t){
+    throw new Error(
+      'Rit niet gevonden.'
+    );
+  }
+
+  const s=num(
+          fd.get('startOdometer')
+        ),
+
+        e=num(
+          fd.get('endOdometer')
+        );
+
+  if(
+    s==null||
+    e==null||
+    e<s
+  ){
+    throw new Error(
+      'Controleer kilometerstanden.'
+    );
+  }
+
+  const departure=
+          new Date(
+            String(fd.get('departureTime'))
+          ),
+
+        arrival=
+          new Date(
+            String(fd.get('arrivalTime'))
+          );
+
+  if(
+    Number.isNaN(departure.getTime())||
+    Number.isNaN(arrival.getTime())
+  ){
+    throw new Error(
+      'Controleer vertrek- en aankomsttijd.'
+    );
+  }
+
+  if(arrival<departure){
+    throw new Error(
+      'Aankomsttijd kan niet vóór vertrektijd liggen.'
+    );
+  }
+
+  const originId=
+          String(
+            fd.get('originId')||
+            ''
+          ),
+
+        destinationId=
+          String(
+            fd.get('destinationId')||
+            ''
+          ),
+
+        origin=
+          originId
+          ?data.locations.find(
+              x=>x.id===originId
+            )
+          :t.origin,
+
+        destination=
+          destinationId
+          ?data.locations.find(
+              x=>x.id===destinationId
+            )
+          :t.destination;
+
+  if(!origin||!destination){
+    throw new Error(
+      'Controleer vertrek en bestemming.'
+    );
+  }
+
+  const actual=e-s,
+        cat=String(fd.get('category')),
+        p=
+          cat==='private'
+          ?actual
+          :(num(fd.get('privateKm'))||0);
+
+  if(
+    p<0||
+    p>actual
+  ){
+    throw new Error(
+      'Privédeel is ongeldig.'
+    );
+  }
+
+  const z=split(
+    actual,
+    cat,
+    p
+  );
+
+  Object.assign(
+    t,
+    {
+      origin:snap(origin),
+      destination:snap(destination),
+      departureTime:departure.toISOString(),
+      arrivalTime:arrival.toISOString(),
+      startOdometer:s,
+      endOdometer:e,
+      actualKm:actual,
+      category:cat,
+      reason:String(fd.get('reason')||'').trim(),
+      privateKm:z.private,
+      businessKm:z.business,
+      commuteKm:z.commute
+    }
+  );
+
+  rebuildLast();
+  save();
+  closeModal();
+  render();
+
+  toast(
+    'Rit bijgewerkt.'
+  );
+}
+
+function deleteTrip(id){
+  if(
+    !id||
+    !confirm(
+      'Deze rit verwijderen?'
+    )
+  ){
+    return;
+  }
+
+  data.trips=data.trips.filter(
+    x=>x.id!==id
+  );
+
+  rebuildLast();
+  save();
+  closeModal();
+  render();
+
+  toast(
+    'Rit verwijderd.'
+  );
+}
+
+function rebuildLast(){
+  const t=sortedTripsByArrival()[0];
+
+  data.lastEndpoint=
+    t
+    ?{
+      location:snap(t.destination),
+      odometer:t.endOdometer,
+      time:t.arrivalTime
+    }
+    :null;
+}
+
+function saveSettings(fd){
+  data.settings={
+    ...data.settings,
+
+    name:String(
+      fd.get('name')||
+      ''
+    ),
+
+    vehicleBrand:String(
+      fd.get('vehicleBrand')||
+      ''
+    ),
+
+    vehicleModel:String(
+      fd.get('vehicleModel')||
+      ''
+    ),
+
+    plate:String(
+      fd.get('plate')||
+      ''
+    ),
+
+    initialOdometer:String(
+      fd.get('initialOdometer')||
+      ''
+    ),
+
+    registrationStart:String(
+      fd.get('registrationStart')||
+      ''
+    ),
+
+    reportEmail:String(
+      fd.get('reportEmail')||
+      ''
+    ),
+
+    recognitionRadius:Math.max(
+      25,
+      num(
+        fd.get('recognitionRadius')
+      )||
+      500
+    )
+  };
+
+  save();
+  render();
+
+  toast(
     'Instellingen opgeslagen.'
   );
 }
 
-
-/* =========================
-   GPS
-========================= */
-
-function getCurrentGps(){
-
+async function getPosition(){
   return new Promise(
-    (resolve,reject) => {
-
-      if(
-        !navigator.geolocation
-      ){
-
-        reject(
+    (res,rej)=>{
+      if(!navigator.geolocation){
+        return rej(
           new Error(
             'GPS wordt niet ondersteund.'
           )
         );
-
-        return;
       }
 
-      navigator.geolocation
-        .getCurrentPosition(
+      navigator.geolocation.getCurrentPosition(
+        p=>res({
+          lat:p.coords.latitude,
+          lng:p.coords.longitude,
+          accuracy:p.coords.accuracy
+        }),
 
-          position => {
+        e=>rej(
+          new Error(
+            e.code===1
+            ?'Geen locatietoestemming. Controleer Safari > Locatie.'
+            :e.code===3
+            ?'GPS ophalen duurde te lang.'
+            :'GPS-locatie niet beschikbaar.'
+          )
+        ),
 
-            resolve({
-              latitude:
-                position.coords.latitude,
-
-              longitude:
-                position.coords.longitude,
-
-              accuracy:
-                position.coords.accuracy
-            });
-          },
-
-          error => {
-
-            if(error.code === 1){
-
-              reject(
-                new Error(
-                  'Geen toestemming voor locatie. Controleer Safari > Locatie.'
-                )
-              );
-
-              return;
-            }
-
-            reject(
-              new Error(
-                'GPS-locatie kon niet worden opgehaald.'
-              )
-            );
-          },
-
-          {
-            enableHighAccuracy:true,
-            timeout:15000,
-            maximumAge:10000
-          }
-        );
+        {
+          enableHighAccuracy:true,
+          timeout:12000,
+          maximumAge:15000
+        }
+      );
     }
   );
 }
 
+async function startTracking(){
+  if(
+    !data.activeTrip||
+    !navigator.geolocation||
+    gpsWatch!=null
+  ){
+    return;
+  }
 
-function findNearbyLocations(gps){
+  gpsWatch=navigator.geolocation.watchPosition(
+    p=>{
+      gpsLatest={
+        lat:p.coords.latitude,
+        lng:p.coords.longitude,
+        accuracy:p.coords.accuracy
+      };
+    },
 
-  const radius =
-    Number(
-      data.settings.recognitionRadius
-    ) || 500;
+    ()=>{},
 
-  return data.locations
+    {
+      enableHighAccuracy:true,
+      maximumAge:15000,
+      timeout:20000
+    }
+  );
 
-    .filter(
-      location =>
-        location.latitude !== null &&
-        location.latitude !== undefined &&
-        location.longitude !== null &&
-        location.longitude !== undefined
-    )
+  try{
+    gpsLatest=await getPosition();
+    persistTrack();
+  }catch(e){}
 
-    .map(
-      location => ({
-        location,
-        distance:
-          distanceMeters(
-            gps,
-            location
-          )
-      })
-    )
-
-    .filter(
-      item =>
-        item.distance <= radius
-    )
-
-    .sort(
-      (a,b) =>
-        a.distance -
-        b.distance
-    );
-}
-
-
-function distanceMeters(a,b){
-
-  const latA =
-    a.latitude ?? a.lat;
-
-  const lonA =
-    a.longitude ?? a.lng;
-
-  const latB =
-    b.latitude ?? b.lat;
-
-  const lonB =
-    b.longitude ?? b.lng;
-
-  const R =
-    6371000;
-
-  const rad =
-    value =>
-      value *
-      Math.PI /
-      180;
-
-  const dLat =
-    rad(
-      latB -
-      latA
-    );
-
-  const dLon =
-    rad(
-      lonB -
-      lonA
-    );
-
-  const la1 =
-    rad(latA);
-
-  const la2 =
-    rad(latB);
-
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(la1) *
-    Math.cos(la2) *
-    Math.sin(dLon / 2) ** 2;
-
-  return (
-    2 *
-    R *
-    Math.asin(
-      Math.sqrt(h)
-    )
+  gpsTimer=setInterval(
+    persistTrack,
+    60000
   );
 }
 
-
-function currentGpsLocation(gps){
-
-  return {
-    id:null,
-    name:'Huidige locatie',
-    address:'',
-    latitude:gps.latitude,
-    longitude:gps.longitude,
-    type:'other'
-  };
-}
-
-
-async function startGpsTracking(){
-
-  if(
-    !data.activeTrip ||
-    gpsWatch !== null
-  ){
-    return;
-  }
-
-  if(
-    !navigator.geolocation
-  ){
-    return;
-  }
-
-  gpsWatch =
-    navigator.geolocation
-      .watchPosition(
-
-        position => {
-
-          latestGps = {
-            latitude:
-              position.coords.latitude,
-
-            longitude:
-              position.coords.longitude,
-
-            accuracy:
-              position.coords.accuracy
-          };
-        },
-
-        () => {},
-
-        {
-          enableHighAccuracy:true,
-          maximumAge:10000,
-          timeout:20000
-        }
-      );
-
-  try{
-
-    latestGps =
-      await getCurrentGps();
-
-    saveGpsPoint();
-
-  }catch(error){
-
-    console.warn(error);
-  }
-
-  gpsTimer =
-    setInterval(
-      saveGpsPoint,
-      60000
+function stopTracking(){
+  if(gpsWatch!=null){
+    navigator.geolocation.clearWatch(
+      gpsWatch
     );
-}
-
-
-function stopGpsTracking(){
-
-  if(
-    gpsWatch !== null
-  ){
-
-    navigator.geolocation
-      .clearWatch(
-        gpsWatch
-      );
   }
 
   if(gpsTimer){
-
     clearInterval(
       gpsTimer
     );
   }
 
-  gpsWatch =
-    null;
-
-  gpsTimer =
-    null;
-
-  latestGps =
-    null;
+  gpsWatch=null;
+  gpsTimer=null;
+  gpsLatest=null;
 }
 
-
-function saveGpsPoint(){
-
+function persistTrack(){
   if(
-    !data.activeTrip ||
-    !latestGps
+    !data.activeTrip||
+    !gpsLatest
   ){
     return;
   }
 
-  const minute =
-    new Date()
-      .toISOString()
-      .slice(0,16);
+  const minute=
+          new Date()
+          .toISOString()
+          .slice(0,16),
 
-  const id =
-    data.activeTrip.id +
-    '-' +
-    minute;
+        id=
+          data.activeTrip.id+
+          '_'+
+          minute;
 
   if(
     data.trackPoints.some(
-      point =>
-        point.id === id
+      x=>x.id===id
     )
   ){
     return;
@@ -3248,908 +2888,673 @@ function saveGpsPoint(){
     id,
     tripId:data.activeTrip.id,
     time:new Date().toISOString(),
-    latitude:latestGps.latitude,
-    longitude:latestGps.longitude,
-    accuracy:latestGps.accuracy
+    lat:gpsLatest.lat,
+    lng:gpsLatest.lng,
+    accuracy:gpsLatest.accuracy??null
   });
 
-  try{
-    saveData();
-  }catch(error){
-    console.warn(error);
+  if(data.trackPoints.length>20000){
+    data.trackPoints=
+      data.trackPoints.slice(-20000);
   }
+
+  try{
+    save();
+  }catch(e){}
 }
 
+function matches(g){
+  const r=
+    Number(
+      data.settings.recognitionRadius
+    )||
+    500;
 
-/* =========================
-   APPLE MAPS
-========================= */
+  return data.locations
+    .filter(
+      l=>
+        l.lat!=null&&
+        l.lng!=null
+    )
+    .map(
+      location=>({
+        location,
+        distance:distance(g,location)
+      })
+    )
+    .filter(
+      x=>x.distance<=r
+    )
+    .sort(
+      (a,b)=>a.distance-b.distance
+    );
+}
 
-function openAppleMaps(
-  origin,
-  destination
-){
+function distance(a,b){
+  const R=6371000,
+        rad=x=>x*Math.PI/180,
+        dLat=rad(Number(b.lat)-Number(a.lat)),
+        dLon=rad(Number(b.lng)-Number(a.lng)),
+        la1=rad(Number(a.lat)),
+        la2=rad(Number(b.lat)),
+        h=
+          Math.sin(dLat/2)**2+
+          Math.cos(la1)*
+          Math.cos(la2)*
+          Math.sin(dLon/2)**2;
 
-  if(
-    !origin ||
-    !destination
-  ){
+  return 2*R*Math.asin(
+    Math.sqrt(h)
+  );
+}
 
-    showError(
+function currentLoc(g){
+  return {
+    id:null,
+    name:'Huidige locatie',
+    address:'',
+    lat:g.lat,
+    lng:g.lng,
+    type:'other'
+  };
+}
+
+function openApple(o,d){
+  if(!o||!d){
+    return toast(
       'Vertrek of bestemming ontbreekt.'
     );
-
-    return;
   }
 
-  const start =
-    appleLocationValue(
-      origin
+  const q=x=>
+    x.lat!=null&&
+    x.lng!=null
+    ?`${x.lat},${x.lng}`
+    :x.address||x.name;
+
+  if(!q(o)||!q(d)){
+    return toast(
+      'Voor Apple Kaarten is een adres of GPS nodig.'
     );
-
-  const finish =
-    appleLocationValue(
-      destination
-    );
-
-  if(
-    !start ||
-    !finish
-  ){
-
-    showError(
-      'Voor Apple Kaarten is een adres of GPS-locatie nodig.'
-    );
-
-    return;
   }
 
-  window.location.href =
-    'https://maps.apple.com/?saddr=' +
-    encodeURIComponent(start) +
-    '&daddr=' +
-    encodeURIComponent(finish) +
-    '&dirflg=d';
+  location.href=
+    `https://maps.apple.com/?saddr=${encodeURIComponent(q(o))}&daddr=${encodeURIComponent(q(d))}&dirflg=d`;
 }
 
+function historyDistance(o,d){
+  const arr=data.trips
+    .filter(
+      t=>
+        sameLoc(t.origin,o)&&
+        sameLoc(t.destination,d)
+    )
+    .slice(-5);
 
-function appleLocationValue(
-  location
-){
+  if(!arr.length){
+    return null;
+  }
 
-  const latitude =
-    location?.latitude ??
-    location?.lat;
+  return arr.reduce(
+    (s,t)=>
+      s+
+      Number(t.actualKm||0),
+    0
+  )/arr.length;
+}
 
-  const longitude =
-    location?.longitude ??
-    location?.lng;
+function sameLoc(a,b){
+  if(a?.id&&b?.id){
+    return a.id===b.id;
+  }
 
   if(
-    latitude !== null &&
-    latitude !== undefined &&
-    longitude !== null &&
-    longitude !== undefined
+    a?.lat!=null&&
+    b?.lat!=null
   ){
-
-    return (
-      latitude +
-      ',' +
-      longitude
-    );
+    return distance(a,b)<150;
   }
 
   return (
-    location?.address ||
-    location?.name ||
-    ''
+    String(
+      a?.address||
+      ''
+    )
+    .trim()
+    .toLowerCase()
+    ===
+    String(
+      b?.address||
+      ''
+    )
+    .trim()
+    .toLowerCase()
+    &&
+    !!a?.address
   );
 }
 
+function incrementUse(id){
+  if(!id)return;
 
-/* =========================
-   RAPPORT EXPORT
-========================= */
+  const l=data.locations.find(
+    x=>x.id===id
+  );
+
+  if(l){
+    l.useCount=
+      (l.useCount||0)+1;
+  }
+}
+
+function inferLast(){
+  const t=sortedTripsByArrival()[0];
+
+  if(t){
+    return {
+      location:t.destination,
+      odometer:t.endOdometer,
+      time:t.arrivalTime
+    };
+  }
+
+  if(data.settings.initialOdometer){
+    return {
+      location:null,
+      odometer:num(
+        data.settings.initialOdometer
+      ),
+      time:data.settings.registrationStart
+    };
+  }
+
+  return null;
+}
+
+function split(total,cat,p){
+  const priv=
+    cat==='private'
+    ?total
+    :p;
+
+  return {
+    private:priv,
+    business:
+      cat==='business'
+      ?total-priv
+      :0,
+    commute:
+      cat==='commute'
+      ?total-priv
+      :0
+  };
+}
 
 function exportJson(){
-
-  const json =
-    JSON.stringify(
-      data,
-      null,
-      2
-    );
-
-  downloadFile(
-    new Blob(
-      [json],
-      {
-        type:'application/json'
-      }
-    ),
-    'kilometerregistratie.json'
-  );
-}
-
-
-function csvContent(){
-
-  const trips =
-    tripsInRange(
-      startOfWeek(new Date()),
-      addDays(
-        startOfWeek(new Date()),
-        7
+  const blob=new Blob(
+    [
+      JSON.stringify(
+        data,
+        null,
+        2
       )
-    );
-
-  const rows = [[
-    'Datum',
-    'Vertrek',
-    'Bestemming',
-    'Startstand',
-    'Eindstand',
-    'Kilometers',
-    'Type',
-    'Reden',
-    'Zakelijk',
-    'Woon-werk',
-    'Privé'
-  ]];
-
-  trips.forEach(
-    trip => {
-
-      rows.push([
-        formatDateTime(
-          trip.departureTime
-        ),
-        locationLabel(
-          trip.origin
-        ),
-        locationLabel(
-          trip.destination
-        ),
-        trip.startOdometer,
-        trip.endOdometer,
-        trip.actualKm,
-        categoryLabel(
-          trip.category
-        ),
-        trip.reason || '',
-        trip.businessKm || 0,
-        trip.commuteKm || 0,
-        trip.privateKm || 0
-      ]);
+    ],
+    {
+      type:'application/json'
     }
   );
 
+  download(
+    blob,
+    `kilometerregistratie-backup-${new Date().toISOString().slice(0,10)}.json`
+  );
+}
+
+async function importJson(file){
+  try{
+    const x=JSON.parse(
+      await file.text()
+    );
+
+    if(
+      !confirm(
+        'Bestaande gegevens vervangen door deze backup?'
+      )
+    ){
+      return;
+    }
+
+    data=normalize(x);
+
+    save();
+    render();
+
+    toast(
+      'Backup geïmporteerd.'
+    );
+
+  }catch(e){
+    toast(
+      'Backup kon niet worden gelezen.'
+    );
+  }
+}
+
+function reportTrips(){
+  return tripsRange(
+    startOfWeek(new Date()),
+    addDays(
+      startOfWeek(new Date()),
+      7
+    )
+  );
+}
+
+function csvText(){
+  const rows=[[
+    'Datum',
+    'Vertrek',
+    'Bestemming',
+    'Start km',
+    'Eind km',
+    'Totaal km',
+    'Type',
+    'Reden',
+    'Zakelijk km',
+    'Woon-werk km',
+    'Privé km'
+  ]];
+
+  for(const t of reportTrips()){
+    rows.push([
+      dateTime(t.departureTime),
+      labelLoc(t.origin),
+      labelLoc(t.destination),
+      t.startOdometer,
+      t.endOdometer,
+      t.actualKm,
+      categoryLabel(t.category),
+      t.reason||'',
+      t.businessKm||0,
+      t.commuteKm||0,
+      t.privateKm||0
+    ]);
+  }
+
   return rows
     .map(
-      row =>
-        row
-          .map(
-            value =>
-              '"' +
-              String(value ?? '')
-                .replaceAll(
-                  '"',
-                  '""'
-                ) +
-              '"'
-          )
-          .join(';')
+      r=>
+        r.map(
+          v=>
+            '"'+
+            String(v??'')
+            .replaceAll(
+              '"',
+              '""'
+            )+
+            '"'
+        )
+        .join(';')
     )
     .join('\n');
 }
 
-
-function exportCsv(){
-
-  downloadFile(
-
+function downloadCsv(){
+  download(
     new Blob(
-      [csvContent()],
+      [csvText()],
       {
-        type:
-          'text/csv;charset=utf-8'
+        type:'text/csv;charset=utf-8'
       }
     ),
-
     `kilometerregistratie-week-${isoWeek(new Date())}.csv`
   );
 }
 
-
-function emailReport(){
-
-  const trips =
-    tripsInRange(
-      startOfWeek(new Date()),
-      addDays(
-        startOfWeek(new Date()),
-        7
-      )
-    );
-
-  const total =
-    calculateTotals(
-      trips
-    );
-
-  const email =
-    data.settings.reportEmail ||
-    '';
-
-  const subject =
-    `Kilometerregistratie week ${isoWeek(new Date())}`;
-
-  const body =
-`Totaal: ${formatKm(total.total)} km
-Zakelijk: ${formatKm(total.business)} km
-Woon-werk: ${formatKm(total.commute)} km
-Privé: ${formatKm(total.private)} km`;
-
-  window.location.href =
-    'mailto:' +
-    encodeURIComponent(email) +
-    '?subject=' +
-    encodeURIComponent(subject) +
-    '&body=' +
-    encodeURIComponent(body);
-}
-
-
-function downloadFile(
-  blob,
-  filename
-){
-
-  const link =
-    document.createElement('a');
-
-  link.href =
-    URL.createObjectURL(blob);
-
-  link.download =
-    filename;
-
-  document.body.appendChild(
-    link
+async function shareCsv(){
+  const file=new File(
+    [csvText()],
+    `kilometerregistratie-week-${isoWeek(new Date())}.csv`,
+    {
+      type:'text/csv'
+    }
   );
 
-  link.click();
+  if(
+    navigator.canShare?.({
+      files:[file]
+    })
+  ){
+    await navigator.share({
+      files:[file],
+      title:'Kilometerregistratie'
+    });
+  }else{
+    downloadCsv();
+  }
+}
+
+function emailReport(){
+  const t=totals(
+          reportTrips()
+        ),
+
+        to=
+          data.settings.reportEmail||
+          '',
+
+        subject=
+          `Kilometerregistratie week ${isoWeek(new Date())}`,
+
+        body=
+`Totaal: ${km(t.total)} km
+Zakelijk: ${km(t.business)} km
+Woon-werk: ${km(t.commute)} km
+Privé: ${km(t.private)} km
+
+Open de webapp voor ritdetails.`;
+
+  location.href=
+    `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function download(blob,name){
+  const a=document.createElement('a');
+
+  a.href=URL.createObjectURL(blob);
+  a.download=name;
+
+  document.body.appendChild(a);
+  a.click();
 
   setTimeout(
-    () => {
-
-      URL.revokeObjectURL(
-        link.href
-      );
-
-      link.remove();
-
+    ()=>{
+      URL.revokeObjectURL(a.href);
+      a.remove();
     },
     1000
   );
 }
 
-
-/* =========================
-   HULPFUNCTIES
-========================= */
-
-function tripList(trips){
-
-  if(!trips.length){
-
-    return `
-      <div class="empty">
-        Nog geen ritten.
-      </div>
-    `;
-  }
-
-  return `
-
-    <div class="list">
-
-      ${
-        trips.map(
-          trip => `
-
-            <div class="list-item">
-
-              <div class="list-main">
-
-                <strong>
-                  ${escapeHtml(locationLabel(trip.origin))}
-                  →
-                  ${escapeHtml(locationLabel(trip.destination))}
-                </strong>
-
-                <small>
-                  ${formatDateTime(trip.departureTime)}
-                </small>
-
-                <small>
-                  ${categoryLabel(trip.category)}
-                  ${
-                    trip.reason
-                    ? ' · ' +
-                      escapeHtml(trip.reason)
-                    : ''
-                  }
-                </small>
-
-              </div>
-
-              <strong>
-                ${formatKm(trip.actualKm)} km
-              </strong>
-
-            </div>
-
-          `
-        ).join('')
-      }
-
-    </div>
-  `;
-}
-
-
-function metric(
-  label,
-  value
-){
-
-  return `
-    <div class="metric">
-      <span>
-        ${escapeHtml(label)}
-      </span>
-
-      <strong>
-        ${escapeHtml(value)}
-      </strong>
-    </div>
-  `;
-}
-
-
 function field(
   label,
   name,
-  value = '',
-  type = 'text'
+  value='',
+  type='text',
+  hint=''
 ){
-
   return `
-
     <div class="form-group">
-
       <label>
-        ${escapeHtml(label)}
+        ${esc(label)}
       </label>
 
       <input
-        name="${escapeAttribute(name)}"
-        type="${escapeAttribute(type)}"
-        value="${escapeAttribute(value ?? '')}"
+        name="${name}"
+        type="${type}"
+        value="${attr(value??'')}"
         ${
-          type === 'number'
-          ? 'inputmode="numeric"'
-          : ''
+          type==='number'
+          ?'inputmode="numeric"'
+          :''
         }
       >
 
+      ${
+        hint
+        ?`
+          <div class="hint">
+            ${esc(hint)}
+          </div>
+        `
+        :''
+      }
     </div>
   `;
 }
 
-
-function coordinateField(
+function coordField(
   label,
   name,
-  value = ''
+  value=''
 ){
-
   return `
-
     <div class="form-group">
-
       <label>
-        ${escapeHtml(label)}
+        ${label}
       </label>
 
       <input
-        name="${escapeAttribute(name)}"
+        name="${name}"
         type="text"
         inputmode="decimal"
-        value="${escapeAttribute(value ?? '')}"
+        value="${attr(value??'')}"
+        placeholder="52.12345"
       >
-
     </div>
   `;
 }
 
-
-function locationOptions(){
-
+function locationOptions(selected=''){
   return [...data.locations]
-
     .sort(
-      (a,b) =>
-        (b.useCount || 0) -
-        (a.useCount || 0)
+      (a,b)=>
+        (b.useCount||0)-
+        (a.useCount||0)||
+        a.name.localeCompare(b.name)
     )
-
     .map(
-      location => `
-
-        <option value="${location.id}">
-          ${escapeHtml(location.name)}
+      l=>`
+        <option
+          value="${l.id}"
+          ${l.id===selected?'selected':''}
+        >
+          ${esc(l.name)}
           ${
-            location.address
-            ? ' · ' +
-              escapeHtml(location.address)
-            : ''
+            l.address
+            ?' · '+esc(l.address)
+            :''
           }
         </option>
-
       `
     )
-
     .join('');
 }
 
-
-function snapshotLocation(
-  location
-){
-
-  if(!location){
+function parseCoord(v){
+  if(
+    v==null||
+    String(v).trim()===''
+  ){
     return null;
   }
 
-  return {
-    id:
-      location.id || null,
-
-    name:
-      location.name || '',
-
-    address:
-      location.address || '',
-
-    latitude:
-      location.latitude ??
-      location.lat ??
-      null,
-
-    longitude:
-      location.longitude ??
-      location.lng ??
-      null,
-
-    type:
-      location.type ||
-      'other'
-  };
-}
-
-
-function locationLabel(
-  location
-){
-
-  if(!location){
-    return '';
-  }
-
-  return (
-    location.name ||
-    location.address ||
-    coordinatesLabel(location) ||
-    'Locatie'
+  const n=Number(
+    String(v).replace(',','.')
   );
+
+  return Number.isFinite(n)
+    ?n
+    :null;
 }
 
-
-function coordinatesLabel(
-  location
-){
-
-  const latitude =
-    location?.latitude ??
-    location?.lat;
-
-  const longitude =
-    location?.longitude ??
-    location?.lng;
-
+function parseNum(v){
   if(
-    latitude === null ||
-    latitude === undefined ||
-    longitude === null ||
-    longitude === undefined
+    v==null||
+    String(v).trim()===''
   ){
-    return '';
-  }
-
-  return (
-    Number(latitude)
-      .toFixed(5) +
-    ', ' +
-    Number(longitude)
-      .toFixed(5)
-  );
-}
-
-
-function incrementLocationUse(
-  id
-){
-
-  if(!id){
-    return;
-  }
-
-  const location =
-    data.locations.find(
-      item =>
-        item.id === id
-    );
-
-  if(location){
-
-    location.useCount =
-      (location.useCount || 0) +
-      1;
-  }
-}
-
-
-function findHistoricalDistance(
-  origin,
-  destination
-){
-
-  const matching =
-    data.trips
-      .filter(
-        trip =>
-          sameLocation(
-            trip.origin,
-            origin
-          ) &&
-          sameLocation(
-            trip.destination,
-            destination
-          )
-      )
-      .slice(-5);
-
-  if(!matching.length){
-
     return null;
   }
 
-  return (
-    matching.reduce(
-      (total,trip) =>
-        total +
-        Number(
-          trip.actualKm ||
-          0
-        ),
-      0
-    ) /
-    matching.length
+  const n=Number(
+    String(v).replace(',','.')
   );
+
+  return Number.isFinite(n)
+    ?n
+    :null;
 }
 
-
-function sameLocation(
-  a,
-  b
-){
-
-  if(
-    a?.id &&
-    b?.id
-  ){
-
-    return (
-      a.id === b.id
-    );
-  }
-
-  const addressA =
-    String(
-      a?.address ||
-      ''
-    )
-    .trim()
-    .toLowerCase();
-
-  const addressB =
-    String(
-      b?.address ||
-      ''
-    )
-    .trim()
-    .toLowerCase();
+function num(v){
+  const n=Number(v);
 
   return (
-    addressA &&
-    addressA === addressB
-  );
+    v===''||
+    v==null||
+    !Number.isFinite(n)
+  )
+    ?null
+    :n;
 }
 
-
-function inferLastEndpoint(){
-
-  if(!data.trips.length){
-
-    if(
-      data.settings.initialOdometer !== ''
-    ){
-
-      return {
-        location:null,
-        odometer:
-          numberOrNull(
-            data.settings.initialOdometer
-          )
-      };
+function snap(l){
+  return l
+    ?{
+      id:l.id||null,
+      name:l.name||'',
+      address:l.address||'',
+      lat:
+        l.lat==null
+        ?null
+        :Number(l.lat),
+      lng:
+        l.lng==null
+        ?null
+        :Number(l.lng),
+      type:l.type||'other'
     }
+    :null;
+}
 
-    return null;
-  }
+function labelLoc(l){
+  return (
+    l?.name||
+    l?.address||
+    coords(l)||
+    ''
+  );
+}
 
-  const latest =
-    [...data.trips]
-      .sort(
-        (a,b) =>
-          new Date(b.arrivalTime) -
-          new Date(a.arrivalTime)
-      )[0];
+function coords(l){
+  return (
+    l?.lat!=null&&
+    l?.lng!=null
+  )
+    ?`${Number(l.lat).toFixed(5)}, ${Number(l.lng).toFixed(5)}`
+    :'';
+}
 
+function sortedTrips(){
+  return [...data.trips].sort(
+    (a,b)=>
+      new Date(b.departureTime)-
+      new Date(a.departureTime)
+  );
+}
+
+function sortedTripsByArrival(){
+  return [...data.trips].sort(
+    (a,b)=>
+      new Date(
+        b.arrivalTime||
+        b.departureTime
+      )
+      -
+      new Date(
+        a.arrivalTime||
+        a.departureTime
+      )
+  );
+}
+
+function tripsRange(s,e){
+  return sortedTrips().filter(
+    t=>
+      inRange(
+        new Date(t.departureTime),
+        s,
+        e
+      )
+  );
+}
+
+function totals(arr){
   return {
-    location:
-      latest.destination,
-
-    odometer:
-      latest.endOdometer,
-
-    time:
-      latest.arrivalTime
+    total:sum(arr,'actualKm'),
+    business:sum(arr,'businessKm'),
+    commute:sum(arr,'commuteKm'),
+    private:sum(arr,'privateKm')
   };
 }
 
+function sum(arr,k){
+  return arr.reduce(
+    (s,x)=>
+      s+
+      Number(x[k]||0),
+    0
+  );
+}
 
-function tripsInRange(
-  start,
-  end
-){
+function inRange(d,s,e){
+  return d>=s&&d<e;
+}
 
-  return [...data.trips]
+function startOfWeek(d){
+  const x=new Date(d);
 
-    .filter(
-      trip => {
+  x.setHours(0,0,0,0);
 
-        const date =
-          new Date(
-            trip.departureTime
-          );
+  const day=x.getDay()||7;
 
-        return (
-          date >= start &&
-          date < end
-        );
-      }
+  x.setDate(
+    x.getDate()-day+1
+  );
+
+  return x;
+}
+
+function addDays(d,n){
+  const x=new Date(d);
+
+  x.setDate(
+    x.getDate()+n
+  );
+
+  return x;
+}
+
+function isoWeek(d){
+  const x=new Date(
+    Date.UTC(
+      d.getFullYear(),
+      d.getMonth(),
+      d.getDate()
     )
-
-    .sort(
-      (a,b) =>
-        new Date(b.departureTime) -
-        new Date(a.departureTime)
-    );
-}
-
-
-function calculateTotals(
-  trips
-){
-
-  return {
-    total:
-      sum(
-        trips,
-        'actualKm'
-      ),
-
-    business:
-      sum(
-        trips,
-        'businessKm'
-      ),
-
-    commute:
-      sum(
-        trips,
-        'commuteKm'
-      ),
-
-    private:
-      sum(
-        trips,
-        'privateKm'
-      )
-  };
-}
-
-
-function sum(
-  array,
-  fieldName
-){
-
-  return array.reduce(
-    (total,item) =>
-      total +
-      Number(
-        item[fieldName] ||
-        0
-      ),
-    0
-  );
-}
-
-
-function parseDecimal(
-  value
-){
-
-  if(
-    value === null ||
-    value === undefined ||
-    String(value).trim() === ''
-  ){
-    return null;
-  }
-
-  const parsed =
-    Number(
-      String(value)
-        .trim()
-        .replace(',','.')
-    );
-
-  return Number.isFinite(parsed)
-    ? parsed
-    : null;
-}
-
-
-function numberOrNull(
-  value
-){
-
-  if(
-    value === null ||
-    value === undefined ||
-    String(value).trim() === ''
-  ){
-    return null;
-  }
-
-  const parsed =
-    Number(value);
-
-  return Number.isFinite(parsed)
-    ? parsed
-    : null;
-}
-
-
-function startOfWeek(
-  value
-){
-
-  const date =
-    new Date(value);
-
-  date.setHours(
-    0,
-    0,
-    0,
-    0
   );
 
-  const day =
-    date.getDay() ||
-    7;
+  const day=x.getUTCDay()||7;
 
-  date.setDate(
-    date.getDate() -
-    day +
-    1
+  x.setUTCDate(
+    x.getUTCDate()+4-day
   );
 
-  return date;
-}
-
-
-function addDays(
-  value,
-  days
-){
-
-  const date =
-    new Date(value);
-
-  date.setDate(
-    date.getDate() +
-    days
+  const y=new Date(
+    Date.UTC(
+      x.getUTCFullYear(),
+      0,
+      1
+    )
   );
-
-  return date;
-}
-
-
-function isoWeek(
-  value
-){
-
-  const date =
-    new Date(
-      Date.UTC(
-        value.getFullYear(),
-        value.getMonth(),
-        value.getDate()
-      )
-    );
-
-  const day =
-    date.getUTCDay() ||
-    7;
-
-  date.setUTCDate(
-    date.getUTCDate() +
-    4 -
-    day
-  );
-
-  const firstDay =
-    new Date(
-      Date.UTC(
-        date.getUTCFullYear(),
-        0,
-        1
-      )
-    );
 
   return Math.ceil(
     (
-      (
-        date -
-        firstDay
-      ) /
-      86400000 +
-      1
-    ) /
-    7
+      ((x-y)/86400000)+1
+    )/7
   );
 }
 
-
-function formatDate(
-  value
-){
-
+function date(d){
   return new Intl.DateTimeFormat(
     'nl-NL',
     {
@@ -4158,15 +3563,24 @@ function formatDate(
       year:'numeric'
     }
   ).format(
-    new Date(value)
+    new Date(d)
   );
 }
 
+function shortDate(d){
+  return new Intl.DateTimeFormat(
+    'nl-NL',
+    {
+      weekday:'short',
+      day:'2-digit',
+      month:'2-digit'
+    }
+  ).format(
+    new Date(d)
+  );
+}
 
-function formatDateTime(
-  value
-){
-
+function dateTime(d){
   return new Intl.DateTimeFormat(
     'nl-NL',
     {
@@ -4177,225 +3591,101 @@ function formatDateTime(
       minute:'2-digit'
     }
   ).format(
-    new Date(value)
+    new Date(d)
   );
 }
 
+function time(d){
+  return new Intl.DateTimeFormat(
+    'nl-NL',
+    {
+      hour:'2-digit',
+      minute:'2-digit'
+    }
+  ).format(
+    new Date(d)
+  );
+}
 
-function localDateTime(
-  value
-){
-
-  const date =
-    new Date(value);
-
-  const pad =
-    number =>
-      String(number)
-        .padStart(
-          2,
-          '0'
-        );
+function localInput(d){
+  const x=new Date(d),
+        p=n=>
+          String(n).padStart(2,'0');
 
   return (
-    date.getFullYear() +
-    '-' +
-    pad(date.getMonth()+1) +
-    '-' +
-    pad(date.getDate()) +
-    'T' +
-    pad(date.getHours()) +
-    ':' +
-    pad(date.getMinutes())
+    `${x.getFullYear()}-`+
+    `${p(x.getMonth()+1)}-`+
+    `${p(x.getDate())}T`+
+    `${p(x.getHours())}:`+
+    `${p(x.getMinutes())}`
   );
 }
 
-
-function formatKm(
-  value
-){
-
+function km(v){
   return new Intl.NumberFormat(
     'nl-NL',
     {
       maximumFractionDigits:1
     }
   ).format(
-    Number(value || 0)
+    Number(v||0)
   );
 }
 
-
-function formatOdo(
-  value
-){
-
+function odo(v){
   return new Intl.NumberFormat(
     'nl-NL',
     {
       maximumFractionDigits:0
     }
   ).format(
-    Number(value || 0)
+    Number(v||0)
   );
 }
 
-
-function categoryLabel(
-  category
-){
-
-  if(category === 'business'){
-    return 'Zakelijk';
-  }
-
-  if(category === 'commute'){
-    return 'Woon-werk';
-  }
-
-  if(category === 'private'){
-    return 'Privé';
-  }
-
-  return 'Overig';
+function categoryLabel(v){
+  return v==='business'
+    ?'Zakelijk'
+    :v==='commute'
+    ?'Woon-werk'
+    :v==='private'
+    ?'Privé'
+    :'Overig';
 }
 
-
-function locationTypeLabel(
-  type
-){
-
-  if(type === 'home'){
-    return 'Thuis';
-  }
-
-  if(type === 'work'){
-    return 'Werk';
-  }
-
-  if(type === 'business'){
-    return 'Zakelijk';
-  }
-
-  if(type === 'private'){
-    return 'Privé';
-  }
-
-  return 'Overig';
+function typeLabel(v){
+  return v==='home'
+    ?'Thuis'
+    :v==='work'
+    ?'Werk'
+    :v==='business'
+    ?'Zakelijk'
+    :v==='private'
+    ?'Privé'
+    :'Overig';
 }
 
-
-function openModal(
-  html
-){
-
-  modalPanel.innerHTML =
-    html;
-
-  modal.hidden =
-    false;
-
-  document.body.style.overflow =
-    'hidden';
-}
-
-
-function closeModal(){
-
-  modal.hidden =
-    true;
-
-  modalPanel.innerHTML =
-    '';
-
-  document.body.style.overflow =
-    '';
-}
-
-
-function showToast(
-  message
-){
-
-  toastEl.textContent =
-    message;
-
-  toastEl.classList.add(
-    'show'
-  );
-
-  clearTimeout(
-    toastEl._timer
-  );
-
-  toastEl._timer =
-    setTimeout(
-      () =>
-        toastEl.classList.remove(
-          'show'
-        ),
-      3500
-    );
-}
-
-
-function showError(
-  message
-){
-
-  showToast(
-    'Fout: ' +
-    message
-  );
-
-  /*
-    Een alert is hier bewust toegevoegd.
-    Daardoor krijg je óók op iPhone altijd
-    feedback als de toast niet zichtbaar is.
-  */
-
-  setTimeout(
-    () => {
-      alert(
-        'Fout:\n\n' +
-        message
-      );
-    },
-    50
-  );
-}
-
-
-function escapeHtml(
-  value
-){
-
-  return String(
-    value ?? ''
-  ).replace(
+function esc(v){
+  return String(v??'').replace(
     /[&<>"']/g,
-    character => ({
+    c=>({
       '&':'&amp;',
       '<':'&lt;',
       '>':'&gt;',
       '"':'&quot;',
       "'":'&#39;'
-    }[character])
+    }[c])
   );
 }
 
-
-function escapeAttribute(
-  value
-){
-
-  return escapeHtml(
-    value
+function attr(v){
+  return esc(v).replace(
+    /`/g,
+    '&#96;'
   );
 }
 
 })();
 </script>
-
 </body>
 </html>
