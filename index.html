@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kilometers">
+
 <title>Kilometerregistratie</title>
 
 <style>
@@ -21,11 +22,11 @@
   --good:#49d17d;
   --warn:#ffbd4a;
   --bad:#ff6767;
-  --radius:18px
+  --radius:18px;
 }
 
 *{
-  box-sizing:border-box
+  box-sizing:border-box;
 }
 
 html,
@@ -33,18 +34,18 @@ body{
   margin:0;
   background:var(--bg);
   color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 
 body{
-  min-height:100dvh
+  min-height:100dvh;
 }
 
 button,
 input,
 select,
 textarea{
-  font:inherit
+  font:inherit;
 }
 
 .shell{
@@ -54,7 +55,7 @@ textarea{
   padding:
     env(safe-area-inset-top)
     16px
-    calc(94px + env(safe-area-inset-bottom))
+    calc(94px + env(safe-area-inset-bottom));
 }
 
 .top{
@@ -65,7 +66,7 @@ textarea{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:16px 0 20px
+  padding:16px 0 20px;
 }
 
 .eyebrow,
@@ -74,49 +75,49 @@ textarea{
   color:var(--muted);
   text-transform:uppercase;
   letter-spacing:.08em;
-  font-weight:700
+  font-weight:700;
 }
 
 .top h1{
   font-size:24px;
-  margin:3px 0 0
+  margin:3px 0 0;
 }
 
 .hero,
 .card,
-.metric,
 .list-item,
 .action,
 .detail-box,
 .notice,
-.empty{
+.empty,
+.km-summary{
   background:var(--card);
   border:1px solid var(--line);
-  border-radius:var(--radius)
+  border-radius:var(--radius);
 }
 
 .hero{
   padding:22px;
-  margin-bottom:14px
+  margin-bottom:14px;
 }
 
 .hero h2{
   font-size:28px;
-  margin:8px 0
+  margin:8px 0;
 }
 
 .hero p,
 .hint,
 .muted,
 small{
-  color:var(--muted)
+  color:var(--muted);
 }
 
 .btn,
 .mini,
 .iconbtn{
   border:0;
-  cursor:pointer
+  cursor:pointer;
 }
 
 .btn{
@@ -125,20 +126,20 @@ small{
   min-height:48px;
   background:var(--accent);
   color:#fff;
-  font-weight:750
+  font-weight:750;
 }
 
 .btn.secondary{
   background:var(--card2);
-  border:1px solid var(--line)
+  border:1px solid var(--line);
 }
 
 .btn.danger{
-  background:#4b1f24
+  background:#4b1f24;
 }
 
 .btn.full{
-  width:100%
+  width:100%;
 }
 
 .mini,
@@ -147,21 +148,21 @@ small{
   background:var(--card);
   color:var(--text);
   border-radius:12px;
-  padding:10px 12px
+  padding:10px 12px;
 }
 
 .button-row{
   display:flex;
   gap:10px;
-  flex-wrap:wrap
+  flex-wrap:wrap;
 }
 
 .button-row .btn{
-  flex:1
+  flex:1;
 }
 
 .section{
-  margin-top:22px
+  margin-top:22px;
 }
 
 .section-title{
@@ -169,39 +170,23 @@ small{
   justify-content:space-between;
   align-items:end;
   gap:12px;
-  margin-bottom:10px
+  margin-bottom:10px;
 }
 
 .section-title h2,
 .card h3{
-  margin:0
+  margin:0;
 }
 
 .grid2{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:12px
-}
-
-.metric{
-  padding:16px
-}
-
-.metric span{
-  display:block;
-  color:var(--muted);
-  font-size:13px
-}
-
-.metric strong{
-  display:block;
-  font-size:24px;
-  margin-top:5px
+  gap:12px;
 }
 
 .list{
   display:grid;
-  gap:10px
+  gap:10px;
 }
 
 .list-item{
@@ -209,65 +194,65 @@ small{
   display:flex;
   gap:12px;
   justify-content:space-between;
-  align-items:center
+  align-items:center;
 }
 
 .trip-row{
   cursor:pointer;
-  transition:transform .12s ease
+  transition:transform .12s ease;
 }
 
 .trip-row:active{
-  transform:scale(.99)
+  transform:scale(.99);
 }
 
 .trip-date{
   font-size:12px;
   color:var(--muted);
-  min-width:58px
+  min-width:58px;
 }
 
 .trip-path{
   flex:1;
-  min-width:0
+  min-width:0;
 }
 
 .trip-path strong,
 .trip-path small,
 .list-main strong,
 .list-main small{
-  display:block
+  display:block;
 }
 
 .trip-path small,
 .list-main small{
-  margin-top:4px
+  margin-top:4px;
 }
 
 .trip-km{
   font-weight:800;
-  white-space:nowrap
+  white-space:nowrap;
 }
 
 .trip-chevron{
   font-size:28px;
   color:var(--muted);
-  line-height:1
+  line-height:1;
 }
 
 .list-main{
   min-width:0;
-  flex:1
+  flex:1;
 }
 
 .list-actions{
   display:flex;
-  gap:7px
+  gap:7px;
 }
 
 .action-grid{
   display:grid;
-  gap:12px
+  gap:12px;
 }
 
 .action{
@@ -277,38 +262,38 @@ small{
   padding:18px;
   text-align:left;
   color:var(--text);
-  width:100%
+  width:100%;
 }
 
 .action .ico{
   font-size:26px;
   width:36px;
-  text-align:center
+  text-align:center;
 }
 
 .action strong,
 .action small{
-  display:block
+  display:block;
 }
 
 .action small{
-  margin-top:3px
+  margin-top:3px;
 }
 
 .card{
   padding:16px;
-  margin-bottom:12px
+  margin-bottom:12px;
 }
 
 .form-group{
-  margin:13px 0
+  margin:13px 0;
 }
 
 .form-group label{
   display:block;
   font-size:13px;
   font-weight:700;
-  margin-bottom:7px
+  margin-bottom:7px;
 }
 
 .form-group input,
@@ -320,97 +305,171 @@ small{
   border:1px solid var(--line);
   border-radius:12px;
   padding:13px;
-  min-height:46px
+  min-height:46px;
 }
 
 .form-group textarea{
   min-height:90px;
-  resize:vertical
+  resize:vertical;
 }
 
 .hint{
   font-size:12px;
   margin-top:6px;
-  line-height:1.4
+  line-height:1.4;
 }
 
 .notice{
   padding:14px;
   color:var(--muted);
-  margin:12px 0
+  margin:12px 0;
 }
 
 .notice.warning{
   border-color:#6b5424;
-  color:#ffd98a
+  color:#ffd98a;
 }
 
 .empty{
   padding:22px;
   text-align:center;
-  color:var(--muted)
+  color:var(--muted);
 }
 
 .route-box,
 .detail-box{
   background:#101722;
   padding:14px;
-  margin:12px 0
+  margin:12px 0;
+}
+
+.route-box{
+  border:1px solid var(--line);
+  border-radius:14px;
 }
 
 .route-box strong,
 .route-box small{
-  display:block
+  display:block;
 }
 
 .route-box small{
-  margin-top:5px
+  margin-top:5px;
 }
+
+/* =========================
+   KM SAMENVATTING
+========================= */
+
+.km-summary{
+  overflow:hidden;
+}
+
+.km-summary-head{
+  padding:17px 18px 15px;
+}
+
+.km-summary-caption{
+  color:var(--muted);
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  font-weight:700;
+}
+
+.km-summary-main{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:12px;
+  margin-top:6px;
+}
+
+.km-summary-main strong{
+  display:block;
+  font-size:31px;
+  line-height:1;
+}
+
+.km-summary-main small{
+  white-space:nowrap;
+}
+
+.km-summary-breakdown{
+  display:flex;
+  border-top:1px solid var(--line);
+}
+
+.km-part{
+  flex:1;
+  min-width:0;
+  padding:13px 14px 14px;
+}
+
+.km-part + .km-part{
+  border-left:1px solid var(--line);
+}
+
+.km-part span{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.km-part strong{
+  display:block;
+  margin-top:4px;
+  font-size:17px;
+}
+
+/* =========================
+   RITDETAILS
+========================= */
 
 .detail-hero{
   padding:18px;
   background:linear-gradient(180deg,#182230,#121820);
   border:1px solid var(--line);
   border-radius:18px;
-  margin:10px 0 14px
+  margin:10px 0 14px;
 }
 
 .detail-date{
   color:var(--muted);
   font-size:13px;
-  margin-bottom:9px
+  margin-bottom:9px;
 }
 
 .detail-route{
   font-size:23px;
   font-weight:800;
-  line-height:1.2
+  line-height:1.2;
 }
 
 .detail-route .arrow{
   color:var(--accent);
-  padding:0 6px
+  padding:0 6px;
 }
 
 .detail-address{
   margin-top:8px;
   color:var(--muted);
   font-size:12px;
-  line-height:1.45
+  line-height:1.45;
 }
 
 .detail-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:10px;
-  margin:12px 0
+  margin:12px 0;
 }
 
 .detail-item{
   padding:13px;
   background:#101722;
   border:1px solid var(--line);
-  border-radius:14px
+  border-radius:14px;
 }
 
 .detail-item span{
@@ -418,13 +477,13 @@ small{
   color:var(--muted);
   font-size:11px;
   text-transform:uppercase;
-  letter-spacing:.05em
+  letter-spacing:.05em;
 }
 
 .detail-item strong{
   display:block;
   margin-top:5px;
-  font-size:17px
+  font-size:17px;
 }
 
 .pill{
@@ -435,7 +494,7 @@ small{
   background:var(--card2);
   border-radius:999px;
   font-size:12px;
-  font-weight:700
+  font-weight:700;
 }
 
 .detail-note{
@@ -443,23 +502,23 @@ small{
   background:#101722;
   border:1px solid var(--line);
   border-radius:14px;
-  line-height:1.45
+  line-height:1.45;
 }
 
 .detail-actions{
   display:flex;
   gap:10px;
-  margin-top:16px
+  margin-top:16px;
 }
 
 .detail-actions .btn{
-  flex:1
+  flex:1;
 }
 
 .divider{
   height:1px;
   background:var(--line);
-  margin:16px 0
+  margin:16px 0;
 }
 
 .status{
@@ -470,33 +529,33 @@ small{
   border-radius:999px;
   padding:7px 10px;
   font-size:12px;
-  color:var(--muted)
+  color:var(--muted);
 }
 
 .dot{
   width:8px;
   height:8px;
   border-radius:50%;
-  background:var(--good)
+  background:var(--good);
 }
 
 .week-nav{
   display:flex;
   align-items:center;
-  justify-content:space-between
+  justify-content:space-between;
 }
 
 .week-nav .center{
-  text-align:center
+  text-align:center;
 }
 
 .week-nav h2{
-  margin:0
+  margin:0;
 }
 
 .week-nav small{
   display:block;
-  margin-top:4px
+  margin-top:4px;
 }
 
 .nav{
@@ -510,14 +569,14 @@ small{
   backdrop-filter:blur(18px);
   display:flex;
   justify-content:center;
-  border-top:1px solid var(--line)
+  border-top:1px solid var(--line);
 }
 
 .nav-inner{
   width:min(820px,100%);
   display:grid;
   grid-template-columns:repeat(5,1fr);
-  gap:4px
+  gap:4px;
 }
 
 .nav button{
@@ -525,25 +584,25 @@ small{
   background:transparent;
   color:var(--muted);
   padding:8px 4px;
-  border-radius:12px
+  border-radius:12px;
 }
 
 .nav button span,
 .nav button small{
-  display:block
+  display:block;
 }
 
 .nav button span{
-  font-size:20px
+  font-size:20px;
 }
 
 .nav button small{
-  font-size:10px
+  font-size:10px;
 }
 
 .nav button.active{
   background:var(--card2);
-  color:var(--text)
+  color:var(--text);
 }
 
 .modal{
@@ -552,11 +611,11 @@ small{
   z-index:50;
   background:rgba(0,0,0,.62);
   padding:22px 12px calc(22px + env(safe-area-inset-bottom));
-  overflow:auto
+  overflow:auto;
 }
 
 .modal[hidden]{
-  display:none
+  display:none;
 }
 
 .modal-panel{
@@ -565,18 +624,18 @@ small{
   background:var(--bg);
   border:1px solid var(--line);
   border-radius:22px;
-  padding:16px
+  padding:16px;
 }
 
 .modal-head{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:8px
+  margin-bottom:8px;
 }
 
 .modal-head h2{
-  margin:0
+  margin:0;
 }
 
 .close{
@@ -586,7 +645,7 @@ small{
   font-size:24px;
   width:40px;
   height:40px;
-  border-radius:50%
+  border-radius:50%;
 }
 
 .toast{
@@ -604,43 +663,53 @@ small{
   transition:.2s;
   max-width:86vw;
   text-align:center;
-  font-weight:700
+  font-weight:700;
 }
 
 .toast.show{
   opacity:1;
-  transform:translate(-50%,0)
+  transform:translate(-50%,0);
 }
 
 .print-only{
-  display:none
+  display:none;
 }
 
 @media(max-width:460px){
+
   .grid2,
   .detail-grid{
-    grid-template-columns:1fr
+    grid-template-columns:1fr;
   }
 
   .hero h2{
-    font-size:24px
+    font-size:24px;
   }
 
   .button-row,
   .detail-actions{
-    flex-direction:column
+    flex-direction:column;
   }
 
   .button-row .btn,
   .detail-actions .btn{
-    width:100%
+    width:100%;
+  }
+
+  .km-summary-breakdown{
+    flex-wrap:wrap;
+  }
+
+  .km-part{
+    flex:1 1 33%;
   }
 }
 
 @media print{
+
   body{
     background:#fff;
-    color:#000
+    color:#000;
   }
 
   .top,
@@ -648,30 +717,30 @@ small{
   .no-print,
   .modal,
   .toast{
-    display:none!important
+    display:none!important;
   }
 
   .shell{
     max-width:none;
-    padding:0
+    padding:0;
   }
 
   .print-only{
-    display:block
+    display:block;
   }
 
   .card,
   .list-item,
-  .metric{
+  .km-summary{
     background:#fff;
     color:#000;
-    border-color:#ccc
+    border-color:#ccc;
   }
 
   .muted,
   small,
   .hint{
-    color:#555
+    color:#555;
   }
 }
 </style>
@@ -680,7 +749,9 @@ small{
 <body>
 
 <div class="shell">
+
   <header class="top">
+
     <div>
       <div id="today" class="eyebrow"></div>
       <h1>Kilometerregistratie</h1>
@@ -689,12 +760,15 @@ small{
     <button class="iconbtn" data-action="settings">
       ⚙︎
     </button>
+
   </header>
 
   <main id="app"></main>
+
 </div>
 
 <nav class="nav">
+
   <div class="nav-inner">
 
     <button data-view="ride" class="active">
@@ -723,6 +797,7 @@ small{
     </button>
 
   </div>
+
 </nav>
 
 <div id="modal" class="modal" hidden>
@@ -739,6 +814,7 @@ small{
 const KEY='kmreg-v4-data';
 
 const DEFAULT={
+
   settings:{
     name:'',
     vehicleBrand:'',
@@ -749,6 +825,7 @@ const DEFAULT={
     reportEmail:'',
     recognitionRadius:500
   },
+
   locations:[],
   trips:[],
   events:[],
@@ -765,12 +842,20 @@ let gpsWatch=null;
 let gpsTimer=null;
 let gpsLatest=null;
 
-const app=document.getElementById('app');
-const modal=document.getElementById('modal');
-const modalPanel=document.getElementById('modalPanel');
-const toastEl=document.getElementById('toast');
+const app=
+  document.getElementById('app');
+
+const modal=
+  document.getElementById('modal');
+
+const modalPanel=
+  document.getElementById('modalPanel');
+
+const toastEl=
+  document.getElementById('toast');
 
 document.getElementById('today').textContent=
+
   new Intl.DateTimeFormat(
     'nl-NL',
     {
@@ -778,7 +863,9 @@ document.getElementById('today').textContent=
       day:'numeric',
       month:'long'
     }
-  ).format(new Date())+' · v8';
+  ).format(new Date())
+
+  +' · v9';
 
 render();
 
@@ -787,9 +874,9 @@ if(data.activeTrip){
 }
 
 
-/* =========================
+/* ========================================
    OPSLAG
-========================= */
+======================================== */
 
 function load(){
 
@@ -799,53 +886,57 @@ function load(){
       localStorage.getItem(KEY);
 
     if(raw){
+
       return normalize(
         JSON.parse(raw)
       );
     }
 
-  }catch(e){
+  }catch(error){
 
-    console.error(e);
+    console.error(error);
   }
 
   return clone(DEFAULT);
 }
 
 
-function normalize(x){
+function normalize(value){
 
   return {
+
     settings:{
       ...DEFAULT.settings,
-      ...(x.settings||{})
+      ...(value.settings||{})
     },
 
     locations:
-      Array.isArray(x.locations)
-      ?x.locations
+      Array.isArray(value.locations)
+      ?value.locations
       :[],
 
     trips:
-      Array.isArray(x.trips)
-      ?x.trips
+      Array.isArray(value.trips)
+      ?value.trips
       :[],
 
     events:
-      Array.isArray(x.events)
-      ?x.events
+      Array.isArray(value.events)
+      ?value.events
       :[],
 
     trackPoints:
-      Array.isArray(x.trackPoints)
-      ?x.trackPoints
+      Array.isArray(value.trackPoints)
+      ?value.trackPoints
       :[],
 
     activeTrip:
-      x.activeTrip||null,
+      value.activeTrip||
+      null,
 
     lastEndpoint:
-      x.lastEndpoint||null
+      value.lastEndpoint||
+      null
   };
 }
 
@@ -861,6 +952,7 @@ function save(){
     localStorage.getItem(KEY);
 
   if(!check){
+
     throw new Error(
       'Lokale opslag is mislukt.'
     );
@@ -872,42 +964,50 @@ function save(){
 }
 
 
-function clone(v){
+function clone(value){
 
   return JSON.parse(
-    JSON.stringify(v)
+    JSON.stringify(value)
   );
 }
 
 
 function uid(){
 
-  return crypto?.randomUUID
-    ?crypto.randomUUID()
-    :'id-'+
-      Date.now().toString(36)+
-      '-'+
-      Math.random().toString(36).slice(2);
+  if(
+    window.crypto&&
+    crypto.randomUUID
+  ){
+
+    return crypto.randomUUID();
+  }
+
+  return (
+    'id-'+
+    Date.now().toString(36)+
+    '-'+
+    Math.random().toString(36).slice(2)
+  );
 }
 
 
-/* =========================
+/* ========================================
    EVENTS
-========================= */
+======================================== */
 
 document.addEventListener(
   'click',
-  async e=>{
+  async event=>{
 
-    const vb=
-      e.target.closest(
+    const viewButton=
+      event.target.closest(
         '[data-view]'
       );
 
-    if(vb){
+    if(viewButton){
 
       view=
-        vb.dataset.view;
+        viewButton.dataset.view;
 
       render();
 
@@ -915,18 +1015,18 @@ document.addEventListener(
     }
 
 
-    const el=
-      e.target.closest(
+    const element=
+      event.target.closest(
         '[data-action]'
       );
 
-    if(!el){
+    if(!element){
       return;
     }
 
 
     const action=
-      el.dataset.action;
+      element.dataset.action;
 
 
     try{
@@ -974,8 +1074,8 @@ document.addEventListener(
       else if(action==='trip-detail'){
 
         openTripDetail(
-          el.dataset.id||
-          el.closest('[data-id]')?.dataset.id
+          element.dataset.id||
+          element.closest('[data-id]')?.dataset.id
         );
       }
 
@@ -983,8 +1083,8 @@ document.addEventListener(
       else if(action==='edit-trip'){
 
         openTripEdit(
-          el.dataset.id||
-          el.closest('[data-id]')?.dataset.id
+          element.dataset.id||
+          element.closest('[data-id]')?.dataset.id
         );
       }
 
@@ -992,7 +1092,7 @@ document.addEventListener(
       else if(action==='back-trip-detail'){
 
         openTripDetail(
-          el.dataset.id
+          element.dataset.id
         );
       }
 
@@ -1006,7 +1106,7 @@ document.addEventListener(
       else if(action==='delete-trip'){
 
         deleteTrip(
-          el.dataset.id
+          element.dataset.id
         );
       }
 
@@ -1041,7 +1141,8 @@ document.addEventListener(
       else if(action==='edit-location'){
 
         openLocation(
-          el.closest('[data-id]')
+          element
+            .closest('[data-id]')
             .dataset.id
         );
       }
@@ -1050,7 +1151,8 @@ document.addEventListener(
       else if(action==='delete-location'){
 
         deleteLocation(
-          el.closest('[data-id]')
+          element
+            .closest('[data-id]')
             .dataset.id
         );
       }
@@ -1148,12 +1250,12 @@ document.addEventListener(
         window.print();
       }
 
-    }catch(err){
+    }catch(error){
 
-      console.error(err);
+      console.error(error);
 
       showError(
-        err.message||
+        error.message||
         'Er ging iets mis.'
       );
     }
@@ -1163,20 +1265,21 @@ document.addEventListener(
 
 document.addEventListener(
   'submit',
-  async e=>{
+  async event=>{
 
     if(
-      !(e.target instanceof HTMLFormElement)
+      !(event.target instanceof HTMLFormElement)
     ){
+
       return;
     }
 
-    e.preventDefault();
+    event.preventDefault();
 
     const form=
-      e.target;
+      event.target;
 
-    const fd=
+    const formData=
       new FormData(form);
 
 
@@ -1184,45 +1287,57 @@ document.addEventListener(
 
       if(form.id==='settingsForm'){
 
-        saveSettings(fd);
+        saveSettings(
+          formData
+        );
       }
 
 
       else if(form.id==='startForm'){
 
-        await saveStart(fd);
+        await saveStart(
+          formData
+        );
       }
 
 
       else if(form.id==='arrivalForm'){
 
-        saveArrival(fd);
+        saveArrival(
+          formData
+        );
       }
 
 
       else if(form.id==='tankForm'){
 
-        saveTank(fd);
+        saveTank(
+          formData
+        );
       }
 
 
       else if(form.id==='manualForm'){
 
-        saveManual(fd);
+        saveManual(
+          formData
+        );
       }
 
 
       else if(form.id==='privateForm'){
 
-        savePrivate(fd);
+        savePrivate(
+          formData
+        );
       }
 
-    }catch(err){
+    }catch(error){
 
-      console.error(err);
+      console.error(error);
 
       showError(
-        err.message||
+        error.message||
         'Opslaan mislukt.'
       );
     }
@@ -1232,24 +1347,24 @@ document.addEventListener(
 
 document.addEventListener(
   'change',
-  async e=>{
+  async event=>{
 
     if(
-      e.target.id==='importFile'&&
-      e.target.files?.[0]
+      event.target.id==='importFile'&&
+      event.target.files?.[0]
     ){
 
       await importJson(
-        e.target.files[0]
+        event.target.files[0]
       );
     }
   }
 );
 
 
-/* =========================
+/* ========================================
    RENDER
-========================= */
+======================================== */
 
 function render(){
 
@@ -1259,6 +1374,7 @@ function render(){
     )
     .forEach(
       button=>
+
         button.classList.toggle(
           'active',
           button.dataset.view===view
@@ -1271,30 +1387,25 @@ function render(){
     renderRide();
   }
 
-
   else if(view==='week'){
 
     renderWeek();
   }
-
 
   else if(view==='locations'){
 
     renderLocations();
   }
 
-
   else if(view==='report'){
 
     renderReport();
   }
 
-
   else if(view==='more'){
 
     renderMore();
   }
-
 
   else if(view==='settings'){
 
@@ -1303,23 +1414,160 @@ function render(){
 }
 
 
-/* =========================
+/* ========================================
+   KM SAMENVATTING
+======================================== */
+
+function kmSummary(
+  total,
+  title='Kilometers',
+  tripCount=null
+){
+
+  const parts=[];
+
+
+  if(
+    Number(total.business||0)>0
+  ){
+
+    parts.push({
+      label:'Zakelijk',
+      value:total.business
+    });
+  }
+
+
+  if(
+    Number(total.commute||0)>0
+  ){
+
+    parts.push({
+      label:'Woon-werk',
+      value:total.commute
+    });
+  }
+
+
+  if(
+    Number(total.private||0)>0
+  ){
+
+    parts.push({
+      label:'Privé',
+      value:total.private
+    });
+  }
+
+
+  return `
+
+    <div class="km-summary">
+
+      <div class="km-summary-head">
+
+        <div class="km-summary-caption">
+          ${esc(title)}
+        </div>
+
+
+        <div class="km-summary-main">
+
+          <div>
+
+            <strong>
+              ${km(total.total)}
+              km
+            </strong>
+
+          </div>
+
+
+          ${
+            tripCount!==null
+
+            ?`
+
+              <small>
+
+                ${tripCount}
+
+                ${
+                  tripCount===1
+                  ?'rit'
+                  :'ritten'
+                }
+
+              </small>
+            `
+
+            :''
+          }
+
+        </div>
+
+      </div>
+
+
+      ${
+        parts.length
+
+        ?`
+
+          <div class="km-summary-breakdown">
+
+            ${
+              parts.map(
+                part=>`
+
+                  <div class="km-part">
+
+                    <span>
+                      ${esc(part.label)}
+                    </span>
+
+                    <strong>
+                      ${km(part.value)}
+                      km
+                    </strong>
+
+                  </div>
+
+                `
+              ).join('')
+            }
+
+          </div>
+        `
+
+        :''
+      }
+
+    </div>
+  `;
+}
+
+
+/* ========================================
    HOOFDSCHERM
-========================= */
+======================================== */
 
 function renderRide(){
 
   const active=
     data.activeTrip;
 
+
   const last=
     data.lastEndpoint||
     inferLast();
+
 
   const startWeek=
     startOfWeek(
       new Date()
     );
+
 
   const week=
     tripsRange(
@@ -1331,16 +1579,24 @@ function renderRide(){
     );
 
 
+  const weekTotals=
+    totals(
+      week
+    );
+
+
   app.innerHTML=`
 
     <section class="hero">
 
       <div class="kicker">
+
         ${
           active
           ?'Actieve rit'
           :'Huidige stand'
         }
+
       </div>
 
 
@@ -1350,34 +1606,52 @@ function renderRide(){
         ?`
 
           <h2>
+
             ${esc(labelLoc(active.origin))}
+
             →
+
             ${esc(labelLoc(active.expectedDestination))}
+
           </h2>
 
+
           <p>
+
             Startstand
+
             ${odo(active.startOdometer)}
+
             km
 
             ${
               active.proposedRouteKm!=null
 
               ?`
+
                 · routevoorstel
+
                 ${km(active.proposedRouteKm)}
+
                 km
               `
 
               :''
             }
+
           </p>
 
+
           <span class="status">
+
             <span class="dot"></span>
+
             Gestart
+
             ${time(active.departureTime)}
+
           </span>
+
 
           <div
             class="button-row"
@@ -1390,6 +1664,7 @@ function renderRide(){
             >
               Open Apple Kaarten
             </button>
+
 
             <button
               class="btn"
@@ -1404,28 +1679,40 @@ function renderRide(){
         :`
 
           <h2>
+
             ${
               last
+
               ?odo(last.odometer)+' km'
+
               :'Nog geen beginstand'
             }
+
           </h2>
 
+
           <p>
+
             ${
               last?.location
 
               ?`
+
                 Laatste bestemming:
+
                 ${esc(labelLoc(last.location))}
               `
 
               :`
+
                 Vul bij Instellingen
+
                 je auto en beginstand in.
               `
             }
+
           </p>
+
 
           <button
             class="btn full"
@@ -1439,40 +1726,25 @@ function renderRide(){
     </section>
 
 
-    <div class="grid2">
-
-      ${
-        metric(
-          'Deze week',
-          km(
-            sum(
-              week,
-              'actualKm'
-            )
-          )+
-          ' km'
-        )
-      }
-
-      ${
-        metric(
-          'Ritten',
-          String(
-            week.length
-          )
-        )
-      }
-
-    </div>
+    ${
+      kmSummary(
+        weekTotals,
+        'Deze week',
+        week.length
+      )
+    }
 
 
     <div class="section">
 
       <div class="section-title">
+
         <h2>
           Laatste ritten
         </h2>
+
       </div>
+
 
       ${
         tripList(
@@ -1486,15 +1758,16 @@ function renderRide(){
 }
 
 
-/* =========================
+/* ========================================
    RITTENLIJST
-========================= */
+======================================== */
 
 function tripList(arr){
 
   if(!arr.length){
 
     return `
+
       <div class="empty">
         Nog geen ritten.
       </div>
@@ -1531,9 +1804,13 @@ function tripList(arr){
               <div class="trip-path">
 
                 <strong>
+
                   ${esc(labelLoc(trip.origin))}
+
                   →
+
                   ${esc(labelLoc(trip.destination))}
+
                 </strong>
 
 
@@ -1545,7 +1822,9 @@ function tripList(arr){
                     trip.reason
 
                     ?`
+
                       ·
+
                       ${esc(trip.reason)}
                     `
 
@@ -1569,8 +1848,11 @@ function tripList(arr){
                     trip.privateKm
 
                     ?`
+
                       ·
+
                       ${km(trip.privateKm)}
+
                       km privé
                     `
 
@@ -1591,9 +1873,13 @@ function tripList(arr){
               >
 
                 <div class="trip-km">
+
                   ${km(trip.actualKm)}
+
                   km
+
                 </div>
+
 
                 <div class="trip-chevron">
                   ›
@@ -1603,8 +1889,7 @@ function tripList(arr){
 
             </div>
           `
-        )
-        .join('')
+        ).join('')
       }
 
     </div>
@@ -1612,9 +1897,9 @@ function tripList(arr){
 }
 
 
-/* =========================
+/* ========================================
    RITDETAILS
-========================= */
+======================================== */
 
 function openTripDetail(id){
 
@@ -1712,19 +1997,25 @@ function openTripDetail(id){
               trip.origin?.address
 
               ?`
+
                 Vertrek:
+
                 ${esc(trip.origin.address)}
+
                 <br>
               `
 
               :''
             }
 
+
             ${
               trip.destination?.address
 
               ?`
+
                 Bestemming:
+
                 ${esc(trip.destination.address)}
               `
 
@@ -1743,7 +2034,9 @@ function openTripDetail(id){
     <div class="button-row">
 
       <span class="pill">
+
         ${esc(categoryLabel(trip.category))}
+
       </span>
 
 
@@ -1751,9 +2044,13 @@ function openTripDetail(id){
         trip.privateKm
 
         ?`
+
           <span class="pill">
+
             ${km(trip.privateKm)}
+
             km privé
+
           </span>
         `
 
@@ -1772,8 +2069,11 @@ function openTripDetail(id){
         </span>
 
         <strong>
+
           ${km(trip.actualKm)}
+
           km
+
         </strong>
 
       </div>
@@ -1786,9 +2086,13 @@ function openTripDetail(id){
         </span>
 
         <strong>
+
           ${odo(trip.startOdometer)}
+
           →
+
           ${odo(trip.endOdometer)}
+
         </strong>
 
       </div>
@@ -1801,6 +2105,7 @@ function openTripDetail(id){
         </span>
 
         <strong>
+
           ${
             trip.proposedRouteKm!=null
 
@@ -1808,6 +2113,7 @@ function openTripDetail(id){
 
             :'—'
           }
+
         </strong>
 
       </div>
@@ -1844,6 +2150,7 @@ function openTripDetail(id){
         ?esc(trip.reason)
 
         :`
+
           <span class="muted">
             Geen omschrijving ingevuld.
           </span>
@@ -1874,18 +2181,19 @@ function openTripDetail(id){
       </button>
 
     </div>
-  `);
+  `;
 }
 
 
-/* =========================
+/* ========================================
    RIT AANPASSEN
-========================= */
+======================================== */
 
 function editLocationOptions(current){
 
   const id=
-    current?.id||'';
+    current?.id||
+    '';
 
 
   const exists=
@@ -1907,8 +2215,14 @@ function editLocationOptions(current){
         value="__current__"
         selected
       >
+
         Huidig:
-        ${esc(labelLoc(current)||'Onbekende locatie')}
+
+        ${esc(
+          labelLoc(current)||
+          'Onbekende locatie'
+        )}
+
       </option>
     `;
   }
@@ -1929,6 +2243,7 @@ function editLocationOptions(current){
 
           <option
             value="${location.id}"
+
             ${
               location.id===id
               ?'selected'
@@ -1942,7 +2257,9 @@ function editLocationOptions(current){
               location.address
 
               ?`
+
                 ·
+
                 ${esc(location.address)}
               `
 
@@ -2025,6 +2342,7 @@ function openTripEdit(id){
           Vertrek
         </label>
 
+
         <select name="originId">
 
           ${editLocationOptions(trip.origin)}
@@ -2039,6 +2357,7 @@ function openTripEdit(id){
         <label>
           Bestemming
         </label>
+
 
         <select name="destinationId">
 
@@ -2059,6 +2378,7 @@ function openTripEdit(id){
             'number'
           )
         }
+
 
         ${
           field(
@@ -2086,6 +2406,7 @@ function openTripEdit(id){
             'datetime-local'
           )
         }
+
 
         ${
           field(
@@ -2157,7 +2478,8 @@ function openTripEdit(id){
         field(
           'Reden / omschrijving',
           'reason',
-          trip.reason||''
+          trip.reason||
+          ''
         )
       }
 
@@ -2166,7 +2488,8 @@ function openTripEdit(id){
         field(
           'Privédeel km',
           'privateKm',
-          trip.privateKm||0,
+          trip.privateKm||
+          0,
           'number'
         )
       }
@@ -2246,13 +2569,13 @@ function saveTripEditDirect(){
   }
 
 
-  const fd=
+  const formData=
     new FormData(form);
 
 
   const id=
     String(
-      fd.get('id')||
+      formData.get('id')||
       ''
     );
 
@@ -2274,13 +2597,17 @@ function saveTripEditDirect(){
 
   const start=
     num(
-      fd.get('startOdometer')
+      formData.get(
+        'startOdometer'
+      )
     );
 
 
   const end=
     num(
-      fd.get('endOdometer')
+      formData.get(
+        'endOdometer'
+      )
     );
 
 
@@ -2299,7 +2626,9 @@ function saveTripEditDirect(){
   const departure=
     new Date(
       String(
-        fd.get('departureTime')
+        formData.get(
+          'departureTime'
+        )
       )
     );
 
@@ -2307,7 +2636,9 @@ function saveTripEditDirect(){
   const arrival=
     new Date(
       String(
-        fd.get('arrivalTime')
+        formData.get(
+          'arrivalTime'
+        )
       )
     );
 
@@ -2337,14 +2668,18 @@ function saveTripEditDirect(){
 
   const originChoice=
     String(
-      fd.get('originId')||
+      formData.get(
+        'originId'
+      )||
       '__current__'
     );
 
 
   const destinationChoice=
     String(
-      fd.get('destinationId')||
+      formData.get(
+        'destinationId'
+      )||
       '__current__'
     );
 
@@ -2383,12 +2718,15 @@ function saveTripEditDirect(){
 
 
   const actual=
-    end-start;
+    end-
+    start;
 
 
   const category=
     String(
-      fd.get('category')||
+      formData.get(
+        'category'
+      )||
       'commute'
     );
 
@@ -2400,7 +2738,9 @@ function saveTripEditDirect(){
 
     :(
       num(
-        fd.get('privateKm')
+        formData.get(
+          'privateKm'
+        )
       )||
       0
     );
@@ -2454,7 +2794,9 @@ function saveTripEditDirect(){
 
     reason:
       String(
-        fd.get('reason')||
+        formData.get(
+          'reason'
+        )||
         ''
       ).trim(),
 
@@ -2485,7 +2827,6 @@ function saveTripEditDirect(){
 
   rebuildLast();
 
-
   save();
 
 
@@ -2505,8 +2846,12 @@ function saveTripEditDirect(){
 
   if(
     !verify||
-    Number(verify.startOdometer)!==start||
-    Number(verify.endOdometer)!==end
+    Number(
+      verify.startOdometer
+    )!==start||
+    Number(
+      verify.endOdometer
+    )!==end
   ){
 
     throw new Error(
@@ -2529,7 +2874,9 @@ function saveTripEditDirect(){
 
   setTimeout(
     ()=>{
+
       openTripDetail(id);
+
     },
     250
   );
@@ -2580,23 +2927,27 @@ function rebuildLast(){
     trip
 
     ?{
+
       location:
-        snap(trip.destination),
+        snap(
+          trip.destination
+        ),
 
       odometer:
         trip.endOdometer,
 
       time:
         trip.arrivalTime
+
     }
 
     :null;
 }
 
 
-/* =========================
+/* ========================================
    LOCATIES
-========================= */
+======================================== */
 
 function renderLocations(){
 
@@ -2605,9 +2956,13 @@ function renderLocations(){
 
       .sort(
         (a,b)=>
+
           (b.useCount||0)-
           (a.useCount||0)||
-          a.name.localeCompare(b.name)
+
+          a.name.localeCompare(
+            b.name
+          )
       );
 
 
@@ -2620,12 +2975,14 @@ function renderLocations(){
         <div class="kicker">
 
           Herkenning binnen
+
           ${
             Number(
               data.settings.recognitionRadius
             )||
             500
           }
+
           m
 
         </div>
@@ -2700,20 +3057,15 @@ function renderLocations(){
 
                       <small>
 
-                        ${
-                          esc(
-                            typeLabel(
-                              location.type
-                            )
+                        ${esc(
+                          typeLabel(
+                            location.type
                           )
-                        }
+                        )}
 
                         ·
 
-                        ${
-                          location.useCount||
-                          0
-                        }
+                        ${location.useCount||0}
 
                         × gebruikt
 
@@ -2743,8 +3095,7 @@ function renderLocations(){
 
                   </div>
                 `
-              )
-              .join('')
+              ).join('')
             }
 
           </div>
@@ -2787,11 +3138,13 @@ function openLocation(
         <div class="modal-head">
 
           <h2>
+
             ${
               location
               ?'Locatie wijzigen'
               :'Locatie toevoegen'
             }
+
           </h2>
 
 
@@ -2821,7 +3174,8 @@ function openLocation(
             field(
               'Naam',
               'name',
-              location?.name||''
+              location?.name||
+              ''
             )
           }
 
@@ -2830,7 +3184,8 @@ function openLocation(
             field(
               'Adres',
               'address',
-              location?.address||''
+              location?.address||
+              ''
             )
           }
 
@@ -2897,6 +3252,7 @@ function openLocation(
 
                     <option
                       value="${type}"
+
                       ${
                         (
                           location?.type||
@@ -2924,8 +3280,10 @@ function openLocation(
 
 
           <div class="hint">
+
             Vul minimaal naam,
             adres of GPS in.
+
           </div>
 
 
@@ -2958,10 +3316,10 @@ function openLocation(
       )
 
       .catch(
-        err=>{
+        error=>{
 
           toast(
-            err.message
+            error.message
           );
 
           build(null);
@@ -2984,6 +3342,7 @@ async function fillGps(){
 
 
   if(!form){
+
     return;
   }
 
@@ -3035,13 +3394,13 @@ function saveLocationDirect(){
   }
 
 
-  const fd=
+  const formData=
     new FormData(form);
 
 
   const id=
     String(
-      fd.get('id')||
+      formData.get('id')||
       uid()
     );
 
@@ -3055,27 +3414,27 @@ function saveLocationDirect(){
 
   const rawName=
     String(
-      fd.get('name')||
+      formData.get('name')||
       ''
     ).trim();
 
 
   const address=
     String(
-      fd.get('address')||
+      formData.get('address')||
       ''
     ).trim();
 
 
   const lat=
     parseCoord(
-      fd.get('lat')
+      formData.get('lat')
     );
 
 
   const lng=
     parseCoord(
-      fd.get('lng')
+      formData.get('lng')
     );
 
 
@@ -3130,7 +3489,7 @@ function saveLocationDirect(){
     `Locatie ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 
 
-  const location={
+  const newLocation={
 
     id,
 
@@ -3144,7 +3503,7 @@ function saveLocationDirect(){
 
     type:
       String(
-        fd.get('type')||
+        formData.get('type')||
         'other'
       ),
 
@@ -3171,12 +3530,12 @@ function saveLocationDirect(){
   if(index>=0){
 
     data.locations[index]=
-      location;
+      newLocation;
 
   }else{
 
     data.locations.push(
-      location
+      newLocation
     );
   }
 
@@ -3244,9 +3603,9 @@ function deleteLocation(id){
 }
 
 
-/* =========================
+/* ========================================
    VERTREK
-========================= */
+======================================== */
 
 async function openStart(){
 
@@ -3305,9 +3664,9 @@ async function openStart(){
         nearby[0]?.location||
         currentLoc(gps);
 
-    }catch(e){
+    }catch(error){
 
-      console.warn(e);
+      console.warn(error);
     }
   }
 
@@ -3356,7 +3715,11 @@ async function openStart(){
 
 
         <strong>
-          ${esc(labelLoc(origin))}
+
+          ${esc(
+            labelLoc(origin)
+          )}
+
         </strong>
 
 
@@ -3460,6 +3823,7 @@ function openAppleFromForm(){
 
 
   if(!form){
+
     return;
   }
 
@@ -3495,12 +3859,12 @@ function openAppleFromForm(){
 }
 
 
-async function saveStart(fd){
+async function saveStart(formData){
 
   const origin=
     JSON.parse(
       String(
-        fd.get('origin')
+        formData.get('origin')
       )
     );
 
@@ -3509,7 +3873,7 @@ async function saveStart(fd){
     data.locations.find(
       location=>
         location.id===
-        fd.get('destinationId')
+        formData.get('destinationId')
     );
 
 
@@ -3523,7 +3887,9 @@ async function saveStart(fd){
 
   const start=
     num(
-      fd.get('startOdometer')
+      formData.get(
+        'startOdometer'
+      )
     );
 
 
@@ -3537,7 +3903,7 @@ async function saveStart(fd){
 
   const manual=
     parseNum(
-      fd.get('routeKm')
+      formData.get('routeKm')
     );
 
 
@@ -3565,7 +3931,9 @@ async function saveStart(fd){
     departureTime:
       new Date(
         String(
-          fd.get('departureTime')
+          formData.get(
+            'departureTime'
+          )
         )
       ).toISOString(),
 
@@ -3605,9 +3973,9 @@ async function saveStart(fd){
 }
 
 
-/* =========================
+/* ========================================
    AANKOMST
-========================= */
+======================================== */
 
 async function openArrival(){
 
@@ -3635,13 +4003,12 @@ async function openArrival(){
     gps=
       await getPosition();
 
-
     nearby=
       matches(gps);
 
-  }catch(e){
+  }catch(error){
 
-    console.warn(e);
+    console.warn(error);
   }
 
 
@@ -3678,9 +4045,7 @@ async function openArrival(){
 
   const current=
     gps
-
     ?currentLoc(gps)
-
     :null;
 
 
@@ -3722,13 +4087,11 @@ async function openArrival(){
 
           →
 
-          ${
-            esc(
-              labelLoc(
-                active.expectedDestination
-              )
+          ${esc(
+            labelLoc(
+              active.expectedDestination
             )
-          }
+          )}
 
         </strong>
 
@@ -3736,15 +4099,20 @@ async function openArrival(){
         <small>
 
           Start
+
           ${odo(active.startOdometer)}
+
           km
 
           ${
             active.proposedRouteKm!=null
 
             ?`
+
               · voorstel
+
               ${km(active.proposedRouteKm)}
+
               km
             `
 
@@ -3771,6 +4139,7 @@ async function openArrival(){
 
                 <option
                   value="known:${location.id}"
+
                   ${
                     index===0
                     ?'selected'
@@ -3784,7 +4153,9 @@ async function openArrival(){
                     location.address
 
                     ?`
+
                       ·
+
                       ${esc(location.address)}
                     `
 
@@ -3793,8 +4164,7 @@ async function openArrival(){
 
                 </option>
               `
-            )
-            .join('')
+            ).join('')
           }
 
 
@@ -3802,6 +4172,7 @@ async function openArrival(){
             current
 
             ?`
+
               <option value="current">
                 Huidige GPS-locatie
               </option>
@@ -3901,7 +4272,7 @@ async function openArrival(){
 }
 
 
-function saveArrival(fd){
+function saveArrival(formData){
 
   const active=
     data.activeTrip;
@@ -3917,7 +4288,9 @@ function saveArrival(fd){
 
   const end=
     num(
-      fd.get('endOdometer')
+      formData.get(
+        'endOdometer'
+      )
     );
 
 
@@ -3939,7 +4312,9 @@ function saveArrival(fd){
 
   const choice=
     String(
-      fd.get('destinationChoice')||
+      formData.get(
+        'destinationChoice'
+      )||
       ''
     );
 
@@ -3947,7 +4322,9 @@ function saveArrival(fd){
   const current=
     JSON.parse(
       String(
-        fd.get('currentJson')||
+        formData.get(
+          'currentJson'
+        )||
         'null'
       )
     );
@@ -3986,7 +4363,9 @@ function saveArrival(fd){
 
   const category=
     String(
-      fd.get('category')
+      formData.get(
+        'category'
+      )
     );
 
 
@@ -3997,7 +4376,9 @@ function saveArrival(fd){
 
     :(
       num(
-        fd.get('privateKm')
+        formData.get(
+          'privateKm'
+        )
       )||
       0
     );
@@ -4039,7 +4420,9 @@ function saveArrival(fd){
     arrivalTime:
       new Date(
         String(
-          fd.get('arrivalTime')
+          formData.get(
+            'arrivalTime'
+          )
         )
       ).toISOString(),
 
@@ -4060,7 +4443,9 @@ function saveArrival(fd){
 
     reason:
       String(
-        fd.get('reason')||
+        formData.get(
+          'reason'
+        )||
         ''
       ).trim(),
 
@@ -4119,9 +4504,9 @@ function saveArrival(fd){
 }
 
 
-/* =========================
+/* ========================================
    MEER
-========================= */
+======================================== */
 
 function renderMore(){
 
@@ -4228,14 +4613,13 @@ function renderMore(){
 }
 
 
-/* =========================
+/* ========================================
    TANKEN
-========================= */
+======================================== */
 
 async function openTank(){
 
   let gps=null;
-
   let location=null;
 
 
@@ -4249,9 +4633,9 @@ async function openTank(){
       matches(gps)[0]?.location||
       currentLoc(gps);
 
-  }catch(e){
+  }catch(error){
 
-    console.warn(e);
+    console.warn(error);
   }
 
 
@@ -4292,7 +4676,8 @@ async function openTank(){
         field(
           'Kilometerstand',
           'odometer',
-          last?.odometer??'',
+          last?.odometer??
+          '',
           'number'
         )
       }
@@ -4301,12 +4686,12 @@ async function openTank(){
       <div class="route-box">
 
         <strong>
-          ${
-            esc(
-              labelLoc(location)||
-              'Locatie niet beschikbaar'
-            )
-          }
+
+          ${esc(
+            labelLoc(location)||
+            'Locatie niet beschikbaar'
+          )}
+
         </strong>
 
         <small>
@@ -4328,7 +4713,9 @@ async function openTank(){
 
 
       <button class="btn full">
+
         Tankmoment opslaan
+
       </button>
 
     </form>
@@ -4336,11 +4723,13 @@ async function openTank(){
 }
 
 
-function saveTank(fd){
+function saveTank(formData){
 
   const odometer=
     num(
-      fd.get('odometer')
+      formData.get(
+        'odometer'
+      )
     );
 
 
@@ -4355,7 +4744,9 @@ function saveTank(fd){
   const location=
     JSON.parse(
       String(
-        fd.get('loc')||
+        formData.get(
+          'loc'
+        )||
         'null'
       )
     );
@@ -4377,7 +4768,9 @@ function saveTank(fd){
     time:
       new Date(
         String(
-          fd.get('time')
+          formData.get(
+            'time'
+          )
         )
       ).toISOString()
   });
@@ -4395,9 +4788,9 @@ function saveTank(fd){
 }
 
 
-/* =========================
+/* ========================================
    HANDMATIGE RIT
-========================= */
+======================================== */
 
 function openManual(){
 
@@ -4481,10 +4874,12 @@ function openManual(){
           field(
             'Startstand',
             'startOdometer',
-            last?.odometer??'',
+            last?.odometer??
+            '',
             'number'
           )
         }
+
 
         ${
           field(
@@ -4572,13 +4967,13 @@ function openManual(){
 }
 
 
-function saveManual(fd){
+function saveManual(formData){
 
   const origin=
     data.locations.find(
       location=>
         location.id===
-        fd.get('originId')
+        formData.get('originId')
     );
 
 
@@ -4586,7 +4981,9 @@ function saveManual(fd){
     data.locations.find(
       location=>
         location.id===
-        fd.get('destinationId')
+        formData.get(
+          'destinationId'
+        )
     );
 
 
@@ -4603,13 +5000,17 @@ function saveManual(fd){
 
   const start=
     num(
-      fd.get('startOdometer')
+      formData.get(
+        'startOdometer'
+      )
     );
 
 
   const end=
     num(
-      fd.get('endOdometer')
+      formData.get(
+        'endOdometer'
+      )
     );
 
 
@@ -4631,7 +5032,9 @@ function saveManual(fd){
 
   const category=
     String(
-      fd.get('category')
+      formData.get(
+        'category'
+      )
     );
 
 
@@ -4642,7 +5045,9 @@ function saveManual(fd){
 
     :(
       num(
-        fd.get('privateKm')
+        formData.get(
+          'privateKm'
+        )
       )||
       0
     );
@@ -4690,14 +5095,18 @@ function saveManual(fd){
     departureTime:
       new Date(
         String(
-          fd.get('departureTime')
+          formData.get(
+            'departureTime'
+          )
         )
       ).toISOString(),
 
     arrivalTime:
       new Date(
         String(
-          fd.get('arrivalTime')
+          formData.get(
+            'arrivalTime'
+          )
         )
       ).toISOString(),
 
@@ -4705,7 +5114,9 @@ function saveManual(fd){
 
     reason:
       String(
-        fd.get('reason')||
+        formData.get(
+          'reason'
+        )||
         ''
       ),
 
@@ -4742,9 +5153,9 @@ function saveManual(fd){
 }
 
 
-/* =========================
+/* ========================================
    PRIVÉDEEL
-========================= */
+======================================== */
 
 function openPrivate(){
 
@@ -4793,12 +5204,16 @@ function openPrivate(){
         <select name="tripId">
 
           ${
-            trips.slice(0,30)
+            trips
+
+              .slice(0,30)
 
               .map(
                 trip=>`
 
-                  <option value="${trip.id}">
+                  <option
+                    value="${trip.id}"
+                  >
 
                     ${dateTime(trip.departureTime)}
 
@@ -4813,6 +5228,7 @@ function openPrivate(){
                     ·
 
                     ${km(trip.actualKm)}
+
                     km
 
                   </option>
@@ -4846,13 +5262,15 @@ function openPrivate(){
 }
 
 
-function savePrivate(fd){
+function savePrivate(formData){
 
   const trip=
     data.trips.find(
       item=>
         item.id===
-        fd.get('tripId')
+        formData.get(
+          'tripId'
+        )
     );
 
 
@@ -4866,7 +5284,9 @@ function savePrivate(fd){
 
   const privateKm=
     num(
-      fd.get('privateKm')
+      formData.get(
+        'privateKm'
+      )
     )||
     0;
 
@@ -4893,6 +5313,7 @@ function savePrivate(fd){
   Object.assign(
     trip,
     {
+
       privateKm:
         distribution.private,
 
@@ -4917,9 +5338,9 @@ function savePrivate(fd){
 }
 
 
-/* =========================
+/* ========================================
    WEEK
-========================= */
+======================================== */
 
 function renderWeek(){
 
@@ -4942,13 +5363,17 @@ function renderWeek(){
 
 
   const total=
-    totals(trips);
+    totals(
+      trips
+    );
 
 
   const tanks=
     data.events.filter(
       event=>
+
         event.type==='tank'&&
+
         inRange(
           new Date(event.time),
           start,
@@ -4972,15 +5397,18 @@ function renderWeek(){
       <div class="center">
 
         <h2>
-          Week
-          ${isoWeek(start)}
+          Week ${isoWeek(start)}
         </h2>
 
 
         <small>
+
           ${date(start)}
+
           –
+
           ${date(addDays(end,-1))}
+
         </small>
 
       </div>
@@ -5008,33 +5436,13 @@ function renderWeek(){
     </div>
 
 
-    <div class="section grid2">
+    <div class="section">
 
       ${
-        metric(
-          'Totaal',
-          km(total.total)+' km'
-        )
-      }
-
-      ${
-        metric(
-          'Zakelijk',
-          km(total.business)+' km'
-        )
-      }
-
-      ${
-        metric(
-          'Woon-werk',
-          km(total.commute)+' km'
-        )
-      }
-
-      ${
-        metric(
-          'Privé',
-          km(total.private)+' km'
+        kmSummary(
+          total,
+          `Week ${isoWeek(start)}`,
+          trips.length
         )
       }
 
@@ -5048,10 +5456,6 @@ function renderWeek(){
         <h2>
           Ritten
         </h2>
-
-        <span class="muted">
-          ${trips.length}
-        </span>
 
       </div>
 
@@ -5093,32 +5497,34 @@ function renderWeek(){
 
                       <strong>
 
-                        ${
-                          esc(
-                            labelLoc(event.location)||
-                            'Tanklocatie'
-                          )
-                        }
+                        ${esc(
+                          labelLoc(event.location)||
+                          'Tanklocatie'
+                        )}
 
                       </strong>
 
 
                       <small>
+
                         ${dateTime(event.time)}
+
                       </small>
 
                     </div>
 
 
                     <strong>
+
                       ${odo(event.odometer)}
+
                       km
+
                     </strong>
 
                   </div>
                 `
-              )
-              .join('')
+              ).join('')
             }
 
           </div>
@@ -5137,9 +5543,9 @@ function renderWeek(){
 }
 
 
-/* =========================
+/* ========================================
    RAPPORT
-========================= */
+======================================== */
 
 function renderReport(){
 
@@ -5164,7 +5570,9 @@ function renderReport(){
 
 
   const total=
-    totals(trips);
+    totals(
+      trips
+    );
 
 
   app.innerHTML=`
@@ -5188,37 +5596,13 @@ function renderReport(){
       </div>
 
 
-      <div class="grid2">
-
-        ${
-          metric(
-            'Totaal',
-            km(total.total)+' km'
-          )
-        }
-
-        ${
-          metric(
-            'Ritten',
-            String(trips.length)
-          )
-        }
-
-        ${
-          metric(
-            'Zakelijk',
-            km(total.business)+' km'
-          )
-        }
-
-        ${
-          metric(
-            'Privé',
-            km(total.private)+' km'
-          )
-        }
-
-      </div>
+      ${
+        kmSummary(
+          total,
+          `Week ${isoWeek(start)}`,
+          trips.length
+        )
+      }
 
 
       <div class="section button-row">
@@ -5258,7 +5642,9 @@ function renderReport(){
 
 
       <div class="section">
+
         ${tripList(trips)}
+
       </div>
 
     </div>
@@ -5274,49 +5660,39 @@ function renderReport(){
 
 
       <p>
+
         ${esc(data.settings.name||'')}
+
         ·
+
         ${esc(data.settings.plate||'')}
-      </p>
-
-
-      <p>
-
-        Totaal
-        ${km(total.total)}
-        km
-
-        ·
-
-        Zakelijk
-        ${km(total.business)}
-        km
-
-        ·
-
-        Woon-werk
-        ${km(total.commute)}
-        km
-
-        ·
-
-        Privé
-        ${km(total.private)}
-        km
 
       </p>
 
 
-      ${tripList(trips)}
+      ${
+        kmSummary(
+          total,
+          `Week ${isoWeek(start)}`,
+          trips.length
+        )
+      }
+
+
+      <div style="margin-top:20px">
+
+        ${tripList(trips)}
+
+      </div>
 
     </div>
   `;
 }
 
 
-/* =========================
+/* ========================================
    INSTELLINGEN
-========================= */
+======================================== */
 
 function renderSettings(){
 
@@ -5371,6 +5747,7 @@ function renderSettings(){
             )
           }
 
+
           ${
             field(
               'Model / type',
@@ -5391,6 +5768,7 @@ function renderSettings(){
               settings.plate
             )
           }
+
 
           ${
             field(
@@ -5454,7 +5832,9 @@ function renderSettings(){
       </div>
 
 
-      <button class="btn full">
+      <button
+        class="btn full"
+      >
         Instellingen opslaan
       </button>
 
@@ -5495,7 +5875,7 @@ function renderSettings(){
 }
 
 
-function saveSettings(fd){
+function saveSettings(formData){
 
   data.settings={
 
@@ -5503,43 +5883,43 @@ function saveSettings(fd){
 
     name:
       String(
-        fd.get('name')||
+        formData.get('name')||
         ''
       ),
 
     vehicleBrand:
       String(
-        fd.get('vehicleBrand')||
+        formData.get('vehicleBrand')||
         ''
       ),
 
     vehicleModel:
       String(
-        fd.get('vehicleModel')||
+        formData.get('vehicleModel')||
         ''
       ),
 
     plate:
       String(
-        fd.get('plate')||
+        formData.get('plate')||
         ''
       ),
 
     initialOdometer:
       String(
-        fd.get('initialOdometer')||
+        formData.get('initialOdometer')||
         ''
       ),
 
     registrationStart:
       String(
-        fd.get('registrationStart')||
+        formData.get('registrationStart')||
         ''
       ),
 
     reportEmail:
       String(
-        fd.get('reportEmail')||
+        formData.get('reportEmail')||
         ''
       ),
 
@@ -5547,7 +5927,9 @@ function saveSettings(fd){
       Math.max(
         25,
         num(
-          fd.get('recognitionRadius')
+          formData.get(
+            'recognitionRadius'
+          )
         )||
         500
       )
@@ -5564,9 +5946,9 @@ function saveSettings(fd){
 }
 
 
-/* =========================
+/* ========================================
    GPS
-========================= */
+======================================== */
 
 function getPosition(){
 
@@ -5593,6 +5975,7 @@ function getPosition(){
           position=>{
 
             resolve({
+
               lat:
                 position.coords.latitude,
 
@@ -5612,20 +5995,13 @@ function getPosition(){
 
                 error.code===1
 
-                ?`
-                  Geen locatietoestemming.
-                  Controleer Safari > Locatie.
-                `
+                ?'Geen locatietoestemming. Controleer Safari > Locatie.'
 
                 :error.code===3
 
-                ?`
-                  GPS ophalen duurde te lang.
-                `
+                ?'GPS ophalen duurde te lang.'
 
-                :`
-                  GPS-locatie niet beschikbaar.
-                `
+                :'GPS-locatie niet beschikbaar.'
               )
             );
           },
@@ -5693,9 +6069,9 @@ async function startTracking(){
 
     persistTrack();
 
-  }catch(e){
+  }catch(error){
 
-    console.warn(e);
+    console.warn(error);
   }
 
 
@@ -5729,9 +6105,7 @@ function stopTracking(){
 
 
   gpsWatch=null;
-
   gpsTimer=null;
-
   gpsLatest=null;
 }
 
@@ -5808,16 +6182,16 @@ function persistTrack(){
 
     save();
 
-  }catch(e){
+  }catch(error){
 
-    console.warn(e);
+    console.warn(error);
   }
 }
 
 
-/* =========================
+/* ========================================
    LOCATIEHERKENNING
-========================= */
+======================================== */
 
 function matches(gps){
 
@@ -5908,11 +6282,13 @@ function distance(a,b){
     Math.sin(dLon/2)**2;
 
 
-  return 2*
+  return (
+    2*
     R*
     Math.asin(
       Math.sqrt(h)
-    );
+    )
+  );
 }
 
 
@@ -5939,9 +6315,9 @@ function currentLoc(gps){
 }
 
 
-/* =========================
+/* ========================================
    APPLE KAARTEN
-========================= */
+======================================== */
 
 function openApple(
   origin,
@@ -5994,7 +6370,7 @@ function openApple(
   }
 
 
-  location.href=
+  window.location.href=
 
     `https://maps.apple.com/?saddr=${encodeURIComponent(start)}`+
 
@@ -6004,9 +6380,9 @@ function openApple(
 }
 
 
-/* =========================
+/* ========================================
    HULPFUNCTIES
-========================= */
+======================================== */
 
 function historyDistance(
   origin,
@@ -6037,19 +6413,24 @@ function historyDistance(
   }
 
 
-  return matching.reduce(
-    (total,trip)=>
+  return (
 
-      total+
-      Number(
-        trip.actualKm||
-        0
-      ),
+    matching.reduce(
+      (total,trip)=>
 
-    0
+        total+
+        Number(
+          trip.actualKm||
+          0
+        ),
 
-  )/
-  matching.length;
+      0
+    )
+
+    /
+
+    matching.length
+  );
 }
 
 
@@ -6060,7 +6441,9 @@ function sameLoc(a,b){
     b?.id
   ){
 
-    return a.id===b.id;
+    return (
+      a.id===b.id
+    );
   }
 
 
@@ -6076,14 +6459,25 @@ function sameLoc(a,b){
 
 
   return (
-    String(a?.address||'')
+
+    String(
+      a?.address||
+      ''
+    )
       .trim()
       .toLowerCase()
+
     ===
-    String(b?.address||'')
+
+    String(
+      b?.address||
+      ''
+    )
       .trim()
       .toLowerCase()
+
     &&
+
     !!a?.address
   );
 }
@@ -6092,6 +6486,7 @@ function sameLoc(a,b){
 function incrementUse(id){
 
   if(!id){
+
     return;
   }
 
@@ -6106,7 +6501,8 @@ function incrementUse(id){
   if(location){
 
     location.useCount=
-      (location.useCount||0)+1;
+      (location.useCount||0)+
+      1;
   }
 }
 
@@ -6194,28 +6590,6 @@ function split(
 }
 
 
-function metric(
-  label,
-  value
-){
-
-  return `
-
-    <div class="metric">
-
-      <span>
-        ${esc(label)}
-      </span>
-
-      <strong>
-        ${esc(value)}
-      </strong>
-
-    </div>
-  `;
-}
-
-
 function field(
   label,
   name,
@@ -6236,6 +6610,7 @@ function field(
         name="${name}"
         type="${type}"
         value="${attr(value??'')}"
+
         ${
           type==='number'
           ?'inputmode="numeric"'
@@ -6286,7 +6661,9 @@ function locationOptions(
       (a,b)=>
         (b.useCount||0)-
         (a.useCount||0)||
-        a.name.localeCompare(b.name)
+        a.name.localeCompare(
+          b.name
+        )
     )
 
     .map(
@@ -6294,6 +6671,7 @@ function locationOptions(
 
         <option
           value="${location.id}"
+
           ${
             location.id===selected
             ?'selected'
@@ -6307,7 +6685,9 @@ function locationOptions(
             location.address
 
             ?`
+
               ·
+
               ${esc(location.address)}
             `
 
@@ -6344,9 +6724,7 @@ function parseCoord(value){
 
 
   return Number.isFinite(number)
-
     ?number
-
     :null;
 }
 
@@ -6434,10 +6812,7 @@ function coords(location){
     location?.lng!=null
   )
 
-    ?`
-      ${Number(location.lat).toFixed(5)},
-      ${Number(location.lng).toFixed(5)}
-    `.trim()
+    ?`${Number(location.lat).toFixed(5)}, ${Number(location.lng).toFixed(5)}`
 
     :'';
 }
@@ -6486,6 +6861,7 @@ function tripsRange(
 
     .filter(
       trip=>
+
         inRange(
           new Date(
             trip.departureTime
@@ -6728,6 +7104,7 @@ function localInput(value){
 
   const pad=
     number=>
+
       String(number)
         .padStart(
           2,
@@ -6777,16 +7154,13 @@ function categoryLabel(value){
     return 'Zakelijk';
   }
 
-
   if(value==='commute'){
     return 'Woon-werk';
   }
 
-
   if(value==='private'){
     return 'Privé';
   }
-
 
   return 'Overig';
 }
@@ -6798,29 +7172,25 @@ function typeLabel(value){
     return 'Thuis';
   }
 
-
   if(value==='work'){
     return 'Werk';
   }
-
 
   if(value==='business'){
     return 'Zakelijk';
   }
 
-
   if(value==='private'){
     return 'Privé';
   }
-
 
   return 'Overig';
 }
 
 
-/* =========================
+/* ========================================
    MODAL / MELDINGEN
-========================= */
+======================================== */
 
 function openModal(html){
 
@@ -6870,10 +7240,13 @@ function toast(message){
 
   toastEl._timer=
     setTimeout(
-      ()=>
+      ()=>{
+
         toastEl.classList.remove(
           'show'
-        ),
+        );
+
+      },
       3000
     );
 }
@@ -6894,6 +7267,7 @@ function showError(message){
         'Fout:\n\n'+
         message
       );
+
     },
     50
   );
@@ -6910,13 +7284,9 @@ function esc(value){
     character=>({
 
       '&':'&amp;',
-
       '<':'&lt;',
-
       '>':'&gt;',
-
       '"':'&quot;',
-
       "'":'&#39;'
 
     }[character])
@@ -6934,9 +7304,9 @@ function attr(value){
 }
 
 
-/* =========================
+/* ========================================
    EXPORT
-========================= */
+======================================== */
 
 function exportJson(){
 
@@ -6993,7 +7363,7 @@ async function importJson(file){
       'Backup geïmporteerd.'
     );
 
-  }catch(e){
+  }catch(error){
 
     showError(
       'Backup kon niet worden gelezen.'
@@ -7065,13 +7435,17 @@ function csvText(){
         trip.category
       ),
 
-      trip.reason||'',
+      trip.reason||
+      '',
 
-      trip.businessKm||0,
+      trip.businessKm||
+      0,
 
-      trip.commuteKm||0,
+      trip.commuteKm||
+      0,
 
-      trip.privateKm||0
+      trip.privateKm||
+      0
     ]);
   }
 
@@ -7085,13 +7459,19 @@ function csvText(){
           value=>
 
             '"'+
-            String(value??'')
+
+            String(
+              value??
+              ''
+            )
               .replaceAll(
                 '"',
                 '""'
-              )+
-            '"'
+              )
+
+            +'"'
         )
+
         .join(';')
     )
 
@@ -7104,7 +7484,9 @@ function downloadCsv(){
   download(
 
     new Blob(
-      [csvText()],
+      [
+        csvText()
+      ],
       {
         type:
           'text/csv;charset=utf-8'
@@ -7121,7 +7503,9 @@ async function shareCsv(){
   const file=
     new File(
 
-      [csvText()],
+      [
+        csvText()
+      ],
 
       `kilometerregistratie-week-${isoWeek(new Date())}.csv`,
 
@@ -7134,13 +7518,17 @@ async function shareCsv(){
 
   if(
     navigator.canShare?.({
-      files:[file]
+      files:[
+        file
+      ]
     })
   ){
 
     await navigator.share({
 
-      files:[file],
+      files:[
+        file
+      ],
 
       title:
         'Kilometerregistratie'
@@ -7170,15 +7558,40 @@ function emailReport(){
     `Kilometerregistratie week ${isoWeek(new Date())}`;
 
 
+  let lines=[
+    `Totaal: ${km(total.total)} km`
+  ];
+
+
+  if(total.business>0){
+
+    lines.push(
+      `Zakelijk: ${km(total.business)} km`
+    );
+  }
+
+
+  if(total.commute>0){
+
+    lines.push(
+      `Woon-werk: ${km(total.commute)} km`
+    );
+  }
+
+
+  if(total.private>0){
+
+    lines.push(
+      `Privé: ${km(total.private)} km`
+    );
+  }
+
+
   const body=
-
-`Totaal: ${km(total.total)} km
-Zakelijk: ${km(total.business)} km
-Woon-werk: ${km(total.commute)} km
-Privé: ${km(total.private)} km`;
+    lines.join('\n');
 
 
-  location.href=
+  window.location.href=
 
     `mailto:${encodeURIComponent(to)}`+
 
@@ -7225,6 +7638,7 @@ function download(
       );
 
       link.remove();
+
     },
     1000
   );
