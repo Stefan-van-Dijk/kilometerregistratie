@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1117">
+<title>Historische kilometerregistratie importeren</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--card2:#1d2430;--text:#f4f7fb;--muted:#9aa7b7;--line:#2a3442;--accent:#4da3ff;--good:#49d17d;--warn:#ffbd4a;--bad:#ff6767;--r:18px}
+*{box-sizing:border-box;min-width:0}html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{min-height:100dvh}button,input,select,textarea{font:inherit}.shell{width:100%;max-width:920px;margin:auto;padding:calc(16px + env(safe-area-inset-top)) 14px calc(32px + env(safe-area-inset-bottom))}.top{margin-bottom:18px}.eyebrow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:800}.top h1{margin:5px 0 7px;font-size:27px}.top p{margin:0;color:var(--muted);line-height:1.45}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:13px}.warning{border-color:#6b5424;background:#1d1a12}.warning strong{color:#ffd98a}.good{border-color:#24563a}.bad{border-color:#6b2c33}.section-title{display:flex;justify-content:space-between;align-items:end;gap:10px;margin-bottom:12px}.section-title h2{margin:0;font-size:19px}.muted,.hint,small{color:var(--muted)}.hint{font-size:12px;line-height:1.45}.btn{appearance:none;border:0;border-radius:12px;min-height:46px;padding:12px 14px;background:var(--accent);color:#fff;font-weight:800;cursor:pointer}.btn.secondary{background:var(--card2);border:1px solid var(--line)}.btn.danger{background:#4b1f24}.btn:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;gap:8px;flex-wrap:wrap}.row>.btn{flex:1 1 180px}.paste{width:100%;min-height:310px;resize:vertical;border:1px solid var(--line);border-radius:14px;padding:13px;background:#0f141b;color:var(--text);line-height:1.45;font-family:"SFMono-Regular",Consolas,monospace;font-size:13px}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.stat{padding:12px;border:1px solid var(--line);border-radius:13px;background:#101722}.stat span,.stat strong{display:block}.stat span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.stat strong{font-size:21px;margin-top:5px}.meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.meta .item{padding:11px;border:1px solid var(--line);border-radius:12px;background:#101722}.meta span,.meta strong{display:block}.meta span{font-size:10px;color:var(--muted);text-transform:uppercase}.meta strong{margin-top:4px;overflow-wrap:anywhere}.location-list,.trip-list,.warning-list{display:grid;gap:8px}.location{padding:12px;border:1px solid var(--line);border-radius:13px;background:#101722}.location-head{display:flex;gap:9px;align-items:flex-start}.location-main{flex:1}.badge{display:inline-flex;padding:5px 8px;border-radius:999px;border:1px solid var(--line);font-size:10px;font-weight:800;color:var(--muted);white-space:nowrap}.badge.good{color:#9be8b8;border-color:#2d6b47;background:transparent}.badge.warn{color:#ffd98a;border-color:#6b5424;background:transparent}.loc-grid{display:grid;grid-template-columns:1fr 170px;gap:8px;margin-top:10px}.field label{display:block;font-size:11px;color:var(--muted);font-weight:750;margin-bottom:5px}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#0d131a;color:var(--text)}.trip{display:grid;grid-template-columns:34px 94px 1fr auto;gap:10px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:13px;background:#101722}.trip.duplicate{opacity:.62}.trip.error{border-color:#6b2c33}.trip-check{width:20px;height:20px}.trip-date{font-size:11px;color:var(--muted)}.trip-main strong,.trip-main small{display:block}.trip-main small{margin-top:3px}.trip-km{text-align:right;white-space:nowrap}.trip-km strong,.trip-km small{display:block}.trip-km small{margin-top:3px}.trip-note{grid-column:3/5;font-size:11px;color:#ffd98a}.trip-note.error{color:#ff9a9a}.warning-item{padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:#101722;font-size:12px;line-height:1.4}.checkrow{display:flex;gap:9px;align-items:flex-start;margin:12px 0}.checkrow input{margin-top:2px;width:18px;height:18px}.footer-note{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}.hidden{display:none!important}.success{padding:18px;text-align:center}.success h2{margin:0 0 8px}.success strong{color:#9be8b8}.empty{padding:17px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:13px}.toast{position:fixed;left:50%;bottom:24px;z-index:99;max-width:90vw;padding:11px 14px;border-radius:999px;background:#f4f7fb;color:#111;font-weight:800;transform:translate(-50%,16px);opacity:0;transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:650px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.meta{grid-template-columns:1fr}.loc-grid{grid-template-columns:1fr}.trip{grid-template-columns:30px 1fr auto}.trip-date{grid-column:2/4}.trip-main{grid-column:2/3}.trip-km{grid-column:3/4}.trip-note{grid-column:2/4}.row{flex-direction:column}.row>.btn{width:100%;flex:auto}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <div class="eyebrow">Tijdelijke migratietool · import.html</div>
+    <h1>Historische kilometerregistratie importeren</h1>
+    <p>Plak één of meerdere registraties uit Notities. Alles wordt lokaal in je browser verwerkt. Gebruik dit bestand op dezelfde GitHub Pages-site als <strong>index.html</strong>, zodat dezelfde kilometerdatabase wordt gebruikt.</p>
+  </header>
+
+  <section class="card warning">
+    <strong>Eenmalig hulpmiddel.</strong>
+    <div class="hint" style="margin-top:5px">Maak bij voorkeur eerst een back-up. Na de migratie kun je <code>import.html</code> uit je repository verwijderen; de geïmporteerde ritten blijven in de gewone app staan.</div>
+  </section>
+
+  <section class="card">
+    <div class="section-title"><h2>1. Huidige database</h2><span id="dbStatus" class="badge">Controleren…</span></div>
+    <div id="dbSummary" class="hint"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn secondary" id="backupBtn" type="button">Download huidige back-up</button>
+      <button class="btn secondary" id="reloadBtn" type="button">Database opnieuw lezen</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-title"><h2>2. Plak je oude Notities</h2><span class="badge">Meerdere weken toegestaan</span></div>
+    <textarea id="sourceText" class="paste" spellcheck="false" placeholder="Plak hier bijvoorbeeld:\n\nKilometer registratie: week 37 2026\n\nNaam: ...\nAutomerk: ...\nKenteken: ...\n\nRitnummer 1: ma, 07-09-2026 07:19\nVertrek adres:\n    Woon - werk verkeer\n    ...\n    Kilometerstand: ...\nAankomst adres:\n    ...\n    Kilometerstand: ...\n    Ritafstand: ..."></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="parseBtn" type="button">Controleren</button>
+      <button class="btn secondary" id="clearBtn" type="button">Leegmaken</button>
+    </div>
+  </section>
+
+  <div id="preview" class="hidden">
+    <section class="card">
+      <div class="section-title"><h2>3. Controle</h2><span id="parseStatus" class="badge good">Gelezen</span></div>
+      <div id="stats" class="stats"></div>
+      <div id="metadataWrap" style="margin-top:12px"></div>
+      <div id="warningsWrap" style="margin-top:12px"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-title"><h2>4. Locaties</h2><span class="hint">Bestaande adressen worden hergebruikt</span></div>
+      <div id="locations" class="location-list"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-title"><h2>5. Ritten</h2><span id="tripCountLabel" class="hint"></span></div>
+      <div id="trips" class="trip-list"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-title"><h2>6. Importeren</h2><span class="badge warn">Definitieve stap</span></div>
+      <label class="checkrow"><input type="checkbox" id="fillSettings" checked><span><strong>Lege bestuurder- en autogegevens aanvullen</strong><br><small>Alleen lege velden worden gevuld. Bestaande instellingen worden nooit overschreven.</small></span></label>
+      <div class="warning-item">Aankomsttijden worden als <strong>onbekend</strong> bewaard. De oude notities bevatten alleen een vertrektijd, dus de importer verzint geen tijd.</div>
+      <div id="importSummary" class="hint" style="margin:10px 0 12px"></div>
+      <button class="btn" id="importBtn" type="button">Geselecteerde ritten importeren</button>
+    </section>
+  </div>
+
+  <section id="done" class="card good hidden success"></section>
+  <div class="footer-note">Opslagsleutel: <code>kmreg-v4-data</code> · er worden geen gegevens naar een server verstuurd.</div>
+</div>
+<div id="toast" class="toast"></div>
+<script>
+(()=>{
+'use strict';
+const KEY='kmreg-v4-data';
+const DEFAULT={settings:{name:'',vehicleBrand:'',vehicleModel:'',plate:'',initialOdometer:'',registrationStart:'',reportEmail:'',recognitionRadius:500,privateDays:[]},locations:[],trips:[],events:[],trackPoints:[],activeTrip:null,lastEndpoint:null};
+let db=loadDb(),parsed=null;
+const $=s=>document.querySelector(s);
+const sourceText=$('#sourceText'),preview=$('#preview'),done=$('#done'),toastEl=$('#toast');
+refreshDbStatus();
+
+$('#reloadBtn').addEventListener('click',()=>{db=loadDb();refreshDbStatus();toast('Database opnieuw gelezen.');if(parsed)renderPreview()});
+$('#backupBtn').addEventListener('click',()=>download(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),`kilometerregistratie-backup-voor-import-${new Date().toISOString().slice(0,10)}.json`));
+$('#clearBtn').addEventListener('click',()=>{sourceText.value='';parsed=null;preview.classList.add('hidden');done.classList.add('hidden');sourceText.focus()});
+$('#parseBtn').addEventListener('click',()=>{try{parsed=parseNotes(sourceText.value);renderPreview();preview.classList.remove('hidden');done.classList.add('hidden');preview.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){console.error(e);alert(e.message||'De tekst kon niet worden gelezen.')}});
+$('#importBtn').addEventListener('click',importSelected);
+
+document.addEventListener('change',e=>{if(e.target.matches('.trip-check'))updateImportSummary()});
+
+function loadDb(){try{const raw=localStorage.getItem(KEY);return normalize(raw?JSON.parse(raw):DEFAULT)}catch(e){console.error(e);return normalize(DEFAULT)}}
+function normalize(x){return{settings:{...DEFAULT.settings,...(x.settings||{})},locations:Array.isArray(x.locations)?x.locations:[],trips:Array.isArray(x.trips)?x.trips:[],events:Array.isArray(x.events)?x.events:[],trackPoints:Array.isArray(x.trackPoints)?x.trackPoints:[],activeTrip:x.activeTrip||null,lastEndpoint:x.lastEndpoint||null}}
+function saveDb(){localStorage.setItem(KEY,JSON.stringify(db));const check=localStorage.getItem(KEY);if(!check)throw new Error('Opslaan in localStorage is mislukt.');JSON.parse(check)}
+function refreshDbStatus(){const exists=!!localStorage.getItem(KEY),tripCount=db.trips.length,locCount=db.locations.length;$('#dbStatus').textContent=exists?'Gevonden':'Nieuwe database';$('#dbStatus').className='badge '+(exists?'good':'warn');$('#dbSummary').innerHTML=`${tripCount} bestaande ${tripCount===1?'rit':'ritten'} · ${locCount} ${locCount===1?'locatie':'locaties'}${db.activeTrip?' · <strong>let op: er staat nu een actieve rit open</strong>':''}.`}
+
+function parseNotes(text){
+  const src=String(text||'').replace(/\r/g,'').trim();
+  if(!src)throw new Error('Plak eerst de historische registratie uit Notities.');
+  const metadata={name:match1(src,/^\s*Naam:\s*(.+)$/im),vehicleBrand:match1(src,/^\s*Automerk:\s*(.+)$/im),plate:match1(src,/^\s*Kenteken:\s*(.+)$/im)};
+  const lines=src.split('\n');
+  const blocks=[];let current=null;
+  for(const raw of lines){const line=raw.trim();const m=line.match(/^Ritnummer\s+(\d+)\s*:\s*(.+)$/i);if(m){if(current)blocks.push(current);current={number:+m[1],header:m[2],lines:[]};continue}if(current)current.lines.push(line)}
+  if(current)blocks.push(current);
+  if(!blocks.length)throw new Error('Ik kon geen regels vinden die beginnen met “Ritnummer …:”.');
+  const trips=[];const warnings=[];
+  for(const b of blocks){const trip=parseTripBlock(b);trips.push(trip);warnings.push(...trip.warnings.map(w=>`${trip.displayDate}: ${w}`))}
+  trips.sort((a,b)=>new Date(a.departureTime)-new Date(b.departureTime));
+  for(let i=1;i<trips.length;i++){const prev=trips[i-1],cur=trips[i];if(prev.endOdometer!=null&&cur.startOdometer!=null&&prev.endOdometer!==cur.startOdometer)warnings.push(`Kilometergat tussen ${prev.displayDate} en ${cur.displayDate}: ${prev.endOdometer} → ${cur.startOdometer}.`)}
+  const locations=buildLocationCandidates(trips);
+  const existingKeys=new Set(db.trips.map(duplicateKey));
+  for(const t of trips){t.duplicate=existingKeys.has(duplicateKey(t));t.valid=Number.isFinite(t.startOdometer)&&Number.isFinite(t.endOdometer)&&t.endOdometer>=t.startOdometer&&!!t.originRaw&&!!t.destinationRaw;if(t.duplicate)t.warnings.push('Deze rit lijkt al in de app te staan.');if(!t.valid)t.warnings.push('Onvoldoende geldige gegevens om deze rit te importeren.')}
+  return{metadata,trips,locations,warnings};
+}
+
+function parseTripBlock(block){
+  const warnings=[];const dt=parseDutchDateTime(block.header);if(!dt)warnings.push('Datum/tijd niet herkend.');
+  let section=null,category=null,startOdometer=null,endOdometer=null,statedDistance=null,reason='',originLines=[],destinationLines=[];
+  for(const line of block.lines){if(!line||/^---/.test(line))continue;if(/^Vertrek\s+adres\s*:/i.test(line)){section='origin';continue}if(/^Aankomst\s+adres\s*:/i.test(line)){section='destination';continue}
+    const cat=parseCategory(line);if(cat&&section==='origin'&&startOdometer==null){category=cat;continue}
+    let m=line.match(/^Kilometerstand\s*:\s*([\d.,]+)/i);if(m){const v=toNumber(m[1]);if(section==='origin')startOdometer=v;else if(section==='destination')endOdometer=v;continue}
+    m=line.match(/^Ritafstand\s*:\s*([\d.,]+)/i);if(m){statedDistance=toNumber(m[1]);continue}
+    m=line.match(/^Reden\s*:\s*(.*)$/i);if(m){reason=m[1].trim();continue}
+    if(section==='origin'&&startOdometer==null)originLines.push(line);else if(section==='destination'&&endOdometer==null)destinationLines.push(line);
+  }
+  const originRaw=cleanLocationText(originLines.join(', ')),destinationRaw=cleanLocationText(destinationLines.join(', '));
+  const calculatedDistance=Number.isFinite(startOdometer)&&Number.isFinite(endOdometer)?endOdometer-startOdometer:null;
+  if(!category)category='business';
+  if(calculatedDistance!=null&&calculatedDistance<0)warnings.push('Eindkilometerstand ligt onder de startkilometerstand.');
+  if(calculatedDistance!=null&&statedDistance!=null&&Math.abs(calculatedDistance-statedDistance)>.01)warnings.push(`Ritafstand in notitie is ${fmt(statedDistance)} km, terwijl de kilometerstanden ${fmt(calculatedDistance)} km geven. De kilometerstanden worden leidend.`);
+  if(!originRaw)warnings.push('Vertrekadres ontbreekt.');if(!destinationRaw)warnings.push('Aankomstadres ontbreekt.');if(startOdometer==null)warnings.push('Startkilometerstand ontbreekt.');if(endOdometer==null)warnings.push('Eindkilometerstand ontbreekt.');
+  return{id:uid(),number:block.number,departureTime:dt?dt.toISOString():null,displayDate:dt?formatDateTime(dt):block.header,category,startOdometer,endOdometer,statedDistance,actualKm:calculatedDistance,reason,originRaw,destinationRaw,warnings};
+}
+
+function parseDutchDateTime(s){const m=String(s).match(/(?:[a-z]{2,3}\s*,\s*)?(\d{1,2})-(\d{1,2})-(\d{4})\s+(\d{1,2}):(\d{2})/i);if(!m)return null;const d=new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5],0,0);return Number.isNaN(d.getTime())?null:d}
+function parseCategory(s){const x=normalizeText(s);if(/woon\s*-?\s*werk/.test(x))return'commute';if(/prive/.test(x))return'private';if(/zakelijk|business/.test(x))return'business';return null}
+function cleanLocationText(s){return String(s||'').replace(/\s*,\s*,+/g,', ').replace(/\s+/g,' ').replace(/^,\s*|,\s*$/g,'').trim()}
+
+function buildLocationCandidates(trips){
+  const map=new Map();
+  for(const t of trips){for(const [role,raw] of [['origin',t.originRaw],['destination',t.destinationRaw]]){if(!raw)continue;const parsedLoc=parseLocation(raw),key=locationKey(parsedLoc.address||raw);if(!map.has(key))map.set(key,{key,raw,parsed:parsedLoc,count:0,roles:[],tripTypes:[],times:[]});const c=map.get(key);c.count++;c.roles.push(role);c.tripTypes.push(t.category);c.times.push({role,date:t.departureTime?new Date(t.departureTime):null});}}
+  for(const c of map.values()){c.existing=findExistingLocation(c.parsed,c.raw);c.suggestedType=c.existing?.type||inferLocationType(c);c.suggestedName=c.existing?.name||c.parsed.name||c.parsed.address||c.raw}
+  return[...map.values()];
+}
+function parseLocation(raw){const parts=String(raw).split(',').map(x=>x.trim()).filter(Boolean);if(!parts.length)return{name:'',address:''};const first=parts[0],firstLooksStreet=/\d/.test(first);if(parts.length>=3&&!firstLooksStreet)return{name:first,address:parts.slice(1).join(', ')};return{name:first,address:parts.join(', ')}}
+function findExistingLocation(p,raw){const addrKey=locationKey(p.address),rawKey=locationKey(raw),nameKey=locationKey(p.name);return db.locations.find(l=>{const la=locationKey(l.address),ln=locationKey(l.name),combo=locationKey([l.name,l.address].filter(Boolean).join(', '));return !!(addrKey&&(la===addrKey||combo===addrKey))||!!(rawKey&&(la===rawKey||combo===rawKey))||!!(nameKey&&ln===nameKey&&(!p.address||!l.address||la===addrKey))})||null}
+function inferLocationType(c){let home=0,work=0,priv=0,biz=0;for(const type of c.tripTypes){if(type==='private')priv++;if(type==='business')biz++}for(const x of c.times){if(!x.date)continue;const h=x.date.getHours();if(x.role==='origin'&&h>=4&&h<11)home+=2;if(x.role==='destination'&&h>=15&&h<23)home+=2;if(x.role==='destination'&&h>=4&&h<11)work+=2;if(x.role==='origin'&&h>=14&&h<21)work+=2}if(home>=work+3)return'home';if(work>=home+3)return'work';if(priv>biz&&priv>=2)return'private';if(biz>=2)return'business';return'other'}
+
+function renderPreview(){
+  if(!parsed)return;
+  const selected=parsed.trips.filter(t=>t.valid&&!t.duplicate),totalKm=selected.reduce((s,t)=>s+(+t.actualKm||0),0),duplicates=parsed.trips.filter(t=>t.duplicate).length;
+  $('#stats').innerHTML=stat('Gevonden',parsed.trips.length,'ritten')+stat('Selecteerbaar',selected.length,'ritten')+stat('Afstand',fmt(totalKm),'km')+stat('Dubbel',duplicates,'ritten');
+  const m=parsed.metadata;$('#metadataWrap').innerHTML=(m.name||m.vehicleBrand||m.plate)?`<div class="meta"><div class="item"><span>Naam</span><strong>${esc(m.name||'—')}</strong></div><div class="item"><span>Automerk</span><strong>${esc(m.vehicleBrand||'—')}</strong></div><div class="item"><span>Kenteken</span><strong>${esc(m.plate||'—')}</strong></div></div>`:'';
+  const uniqueWarnings=[...new Set(parsed.warnings)];$('#warningsWrap').innerHTML=uniqueWarnings.length?`<div class="warning-list">${uniqueWarnings.map(w=>`<div class="warning-item">⚠ ${esc(w)}</div>`).join('')}</div>`:`<div class="warning-item">✓ Geen gaten tussen opeenvolgende kilometerstanden gevonden in de geplakte gegevens.</div>`;
+  $('#locations').innerHTML=parsed.locations.map(renderLocation).join('')||'<div class="empty">Geen locaties gevonden.</div>';
+  $('#trips').innerHTML=parsed.trips.map(renderTrip).join('');
+  $('#tripCountLabel').textContent=`${parsed.trips.length} gevonden`;
+  updateImportSummary();
+}
+function stat(label,value,unit){return`<div class="stat"><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(unit)}</small></div>`}
+function renderLocation(c){if(c.existing)return`<div class="location"><div class="location-head"><div class="location-main"><strong>${esc(c.existing.name||c.parsed.name||c.raw)}</strong><div class="hint">${esc(c.existing.address||c.parsed.address||c.raw)}</div></div><span class="badge good">Bestaand</span></div><div class="hint" style="margin-top:7px">Wordt gekoppeld aan de bestaande locatie · type ${esc(typeLabel(c.existing.type||'other'))}.</div></div>`;return`<div class="location"><div class="location-head"><div class="location-main"><strong>${esc(c.raw)}</strong><div class="hint">Nieuwe locatie · ${c.count}× gebruikt in deze import</div></div><span class="badge warn">Nieuw</span></div><div class="loc-grid"><div class="field"><label>Omschrijving in de app</label><input data-location-name="${attr(c.key)}" value="${attr(c.suggestedName)}"></div><div class="field"><label>Type locatie</label><select data-location-type="${attr(c.key)}">${['home','work','business','private','other'].map(v=>`<option value="${v}" ${v===c.suggestedType?'selected':''}>${typeLabel(v)}</option>`).join('')}</select></div></div><div class="hint" style="margin-top:7px">Adres: ${esc(c.parsed.address||c.raw)}</div></div>`}
+function renderTrip(t){const checked=t.valid&&!t.duplicate?'checked':'',disabled=!t.valid||t.duplicate?'disabled':'';const notes=[...t.warnings];const cls=['trip',t.duplicate?'duplicate':'',!t.valid?'error':''].filter(Boolean).join(' ');return`<div class="${cls}"><input class="trip-check" type="checkbox" data-trip-id="${t.id}" ${checked} ${disabled}><div class="trip-date">${esc(t.displayDate)}</div><div class="trip-main"><strong>${esc(shortLoc(t.originRaw))} → ${esc(shortLoc(t.destinationRaw))}</strong><small>${esc(categoryLabel(t.category))}</small><small>${odo(t.startOdometer)} → ${odo(t.endOdometer)} km</small></div><div class="trip-km"><strong>${t.actualKm!=null?fmt(t.actualKm)+' km':'—'}</strong><small>${t.duplicate?'al aanwezig':t.valid?'importeren':'ongeldig'}</small></div>${notes.length?`<div class="trip-note ${!t.valid?'error':''}">${notes.map(esc).join(' · ')}</div>`:''}</div>`}
+function updateImportSummary(){if(!parsed)return;const ids=new Set([...document.querySelectorAll('.trip-check:checked')].map(x=>x.dataset.tripId)),trips=parsed.trips.filter(t=>ids.has(t.id)),kmTotal=trips.reduce((s,t)=>s+(+t.actualKm||0),0),newLocKeys=new Set();for(const t of trips){for(const raw of [t.originRaw,t.destinationRaw]){const p=parseLocation(raw),key=locationKey(p.address||raw),c=parsed.locations.find(x=>x.key===key);if(c&&!c.existing)newLocKeys.add(key)}}$('#importSummary').innerHTML=`Klaar om <strong>${trips.length} ${trips.length===1?'rit':'ritten'}</strong> (${fmt(kmTotal)} km) en <strong>${newLocKeys.size} nieuwe ${newLocKeys.size===1?'locatie':'locaties'}</strong> toe te voegen.`;$('#importBtn').disabled=!trips.length}
+
+function importSelected(){
+  if(!parsed)return;
+  const ids=new Set([...document.querySelectorAll('.trip-check:checked')].map(x=>x.dataset.tripId)),
+        trips=parsed.trips.filter(t=>ids.has(t.id)&&t.valid&&!t.duplicate);
+  if(!trips.length)return;
+  if(!confirm(`${trips.length} historische ritten importeren in de kilometerregistratie?`))return;
+  try{
+    const mapping=new Map();
+
+    for(const c of parsed.locations){
+      if(c.existing){
+        mapping.set(c.key,c.existing);
+        continue;
+      }
+
+      const used=trips.some(t=>
+        [t.originRaw,t.destinationRaw].some(raw=>
+          locationKey(parseLocation(raw).address||raw)===c.key
+        )
+      );
+
+      if(!used)continue;
+
+      const name=(
+        document.querySelector(`[data-location-name="${cssEscape(c.key)}"]`)?.value
+        ||c.suggestedName
+        ||c.parsed.name
+        ||c.raw
+      ).trim();
+
+      const type=
+        document.querySelector(`[data-location-type="${cssEscape(c.key)}"]`)?.value
+        ||c.suggestedType
+        ||'other';
+
+      const loc={
+        id:uid(),
+        name:name||c.parsed.address||c.raw,
+        address:c.parsed.address||c.raw,
+        lat:null,
+        lng:null,
+        type,
+        useCount:0,
+        createdAt:new Date().toISOString(),
+        updatedAt:new Date().toISOString()
+      };
+
+      db.locations.push(loc);
+      mapping.set(c.key,loc);
+    }
+
+    const existing=new Set(db.trips.map(duplicateKey));
+    let imported=0,totalKm=0;
+
+    for(const t of trips){
+      if(existing.has(duplicateKey(t)))continue;
+
+      const o=mapping.get(locationKey(parseLocation(t.originRaw).address||t.originRaw));
+      const d=mapping.get(locationKey(parseLocation(t.destinationRaw).address||t.destinationRaw));
+
+      if(!o||!d)throw new Error('Een locatie kon niet worden gekoppeld.');
+
+      const actual=+t.actualKm||0;
+      const dist=split(actual,t.category);
+
+      const trip={
+        id:uid(),
+        origin:snap(o),
+        destination:snap(d),
+        departureTime:t.departureTime,
+        arrivalTime:null,
+        arrivalTimeKnown:false,
+        startOdometer:t.startOdometer,
+        endOdometer:t.endOdometer,
+        actualKm:actual,
+        proposedRouteKm:null,
+        category:t.category,
+        reason:t.reason||'',
+        privateKm:dist.private,
+        businessKm:dist.business,
+        commuteKm:dist.commute,
+        importedAt:new Date().toISOString(),
+        importSource:'notes-text-v1',
+        historicalArrivalUnknown:true,
+        noteRitDistance:t.statedDistance??null
+      };
+
+      db.trips.push(trip);
+      existing.add(duplicateKey(trip));
+      o.useCount=(o.useCount||0)+1;
+      d.useCount=(d.useCount||0)+1;
+      imported++;
+      totalKm+=actual;
+    }
+
+    if($('#fillSettings').checked){
+      const m=parsed.metadata;
+      if(!db.settings.name&&m.name)db.settings.name=m.name;
+      if(!db.settings.vehicleBrand&&m.vehicleBrand)db.settings.vehicleBrand=m.vehicleBrand;
+      if(!db.settings.plate&&m.plate)db.settings.plate=m.plate;
+    }
+
+    rebuildLastEndpoint();
+    saveDb();
+    db=loadDb();
+    refreshDbStatus();
+
+    done.innerHTML=`<h2>Import voltooid</h2><p><strong>${imported} ${imported===1?'rit':'ritten'}</strong> toegevoegd · ${fmt(totalKm)} km.</p><div class="hint">De ritten staan nu in dezelfde lokale database als index.html. Aankomsttijden zijn als onbekend bewaard; er is niets verzonnen.</div><div class="row" style="margin-top:14px"><button class="btn secondary" type="button" onclick="location.href='index.html'">Open kilometerregistratie</button><button class="btn secondary" type="button" onclick="location.reload()">Nog een notitie importeren</button></div>`;
+
+    done.classList.remove('hidden');
+    preview.classList.add('hidden');
+    done.scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){
+    console.error(e);
+    alert('Import mislukt:\n\n'+(e.message||e));
+  }
+}
+
+function rebuildLastEndpoint(){
+  const trips=[...db.trips]
+    .filter(t=>t.endOdometer!=null)
+    .sort((a,b)=>
+      new Date(b.arrivalTime||b.departureTime||0)
+      -new Date(a.arrivalTime||a.departureTime||0)
+    );
+
+  const t=trips[0];
+
+  if(t){
+    db.lastEndpoint={
+      location:snap(t.destination),
+      odometer:t.endOdometer,
+      time:t.arrivalTime||t.departureTime
+    };
+  }
+}
+
+function split(total,cat){
+  return{
+    private:cat==='private'?total:0,
+    business:cat==='business'?total:0,
+    commute:cat==='commute'?total:0
+  };
+}
+
+function snap(l){
+  return l?{
+    id:l.id||null,
+    name:l.name||'',
+    address:l.address||'',
+    lat:l.lat==null?null:+l.lat,
+    lng:l.lng==null?null:+l.lng,
+    type:l.type||'other'
+  }:null;
+}
+
+function duplicateKey(t){
+  return`${String(t.departureTime||'')}|${Number(t.startOdometer)}|${Number(t.endOdometer)}`;
+}
+
+function locationKey(s){
+  return normalizeText(s).replace(/[^a-z0-9]/g,'');
+}
+
+function normalizeText(s){
+  return String(s||'')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+function shortLoc(raw){
+  const p=parseLocation(raw);
+  return p.name||p.address||raw;
+}
+
+function match1(s,r){
+  const m=String(s).match(r);
+  return m?m[1].trim():'';
+}
+
+function toNumber(v){
+  if(v==null||String(v).trim()==='')return null;
+  const n=Number(String(v).replace(/\./g,'').replace(',','.'));
+  return Number.isFinite(n)?n:null;
+}
+
+function fmt(v){
+  return new Intl.NumberFormat('nl-NL',{maximumFractionDigits:1}).format(+v||0);
+}
+
+function odo(v){
+  return v==null?'—':new Intl.NumberFormat('nl-NL',{maximumFractionDigits:0}).format(+v);
+}
+
+function categoryLabel(v){
+  return v==='commute'?'Woon-werk':v==='private'?'Privé':v==='business'?'Zakelijk':'Overig';
+}
+
+function typeLabel(v){
+  return v==='home'?'Thuis':v==='work'?'Werk':v==='business'?'Zakelijk':v==='private'?'Privé':'Overig';
+}
+
+function formatDateTime(d){
+  return new Intl.DateTimeFormat('nl-NL',{
+    weekday:'short',
+    day:'2-digit',
+    month:'2-digit',
+    year:'numeric',
+    hour:'2-digit',
+    minute:'2-digit'
+  }).format(d);
+}
+
+function uid(){
+  return window.crypto?.randomUUID
+    ?window.crypto.randomUUID()
+    :'id-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+}
+
+function esc(v){
+  return String(v??'').replace(/[&<>"']/g,c=>({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c]));
+}
+
+function attr(v){
+  return esc(v).replace(/`/g,'&#96;');
+}
+
+function cssEscape(v){
+  return window.CSS?.escape
+    ?CSS.escape(v)
+    :String(v).replace(/(["\\])/g,'\\$1');
+}
+
+function toast(m){
+  toastEl.textContent=m;
+  toastEl.classList.add('show');
+  clearTimeout(toastEl._t);
+  toastEl._t=setTimeout(()=>toastEl.classList.remove('show'),2600);
+}
+
+function download(blob,name){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=name;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{
+    URL.revokeObjectURL(a.href);
+    a.remove();
+  },1000);
+}
+})();
+</script>
+</body>
+</html>
