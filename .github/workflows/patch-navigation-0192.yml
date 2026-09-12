@@ -1,0 +1,10 @@
+name: Patch navigation 0.19.2
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo placeholder
