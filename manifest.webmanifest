@@ -1,13 +1,19 @@
 {
   "name": "Kilometerregistratie",
   "short_name": "Kilometers",
-  "description": "Lokale kilometerregistratie met ritten, locaties, GPS-trackpunten en weekrapportage.",
+  "description": "Persoonlijke kilometerregistratie voor ritten, kilometerstanden en rapportage.",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0b0d10",
-  "theme_color": "#0b0d10",
+  "background_color": "#0a0c0f",
+  "theme_color": "#0a0c0f",
   "lang": "nl-NL",
   "icons": [
-    {"src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+    {
+      "src": "./app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
   ]
 }
