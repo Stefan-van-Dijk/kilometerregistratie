@@ -1,0 +1,43 @@
+name: Temporary 0.23.0 build
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/0.23.0-ux-offline
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply 0.23.0 changes
+        run: python scripts/patch_0230.py
+      - name: Check JavaScript syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text()
+          m=re.search(r'<script>(.*?)</script>',s,re.S)
+          if not m:
+              raise SystemExit('script not found')
+          Path('/tmp/app.js').write_text(m.group(1))
+          PY
+          node --check /tmp/app.js
+      - name: Validate PWA files
+        run: |
+          node --check service-worker.js
+          python -m json.tool manifest.webmanifest >/dev/null
+      - name: Commit to feature branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html manifest.webmanifest service-worker.js app-icon.svg
+          git commit -m "0.23.0: ritfocus, back-up, IndexedDB en offline app"
+          git push origin HEAD:feature/0.23.0-ux-offline
