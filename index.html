@@ -18,6 +18,33 @@
 @media(max-width:480px){.day-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.event-actions{grid-template-columns:1fr}.odo-digit{height:52px;font-size:28px}.estimate-list{grid-template-columns:1fr}.odo-actions{grid-template-columns:1fr}.shell{padding-left:12px;padding-right:12px}.period-tabs{gap:3px;padding:4px}.period-tabs button{font-size:11px;padding:8px 4px}.ride-tools{grid-template-columns:1fr 1fr}.grid2,.detail-grid{grid-template-columns:1fr}.summary-parts{flex-wrap:wrap}.summary-part{flex:1 1 33%}.row{flex-direction:column}.row>.btn{flex:auto;width:100%}.location-item{align-items:flex-start;flex-wrap:wrap}.location-main{flex:1 1 180px}.grid2.buttons{grid-template-columns:1fr}.accordion-body{padding:0 13px 13px}.accordion summary{padding:14px}}
 @media print{body{background:#fff;color:#000}.shell,.modal,.toast{display:none!important}.print-only{display:block;padding:20px}.print-only .summary,.print-only .list-item{background:#fff;color:#000;border-color:#ccc}.print-only small,.print-only .muted{color:#555}}
 .period-navigator{margin-top:2px;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);touch-action:pan-y;user-select:none;-webkit-user-select:none}.period-nav-head{display:grid;grid-template-columns:42px minmax(0,1fr) 42px;align-items:center;gap:8px;margin-bottom:10px}.period-center{text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px}.period-center strong{font-size:18px;line-height:1.15}.period-center small{font-size:11px}.period-mode-chip{border:1px solid var(--line);border-radius:999px;padding:5px 10px;background:var(--card2);color:var(--text);font-size:11px;font-weight:800;cursor:pointer}.period-mode-chip::after{content:' ▾';color:var(--muted)}.period-arrow-spacer{width:42px}.period-navigator .summary{border-radius:14px}.period-gesture-hint{margin-top:9px;text-align:center;color:var(--muted);font-size:10px;line-height:1.35}.period-choice-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}.period-choice{min-height:52px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#101722;color:var(--text);font-weight:750;text-align:center;cursor:pointer}.period-choice.active{border-color:var(--accent);background:rgba(77,163,255,.13)}
+
+/* 0.22.0 — rustige, doorlopende iOS-achtige weergave */
+:root{--bg:#0a0c0f;--card:#11151a;--card2:#171c23;--line:#242a33;--r:14px}
+body{background:var(--bg)}
+.shell{max-width:760px;padding-left:18px;padding-right:18px}
+.top{padding:14px 0 16px;background:rgba(10,12,15,.94);backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px)}
+.top h1{font-size:22px;letter-spacing:-.02em}.eyebrow{font-size:11px}
+.hero{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:10px 2px 24px;margin:0 0 6px}
+.hero h2{font-size:32px;letter-spacing:-.035em;margin:8px 0 6px}.hero p{margin:6px 0 14px}
+.hero .btn.full{max-width:420px}.hero .btn.secondary{background:transparent;border:0;color:var(--accent);padding-left:7px;padding-right:7px;min-height:40px}
+.hero .row{margin-top:13px!important}.ride-tools{display:flex;gap:2px;margin-top:5px;flex-wrap:wrap}.ride-tool{flex:1 1 120px;background:transparent;border:0;border-radius:0;color:var(--muted);padding:9px 8px;font-weight:650}.ride-tool:active{color:var(--text)}
+.status{border:0;background:transparent;padding:5px 0}.dot{width:7px;height:7px}
+.period-navigator{margin-top:0!important;padding:20px 0 18px!important;background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important}
+.period-nav-head{margin-bottom:5px!important}.period-center{gap:4px!important}.period-center strong{font-size:25px!important;letter-spacing:-.025em}.period-center small{font-size:11px!important}.period-mode-chip{background:transparent!important;border:0!important;padding:3px 8px!important;color:var(--muted)!important}.period-mode-chip:active{color:var(--text)!important}
+.period-navigator .mini{background:transparent;border:0;font-size:24px;color:var(--muted)}
+.period-navigator .summary{background:transparent;border:0;border-radius:0!important;overflow:visible}.period-navigator .summary-head{padding:9px 0 3px}.period-navigator .summary-label{display:none}.period-navigator .summary-total{display:flex;flex-direction:column;align-items:center;gap:4px;margin:0}.period-navigator .summary-total strong{font-size:40px;letter-spacing:-.045em}.period-navigator .summary-total small{font-size:11px}
+.period-navigator .summary-parts{justify-content:center;gap:20px;border:0;flex-wrap:wrap}.period-navigator .summary-part{flex:0 0 auto;padding:8px 0}.period-navigator .summary-part+.summary-part{border:0}.period-navigator .summary-part span,.period-navigator .summary-part strong{display:inline;font-size:11px}.period-navigator .summary-part strong{margin:0 0 0 4px;font-size:12px}.period-gesture-hint{margin-top:5px!important;opacity:.72}
+.section{margin-top:26px}.section-title{margin-bottom:7px;padding:0 1px}.section-title h2{font-size:19px;letter-spacing:-.015em}
+.list{gap:0;border-top:1px solid var(--line)}.list-item{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:14px 2px}.trip-date{flex-basis:66px}.trip-main strong{font-size:14px}.trip-main small{font-size:11px}.trip-km{font-size:14px}.chev{font-size:20px;opacity:.65}.empty{background:transparent;border:0;border-radius:0;padding:22px 2px;text-align:left}
+.route-points{gap:0;border-top:1px solid var(--line)}.route-point{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:12px 2px}
+.accordion{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;margin:0}.accordion summary{padding:16px 2px}.accordion-body{padding:0 2px 18px;border-top:0}.accordion-title small{font-size:11px}.accordion-arrow{font-size:18px}.action-list{gap:0;border-top:1px solid var(--line)}.action{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:13px 2px}
+.location-list{gap:0;border-top:1px solid var(--line)}.location-item{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:12px 2px}.location-actions .mini{background:transparent;border:0;color:var(--accent)}
+.notice{background:transparent;border:0;border-radius:0;padding:10px 0}.notice.warning{border:0;border-left:2px solid #6b5424;padding-left:10px}.route{background:transparent;border:0;border-left:2px solid var(--line);border-radius:0;padding:8px 0 8px 12px}
+.form-group input,.form-group select,.form-group textarea{background:#10141a;border-color:#252c35;border-radius:10px}.sticky-save{background:linear-gradient(transparent,var(--bg) 44%)}
+.modal-panel{border-color:#252c35}.detail-hero{border:0;background:#10141a}.detail-item,.detail-note{background:#10141a;border-color:#252c35}
+@media(max-width:520px){.shell{padding-left:16px;padding-right:16px}.hero h2{font-size:30px}.period-center strong{font-size:23px!important}.period-navigator .summary-total strong{font-size:38px}.period-navigator .summary-parts{gap:13px}.trip-date{flex-basis:60px}}
+
 </style>
 </head>
 <body>
@@ -38,7 +65,7 @@ const KEY='kmreg-v4-data';
 const DEFAULT={settings:{name:'',vehicleBrand:'',vehicleModel:'',plate:'',initialOdometer:'',registrationStart:new Date().toISOString().slice(0,10),reportEmail:'',recognitionRadius:500,privateDays:[],navigationMode:'system'},locations:[],trips:[],events:[],trackPoints:[],activeTrip:null,lastEndpoint:null};
 let data=load(),view='ride',selectedWeek=new Date(),periodMode='week',gpsWatch=null,gpsTimer=null,gpsLatest=null,odoSwipe=null,periodGesture=null,periodLastTap=0;
 const app=document.getElementById('app'),modal=document.getElementById('modal'),modalPanel=document.getElementById('modalPanel'),toastEl=document.getElementById('toast'),topAction=document.getElementById('topAction'),printReportEl=document.getElementById('printReport');
-document.getElementById('today').textContent=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date())+' · 0.21.0';
+document.getElementById('today').textContent=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date())+' · 0.22.0';
 render();if(data.activeTrip)startTracking();
 
 function clone(v){return JSON.parse(JSON.stringify(v))}
