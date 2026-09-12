@@ -1,4 +1,4 @@
-const CACHE='kmreg-shell-0.26.0';
+const CACHE='kmreg-shell-0.26.1';
 const SHELL=['./','./index.html','./manifest.webmanifest','./app-icon.svg'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('kmreg-shell-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
