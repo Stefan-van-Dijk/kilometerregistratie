@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0a0c0f">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f5f7">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0c0f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kilometers">
@@ -95,6 +96,25 @@ body{background:var(--bg)}
 .route-points-swipe .inline-event-surface,.location-swipe-surface{gap:11px}
 .location-swipe-surface .chev{margin-left:auto}
 
+/* 0.27.5 — volg het lichte/donkere systeemthema */
+:root{color-scheme:dark}
+@media (prefers-color-scheme:light){
+:root{color-scheme:light;--bg:#f5f5f7;--card:#ffffff;--card2:#eceef2;--text:#1d1d1f;--muted:#6e6e73;--line:#d7d9de;--accent:#007aff;--good:#248a3d;--warn:#8a5b00;--bad:#d70015;--business:#6e4fc5;--commute:#006edc;--private:#248a3d}
+html,body{background:var(--bg);color:var(--text)}
+.top{background:rgba(245,245,247,.94)}
+.period-tabs,.period-choice,.day-option span,.trip-type-option span,.arrival-location-card,.estimate-choice,.odo-edit{background:#fff}
+.form-group input,.form-group select,.form-group textarea{background:#fff;border-color:var(--line);color:var(--text)}
+.modal{background:rgba(0,0,0,.28)}.modal-panel{background:var(--bg);border-color:var(--line);box-shadow:0 18px 48px rgba(0,0,0,.16)}
+.detail-hero,.detail-item,.detail-note{background:#fff;border-color:var(--line)}
+.btn.secondary,.mini,.iconbtn,.close,.pill{background:var(--card2);color:var(--text)}.btn.danger{background:#ffe5e7;color:#a4000f}
+.toggle-slider{background:#c7c7cc}
+.notice.warning{border-left-color:#b37a00;color:#7a5100}.recognition-chip.good{border-color:rgba(36,138,61,.4);color:#187a32}.recognition-chip.warn{border-color:rgba(138,91,0,.4);color:#7a5100}
+.active-dock{background:rgba(255,255,255,.94);box-shadow:0 12px 34px rgba(0,0,0,.16)}
+.odo-card{border-color:#d0d4da;background:linear-gradient(180deg,#fff,#eef0f3);box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 8px 24px rgba(0,0,0,.08)}
+.odo-digit{border-color:#c8ccd2;background:linear-gradient(180deg,#fff,#e3e6ea 52%,#f7f8f9);box-shadow:inset 0 1px 1px rgba(255,255,255,.9),inset 0 -1px 1px rgba(0,0,0,.12);color:#111}.odo-caption,.odo-unit,.odo-swipe-hint{color:#6e6e73}.odo-digit.swipeable::before,.odo-digit.swipeable::after{color:#8a8f98}
+.toast{background:#1d1d1f;color:#fff}
+}
+
 </style>
 </head>
 <body>
@@ -115,7 +135,7 @@ const KEY='kmreg-v4-data';
 const DEFAULT={settings:{name:'',vehicleBrand:'',vehicleModel:'',plate:'',initialOdometer:'',registrationStart:new Date().toISOString().slice(0,10),reportEmail:'',recognitionRadius:500,privateDays:[],privateTimeStart:'',privateTimeEnd:'',navigationMode:'system',lastBackupAt:null,swipeDeleteEnabled:true,destinationTimeWindowHours:2},locations:[],trips:[],events:[],trackPoints:[],activeTrip:null,lastEndpoint:null};
 let data=load(),view='ride',selectedWeek=new Date(),periodMode='week',gpsWatch=null,gpsTimer=null,gpsLatest=null,odoSwipe=null,periodGesture=null,periodLastTap=0,expandedTripId=null,tripSwipe=null,trackStoreReady=false,trackDbPromise=null;
 const app=document.getElementById('app'),modal=document.getElementById('modal'),modalPanel=document.getElementById('modalPanel'),toastEl=document.getElementById('toast'),topAction=document.getElementById('topAction'),printReportEl=document.getElementById('printReport');
-document.getElementById('today').textContent=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date())+' · 0.27.4';
+document.getElementById('today').textContent=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date())+' · 0.27.5';
 render();initTrackStore().finally(()=>{if(data.activeTrip)startTracking()});registerServiceWorker();
 
 function clone(v){return JSON.parse(JSON.stringify(v))}
