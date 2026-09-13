@@ -1,0 +1,39 @@
+name: Apply edge settings swipe
+
+on:
+  push:
+    branches:
+      - feature/0.28.1-edge-settings-swipe
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/0.28.1-edge-settings-swipe
+          fetch-depth: 0
+      - name: Apply and verify update
+        shell: bash
+        run: |
+          python3 .github/scripts/patch-edge-settings-swipe.py
+          node --check /tmp/kmreg-app.js
+          grep -q "0.28.1" index.html
+          grep -q "kmreg-shell-0.28.1" service-worker.js
+          grep -q "SCREEN_EDGE_SWIPE_ZONE=32" index.html
+          grep -q "SCREEN_EDGE_SWIPE_DISTANCE=72" index.html
+          grep -q "function screenSwipeStart" index.html
+          grep -q "function screenSwipeEnd" index.html
+          grep -q "if(screenSwipe?.pointerId===e.pointerId)return" index.html
+      - name: Commit update
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          git commit -m "0.28.1: voeg rand-swipe voor instellingen toe"
+          git push origin HEAD:feature/0.28.1-edge-settings-swipe
