@@ -12,7 +12,7 @@ def replace_once(old,new,label):
 
 replace_once("+' · 0.28.0';","+' · 0.28.1';",'version')
 replace_once("const KEY='kmreg-v4-data',GEOCODE_CACHE_KEY='kmreg-geocode-cache-v1',GEOCODER_DEFAULT_BASE='https://nominatim.openstreetmap.org';","const KEY='kmreg-v4-data',GEOCODE_CACHE_KEY='kmreg-geocode-cache-v1',GEOCODER_DEFAULT_BASE='https://nominatim.openstreetmap.org',SCREEN_EDGE_SWIPE_ZONE=32,SCREEN_EDGE_SWIPE_DISTANCE=72;",'edge swipe constants')
-replace_once("settingsLocationOriginId=null;","settingsLocationOriginId=null,screenSwipe=null;",'edge swipe state')
+replace_once("settingsLocationCheck=0,geocodeQueue=Promise.resolve(),geocodeLastAt=0,expandedLocationId=null,settingsLocationsOpen=false,settingsLocationOriginId=null;","settingsLocationCheck=0,geocodeQueue=Promise.resolve(),geocodeLastAt=0,expandedLocationId=null,settingsLocationsOpen=false,settingsLocationOriginId=null,screenSwipe=null;",'edge swipe state')
 
 old_events="""document.addEventListener('pointercancel',()=>{odoSwipe=null});
 document.addEventListener('pointerdown',tripSwipeStart);
