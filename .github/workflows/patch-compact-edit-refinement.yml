@@ -1,0 +1,36 @@
+name: Apply compact edit refinement
+
+on:
+  push:
+    branches:
+      - feature/0.28.4-light-edit-ui
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/0.28.4-light-edit-ui
+          fetch-depth: 0
+      - name: Apply and verify update
+        shell: bash
+        run: |
+          python3 .github/scripts/patch-compact-edit-refinement.py
+          node --check /tmp/kmreg-app.js
+          grep -q "function coordinateInputValue(value){return value==null" index.html
+          grep -q "input\[type=\"datetime-local\"\]" index.html
+          grep -q "max-height:920px" index.html
+          grep -q "String(g.lat)" index.html
+      - name: Commit update
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "0.28.4: maak bewerkvensters compacter"
+          git push origin HEAD:feature/0.28.4-light-edit-ui
