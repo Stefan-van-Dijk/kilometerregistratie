@@ -1,0 +1,37 @@
+name: Apply period control refinement
+
+on:
+  push:
+    branches:
+      - feature/0.28.6-period-control
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/0.28.6-period-control
+          fetch-depth: 0
+      - name: Apply and verify update
+        shell: bash
+        run: |
+          python3 .github/scripts/patch-period-control.py
+          node --check /tmp/kmreg-app.js
+          grep -q "0.28.6" index.html
+          grep -q "kmreg-shell-0.28.6" service-worker.js
+          grep -q "period-scale-button" index.html
+          grep -q "Dubbel tik" index.html
+          ! grep -q 'class="period-mode-chip" data-action="period-choose"' index.html
+      - name: Commit update
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          git commit -m "0.28.6: verfijn periodekeuze"
+          git push origin HEAD:feature/0.28.6-period-control
