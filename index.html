@@ -88,6 +88,7 @@ body{background:var(--bg)}
 .inline-route-stop{grid-template-columns:66px 22px minmax(0,1fr);align-items:center}.inline-stop-time,.inline-event-time{color:var(--muted);font-size:10px;line-height:1.2;text-align:left}.inline-stop-time strong,.inline-event-time span,.inline-event-time strong{display:block}.inline-stop-time strong,.inline-event-time strong{color:var(--text);font-size:11px;font-weight:750}.inline-event-time span{margin-bottom:2px;font-size:9px}.inline-event-surface{grid-template-columns:66px 26px minmax(0,1fr) auto;align-items:center}
 @media(max-width:520px){.inline-route-stop{grid-template-columns:60px 20px minmax(0,1fr)}.inline-event-surface{grid-template-columns:60px 24px minmax(0,1fr) auto}.trip-private-sub{font-size:9px!important}}
 
+
 /* 0.27.2 — rustige secundaire lijsten en bewerken */
 .route-points-swipe,.location-list{background:transparent}
 .inline-event-swipe,.location-swipe-row{border-radius:0!important;margin:0}
@@ -110,18 +111,6 @@ body{background:var(--bg)}
 .quiet-edit-form>.btn.full{margin-top:14px}
 .quiet-edit-form .divider{margin:14px 0}
 @media(max-width:520px){.quiet-edit-form .time-pair{gap:0}.inline-event-surface,.location-swipe-surface{padding-left:1px;padding-right:1px}}
-
-/* 0.27.3 — uitklapbare instellingen als doorlopende ritlijst */
-#settingsForm{border-top:1px solid var(--line)}
-#settingsForm>.accordion{background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;margin:0!important;box-shadow:none!important;overflow:visible}
-#settingsForm>.accordion>summary{min-height:58px;padding:14px 2px!important;background:transparent!important;border:0!important;border-radius:0!important}
-#settingsForm>.accordion>.accordion-body{padding:2px 2px 16px 13px!important;background:transparent!important;border:0!important;border-radius:0!important;overflow:visible}
-#settingsForm>.accordion[open]>.accordion-body{padding-top:0!important}
-#settingsForm>.accordion .accordion-arrow{font-size:20px;opacity:.65}
-#settingsForm>.accordion .summary{background:transparent!important;border:0!important;border-top:1px solid var(--line)!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;box-shadow:none!important}
-#settingsForm>.accordion .summary-head{padding:12px 0}
-#settingsForm>.accordion .summary-part{padding-left:0;padding-right:0}
-@media(max-width:520px){#settingsForm>.accordion>summary{padding-left:1px!important;padding-right:1px!important}#settingsForm>.accordion>.accordion-body{padding-left:12px!important;padding-right:1px!important}}
 </style>
 </head>
 <body>
@@ -142,7 +131,7 @@ const KEY='kmreg-v4-data';
 const DEFAULT={settings:{name:'',vehicleBrand:'',vehicleModel:'',plate:'',initialOdometer:'',registrationStart:new Date().toISOString().slice(0,10),reportEmail:'',recognitionRadius:500,privateDays:[],privateTimeStart:'',privateTimeEnd:'',navigationMode:'system',lastBackupAt:null,swipeDeleteEnabled:true,destinationTimeWindowHours:2},locations:[],trips:[],events:[],trackPoints:[],activeTrip:null,lastEndpoint:null};
 let data=load(),view='ride',selectedWeek=new Date(),periodMode='week',gpsWatch=null,gpsTimer=null,gpsLatest=null,odoSwipe=null,periodGesture=null,periodLastTap=0,expandedTripId=null,tripSwipe=null,trackStoreReady=false,trackDbPromise=null;
 const app=document.getElementById('app'),modal=document.getElementById('modal'),modalPanel=document.getElementById('modalPanel'),toastEl=document.getElementById('toast'),topAction=document.getElementById('topAction'),printReportEl=document.getElementById('printReport');
-document.getElementById('today').textContent=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date())+' · 0.27.3';
+document.getElementById('today').textContent=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date())+' · 0.27.2';
 render();initTrackStore().finally(()=>{if(data.activeTrip)startTracking()});registerServiceWorker();
 
 function clone(v){return JSON.parse(JSON.stringify(v))}
