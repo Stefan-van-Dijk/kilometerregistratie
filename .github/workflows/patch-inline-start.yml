@@ -27,7 +27,7 @@ jobs:
           grep -q "start-inline-panel" index.html
           grep -q "function refreshStartCategorySuggestion" index.html
           grep -q "homePeriodOrStartPanel" index.html
-          ! grep -q "openModal(.*Vertrek" index.html
+          grep -q "startDraft={origin:snap(origin)" index.html
       - name: Commit update
         shell: bash
         run: |
