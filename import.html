@@ -210,7 +210,7 @@ function importSelected(){
       if(!used)continue;
       const name=(document.querySelector(`[data-location-name="${cssEscape(c.key)}"]`)?.value||c.suggestedName||c.parsed.name||c.raw).trim();
       const type=document.querySelector(`[data-location-type="${cssEscape(c.key)}"]`)?.value||c.suggestedType||'other';
-      const loc={id:uid(),name:name||c.parsed.address||c.raw,address:c.parsed.address||c.raw,lat:null,lng:null,type,useCount:0,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+      const loc={id:newCoreId(),name:name||c.parsed.address||c.raw,address:c.parsed.address||c.raw,lat:null,lng:null,type,useCount:0,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
       db.locations.push(loc);mapping.set(c.key,loc);
     }
 
@@ -224,7 +224,7 @@ function importSelected(){
         const d=mapping.get(locationKey(parseLocation(t.destinationRaw).address||t.destinationRaw));
         if(!o||!d)throw new Error('Een vertrek- of bestemmingslocatie kon niet worden gekoppeld.');
         const actual=+t.actualKm||0,dist=split(actual,t.category);
-        trip={id:uid(),origin:snap(o),destination:snap(d),departureTime:t.departureTime,arrivalTime:null,arrivalTimeKnown:false,startOdometer:t.startOdometer,endOdometer:t.endOdometer,actualKm:actual,proposedRouteKm:null,category:t.category,reason:t.reason||'',privateKm:dist.private,businessKm:dist.business,commuteKm:dist.commute,importedAt:new Date().toISOString(),importSource:'notes-text-v2',historicalArrivalUnknown:true,noteRitDistance:t.statedDistance??null};
+        trip={id:newCoreId(),origin:snap(o),destination:snap(d),departureTime:t.departureTime,arrivalTime:null,arrivalTimeKnown:false,startOdometer:t.startOdometer,endOdometer:t.endOdometer,actualKm:actual,proposedRouteKm:null,category:t.category,reason:t.reason||'',privateKm:dist.private,businessKm:dist.business,commuteKm:dist.commute,importedAt:new Date().toISOString(),importSource:'notes-text-v2',historicalArrivalUnknown:true,noteRitDistance:t.statedDistance??null};
         db.trips.push(trip);existing.set(duplicateKey(trip),trip);o.useCount=(o.useCount||0)+1;d.useCount=(d.useCount||0)+1;imported++;totalKm+=actual;
       }
 
@@ -342,6 +342,8 @@ function formatDateTime(d){
   }).format(d);
 }
 
+const CORE_ID_ALPHABET='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+function newCoreId(){const used=new Set([...db.locations,...db.trips,...(db.activeTrip?[db.activeTrip]:[])].map(x=>String(x?.id||'')).filter(Boolean));let id='';do{const bytes=new Uint8Array(12);if(window.crypto?.getRandomValues)window.crypto.getRandomValues(bytes);else for(let i=0;i<bytes.length;i++)bytes[i]=Math.floor(Math.random()*256);id=Array.from(bytes,b=>CORE_ID_ALPHABET[b&63]).join('')}while(used.has(id));return id}
 function uid(){
   return window.crypto?.randomUUID
     ?window.crypto.randomUUID()
