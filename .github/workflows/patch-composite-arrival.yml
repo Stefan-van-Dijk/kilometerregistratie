@@ -1,0 +1,40 @@
+name: Apply composite arrival estimate
+
+on:
+  push:
+    branches:
+      - feature/0.28.9-composite-arrival-estimate
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/0.28.9-composite-arrival-estimate
+          fetch-depth: 0
+      - name: Apply and verify update
+        shell: bash
+        run: |
+          python3 .github/scripts/patch-composite-arrival.py
+          node --check /tmp/kmreg-app.js
+          grep -q "0.28.9" index.html
+          grep -q "kmreg-shell-0.28.9" service-worker.js
+          grep -q "function compositeArrivalEstimate" index.html
+          grep -q "function learnedRouteFactor" index.html
+          grep -q "GPS deels gemeten" index.html
+          grep -q "A→B × routefactor" index.html
+          grep -q "Onderliggende signalen" index.html
+          ! grep -q "Reistijd × routesnelheid" index.html
+      - name: Commit update
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          git commit -m "0.28.9: combineer route, tijd, historie en GPS"
+          git push origin HEAD:feature/0.28.9-composite-arrival-estimate
