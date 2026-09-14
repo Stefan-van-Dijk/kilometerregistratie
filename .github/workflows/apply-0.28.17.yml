@@ -1,0 +1,54 @@
+name: Apply 0.28.17 short ids and location merge
+
+on:
+  push:
+    branches:
+      - feature/0.28.17-short-ids-location-merge
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply patch
+        run: python .github/patches/patch_0_28_17.py
+      - name: Check inline JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          for src in ['index.html','import.html']:
+              text=Path(src).read_text()
+              blocks=[]
+              for attrs,body in re.findall(r'<script([^>]*)>(.*?)</script>',text,re.S|re.I):
+                  if 'src=' not in attrs.lower(): blocks.append(body)
+              out=Path('/tmp/'+src.replace('.html','.js'))
+              out.write_text('\n'.join(blocks))
+              print(src, 'inline scripts:', len(blocks))
+          PY
+          node --check /tmp/index.js
+          node --check /tmp/import.js
+      - name: Verify 12-char ids and merge hooks
+        run: |
+          git diff --check
+          grep -q '0.28.17' index.html
+          grep -q "CORE_ID_RE=/^\[A-Za-z0-9_-\]{12}$/" index.html
+          grep -q 'function migrateCoreIds' index.html
+          grep -q 'function openLocationMerge' index.html
+          grep -q 'function confirmLocationMerge' index.html
+          grep -q 'id:newCoreId()' import.html
+          grep -q 'kmreg-shell-0.28.17' service-worker.js
+      - name: Commit app changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html import.html service-worker.js
+          git commit -m '0.28.17: use short core ids and merge locations'
+          git push
