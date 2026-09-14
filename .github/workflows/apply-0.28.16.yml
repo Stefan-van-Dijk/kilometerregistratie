@@ -17,6 +17,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Fix patch helper
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('.github/patches/patch_0_28_16.py')
+          s=p.read_text()
+          old="out, n = re.subn(pattern, repl, text, count=1, flags=flags)"
+          new="out, n = re.subn(pattern, lambda m: repl, text, count=1, flags=flags)"
+          if old not in s: raise SystemExit('sub_once marker missing')
+          p.write_text(s.replace(old,new,1))
+          PY
       - name: Apply patch
         run: python .github/patches/patch_0_28_16.py
       - name: Check inline JavaScript
