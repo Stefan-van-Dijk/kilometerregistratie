@@ -490,6 +490,19 @@ html,body{background:var(--bg);color:var(--text)}
 .location-share-status.filled .share-arrow-on-fill{fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .location-share-status.outline .share-box-outline,.location-share-status.outline .share-arrow-outline{fill:none;stroke:currentColor}
 
+
+/* 0.28.14 — duidelijke deelstatus en voorkom iOS-focuszoom */
+.location-share-status{width:28px!important;height:28px!important;flex-basis:28px!important;border-radius:7px!important;border:1.5px solid var(--accent)!important;background:transparent!important;color:var(--accent)!important}
+.location-share-status.filled{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important}
+.location-share-status.outline{background:transparent!important;border-color:var(--accent)!important;color:var(--accent)!important}
+.location-share-status .location-share-glyph{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.location-share-status .share-symbol{fill:none;stroke:currentColor}
+
+/* Safari op iPhone zoomt automatisch in op form controls onder 16px. */
+@supports (-webkit-touch-callout:none){
+  input,select,textarea{font-size:16px!important}
+}
+
 </style>
 </head>
 <body>
@@ -510,7 +523,7 @@ const KEY='kmreg-v4-data',GEOCODE_CACHE_KEY='kmreg-geocode-cache-v1',GEOCODER_DE
 const DEFAULT={settings:{name:'',vehicleBrand:'',vehicleModel:'',plate:'',initialOdometer:'',registrationStart:new Date().toISOString().slice(0,10),reportEmail:'',recognitionRadius:500,privateDays:[],privateTimeStart:'',privateTimeEnd:'',navigationMode:'system',lastBackupAt:null,swipeDeleteEnabled:true,destinationTimeWindowHours:2,geocoderBaseUrl:GEOCODER_DEFAULT_BASE,locationSortMode:'smart'},locations:[],trips:[],events:[],trackPoints:[],activeTrip:null,lastEndpoint:null};
 let data=load(),view='ride',selectedWeek=new Date(),periodMode='week',gpsWatch=null,gpsTimer=null,gpsLatest=null,odoSwipe=null,periodGesture=null,periodLastTap=0,expandedTripId=null,tripSwipe=null,trackStoreReady=false,trackDbPromise=null,settingsLocationCheck=0,geocodeQueue=Promise.resolve(),geocodeLastAt=0,expandedLocationId=null,settingsLocationsOpen=false,settingsLocationOriginId=null,screenSwipe=null,editorReturnView='ride',editingTripId=null,editingLocationId=null,editingLocationSeed=null,startDraft=null,arrivalDraft=null;
 const app=document.getElementById('app'),modal=document.getElementById('modal'),modalPanel=document.getElementById('modalPanel'),toastEl=document.getElementById('toast'),topAction=document.getElementById('topAction'),printReportEl=document.getElementById('printReport');
-document.getElementById('today').textContent=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date())+' · 0.28.13';
+document.getElementById('today').textContent=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date())+' · 0.28.14';
 render();initTrackStore().finally(()=>{if(data.activeTrip)startTracking()});registerServiceWorker();
 
 function clone(v){return JSON.parse(JSON.stringify(v))}
@@ -619,7 +632,7 @@ function deleteEvent(id){const ev=data.events.find(x=>x.id===id);if(!ev)return;i
 
 function locationTypeClass(type){return`location-type-${['home','work','business','private'].includes(type)?type:'other'}`}
 function locationTypeIcon(type){const t=['home','work','business','private'].includes(type)?type:'other',paths={home:'<path d="M4 11.5 12 5l8 6.5V20h-5v-5H9v5H4z"/>',work:'<path d="M4 8h16v11H4z"/><path d="M9 8V5h6v3M4 12h16M10 12v2h4v-2"/>',business:'<path d="M6 20V5h12v15M9 8h2m2 0h2M9 12h2m2 0h2M9 16h2m2 0h2"/>',private:'<circle cx="12" cy="8" r="3"/><path d="M5.5 20c.8-4 3-6 6.5-6s5.7 2 6.5 6"/>',other:'<path d="M12 21s6-6.2 6-12a6 6 0 1 0-12 0c0 5.8 6 12 6 12z"/><circle cx="12" cy="9" r="2"/>'};return`<svg class="location-type-glyph type-${t}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths[t]}</svg>`}
-function locationShareGlyph(filled=false){return filled?'<svg class="location-share-glyph" viewBox="0 0 24 24" aria-hidden="true"><rect class="share-box-fill" x="4" y="8" width="16" height="13" rx="3"/><path class="share-arrow-on-fill" d="M12 15V3m0 0L8.5 6.5M12 3l3.5 3.5"/></svg>':'<svg class="location-share-glyph" viewBox="0 0 24 24" aria-hidden="true"><rect class="share-box-outline" x="4.75" y="8.75" width="14.5" height="11.5" rx="2.5"/><path class="share-arrow-outline" d="M12 15V3m0 0L8.5 6.5M12 3l3.5 3.5"/></svg>'}
+function locationShareGlyph(filled=false){return`<svg class="location-share-glyph" viewBox="0 0 24 24" aria-hidden="true"><path class="share-symbol" d="M6 10v9.5h12V10M12 15V3m0 0L8.5 6.5M12 3l3.5 3.5"/></svg>`}
 function locationShareStatus(value){const v=['ask','always'].includes(value)?value:'never';if(v==='never')return'';const filled=v==='ask',label=filled?'Rit delen: vraag mij':'Rit delen: altijd beschikbaar';return`<span class="location-share-status ${filled?'filled':'outline'}" title="${attr(label)}" aria-label="${attr(label)}">${locationShareGlyph(filled)}</span>`}
 function locationHasGps(l){return parseNum(l?.lat)!=null&&parseNum(l?.lng)!=null}
 function locationLinkStatus(l){const hasAddress=!!String(l?.address||'').trim(),hasGps=locationHasGps(l);let cls='none',label='Adres en GPS ontbreken',icon='A·⌖';if(hasAddress&&hasGps){cls='complete';label='Adres en GPS gekoppeld';icon='A↔⌖'}else if(hasAddress){cls='address-only';label='Adres aanwezig · GPS kan worden aangevuld';icon='A→⌖'}else if(hasGps){cls='gps-only';label='GPS aanwezig · adres kan worden aangevuld';icon='⌖→A'}return`<span class="location-link-status ${cls}" title="${attr(label)}" aria-label="${attr(label)}">${icon}</span>`}
