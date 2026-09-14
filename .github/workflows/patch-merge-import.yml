@@ -1,0 +1,56 @@
+name: Apply merge import
+
+on:
+  push:
+    branches:
+      - feature/0.28.15-merge-import
+    paths:
+      - .github/scripts/patch-merge-import.py
+      - .github/workflows/patch-merge-import.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/0.28.15-merge-import
+      - name: Apply and verify update
+        run: |
+          python .github/scripts/patch-merge-import.py
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          text = Path('index.html').read_text(encoding='utf-8')
+          scripts = re.findall(r'<script>(.*?)</script>', text, flags=re.S)
+          if not scripts:
+              raise SystemExit('Geen inline script gevonden')
+          Path('/tmp/kmreg-app.js').write_text('\n'.join(scripts), encoding='utf-8')
+          required = [
+              "data-action=\"merge-import\"",
+              "id=\"mergeImportFile\"",
+              "async function mergeImportJson(file)",
+              "function mergeBackupData(source)",
+              "0.28.15",
+          ]
+          for token in required:
+              if token not in text:
+                  raise SystemExit(f'Ontbreekt: {token}')
+          PY
+          node --check /tmp/kmreg-app.js
+          grep -q "kmreg-shell-0.28.15" service-worker.js
+          git diff --check
+      - name: Commit update
+        run: |
+          if git diff --quiet -- index.html service-worker.js; then
+            echo "Geen appwijzigingen nodig"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          git commit -m "0.28.15: voeg veilige samenvoeg-import toe"
+          git push
