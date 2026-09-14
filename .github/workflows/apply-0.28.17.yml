@@ -17,43 +17,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Repair import tail in temporary patch helper
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          p=Path('.github/patches/patch_0_28_17.py')
-          s=p.read_text()
-          head=s.split('# ---- import.html ----',1)[0]
-          tail=r'''# ---- import.html ----
-          p = Path('import.html')
-          s = p.read_text()
-          old_uid_pattern = r"function uid\(\)\{.*?\n\}"
-          new_uid = """const CORE_ID_ALPHABET='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-          function newCoreId(){const used=new Set([...db.locations,...db.trips,...(db.activeTrip?[db.activeTrip]:[])].map(x=>String(x?.id||'')).filter(Boolean));let id='';do{const bytes=new Uint8Array(12);if(window.crypto?.getRandomValues)window.crypto.getRandomValues(bytes);else for(let i=0;i<bytes.length;i++)bytes[i]=Math.floor(Math.random()*256);id=Array.from(bytes,b=>CORE_ID_ALPHABET[b&63]).join('')}while(used.has(id));return id}
-          function uid(){
-            return window.crypto?.randomUUID
-              ?window.crypto.randomUUID()
-              :'id-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
-          }"""
-          s = sub_once(s, old_uid_pattern, new_uid, 'import core id helper', re.S)
-          s = replace_once(s, "const loc={id:uid(),name:", "const loc={id:newCoreId(),name:", 'historical location short id')
-          s = replace_once(s, "trip={id:uid(),origin:snap(o),destination:snap(d)", "trip={id:newCoreId(),origin:snap(o),destination:snap(d)", 'historical trip short id')
-          p.write_text(s)
-
-          # ---- service-worker.js ----
-          p = Path('service-worker.js')
-          s = p.read_text()
-          s = replace_once(s, "kmreg-shell-0.28.16", "kmreg-shell-0.28.17", 'service worker version')
-          p.write_text(s)
-          '''
-          # Remove the indentation introduced by this workflow heredoc.
-          lines=[]
-          for line in tail.splitlines():
-              lines.append(line[10:] if line.startswith('          ') else line)
-          p.write_text(head+'\n'.join(lines)+'\n')
-          PY
-      - name: Apply patch
-        run: python .github/patches/patch_0_28_17.py
+      - name: Apply durable migration safety patch
+        run: python .github/patches/patch_0_28_17_safety.py
       - name: Check inline JavaScript
         run: |
           python - <<'PY'
@@ -66,24 +31,25 @@ jobs:
                   if 'src=' not in attrs.lower(): blocks.append(body)
               out=Path('/tmp/'+src.replace('.html','.js'))
               out.write_text('\n'.join(blocks))
-              print(src, 'inline scripts:', len(blocks))
           PY
           node --check /tmp/index.js
           node --check /tmp/import.js
-      - name: Verify 12-char ids and merge hooks
+      - name: Verify 0.28.17 behavior
         run: |
           git diff --check
           grep -q '0.28.17' index.html
-          grep -q 'CORE_ID_RE=' index.html
+          grep -q "CORE_ID_ALPHABET='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';\|CORE_ID_ALPHABET='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'," index.html
+          grep -q 'CORE_ID_REMAP_KEY' index.html
+          grep -q 'persistTripIdRemap' index.html
           grep -q 'function migrateCoreIds' index.html
           grep -q 'function openLocationMerge' index.html
           grep -q 'function confirmLocationMerge' index.html
           grep -q 'id:newCoreId()' import.html
           grep -q 'kmreg-shell-0.28.17' service-worker.js
-      - name: Commit app changes
+      - name: Commit safety change
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html import.html service-worker.js
-          git commit -m '0.28.17: use short core ids and merge locations'
+          git add index.html
+          git commit -m '0.28.17: make ID migration crash-safe'
           git push
