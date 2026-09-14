@@ -466,6 +466,30 @@ html,body{background:var(--bg);color:var(--text)}
 .location-share-status.outline .location-share-glyph{fill:none;stroke:currentColor}
 .location-link-status{display:none!important}
 
+
+/* 0.28.13 — ruimere typekeuze, duidelijke deelstatus en correcte ritkleuren */
+.editor-page .edit-trip-type.category-commute{--choice-color:var(--commute)}
+.editor-page .edit-trip-type.category-business{--choice-color:var(--business)}
+.editor-page .edit-trip-type.category-private{--choice-color:var(--private)}
+
+/* Locatietype: pictogram boven, tekst eronder; selectiebol los in de hoek. */
+.editor-page .location-choice-grid.type .location-choice span{position:relative;min-height:58px!important;flex-direction:column!important;gap:5px!important;padding:7px 2px 5px!important;font-size:9.5px!important}
+.editor-page .location-choice-grid.type .location-choice span::before{position:absolute;top:5px;right:6px;display:block;flex:none;width:9px;height:9px;border-width:1.6px;margin:0}
+.editor-page .location-choice-grid.type .choice-icon{min-height:21px}
+.editor-page .location-choice-grid.type .choice-icon .location-type-glyph{width:20px;height:20px}
+
+/* Rechts in iedere locatieregel altijd het type; delen alleen als het relevant is. */
+.location-status-icons{display:flex;flex:0 0 auto;align-items:center;justify-content:flex-end;gap:4px;margin-left:auto}
+.location-type-status{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;flex:0 0 24px}
+.location-type-status .location-type-glyph{width:19px;height:19px}
+
+/* Duidelijker iOS-achtig deelsymbool: gevuld bij 'Vraag mij', outline bij 'Altijd'. */
+.location-share-status{flex-basis:26px!important;width:26px!important;height:26px!important}
+.location-share-glyph{width:21px;height:21px;overflow:visible;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
+.location-share-status.filled .share-box-fill{fill:currentColor;stroke:none}
+.location-share-status.filled .share-arrow-on-fill{fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.location-share-status.outline .share-box-outline,.location-share-status.outline .share-arrow-outline{fill:none;stroke:currentColor}
+
 </style>
 </head>
 <body>
@@ -486,7 +510,7 @@ const KEY='kmreg-v4-data',GEOCODE_CACHE_KEY='kmreg-geocode-cache-v1',GEOCODER_DE
 const DEFAULT={settings:{name:'',vehicleBrand:'',vehicleModel:'',plate:'',initialOdometer:'',registrationStart:new Date().toISOString().slice(0,10),reportEmail:'',recognitionRadius:500,privateDays:[],privateTimeStart:'',privateTimeEnd:'',navigationMode:'system',lastBackupAt:null,swipeDeleteEnabled:true,destinationTimeWindowHours:2,geocoderBaseUrl:GEOCODER_DEFAULT_BASE,locationSortMode:'smart'},locations:[],trips:[],events:[],trackPoints:[],activeTrip:null,lastEndpoint:null};
 let data=load(),view='ride',selectedWeek=new Date(),periodMode='week',gpsWatch=null,gpsTimer=null,gpsLatest=null,odoSwipe=null,periodGesture=null,periodLastTap=0,expandedTripId=null,tripSwipe=null,trackStoreReady=false,trackDbPromise=null,settingsLocationCheck=0,geocodeQueue=Promise.resolve(),geocodeLastAt=0,expandedLocationId=null,settingsLocationsOpen=false,settingsLocationOriginId=null,screenSwipe=null,editorReturnView='ride',editingTripId=null,editingLocationId=null,editingLocationSeed=null,startDraft=null,arrivalDraft=null;
 const app=document.getElementById('app'),modal=document.getElementById('modal'),modalPanel=document.getElementById('modalPanel'),toastEl=document.getElementById('toast'),topAction=document.getElementById('topAction'),printReportEl=document.getElementById('printReport');
-document.getElementById('today').textContent=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date())+' · 0.28.12';
+document.getElementById('today').textContent=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date())+' · 0.28.13';
 render();initTrackStore().finally(()=>{if(data.activeTrip)startTracking()});registerServiceWorker();
 
 function clone(v){return JSON.parse(JSON.stringify(v))}
@@ -595,11 +619,11 @@ function deleteEvent(id){const ev=data.events.find(x=>x.id===id);if(!ev)return;i
 
 function locationTypeClass(type){return`location-type-${['home','work','business','private'].includes(type)?type:'other'}`}
 function locationTypeIcon(type){const t=['home','work','business','private'].includes(type)?type:'other',paths={home:'<path d="M4 11.5 12 5l8 6.5V20h-5v-5H9v5H4z"/>',work:'<path d="M4 8h16v11H4z"/><path d="M9 8V5h6v3M4 12h16M10 12v2h4v-2"/>',business:'<path d="M6 20V5h12v15M9 8h2m2 0h2M9 12h2m2 0h2M9 16h2m2 0h2"/>',private:'<circle cx="12" cy="8" r="3"/><path d="M5.5 20c.8-4 3-6 6.5-6s5.7 2 6.5 6"/>',other:'<path d="M12 21s6-6.2 6-12a6 6 0 1 0-12 0c0 5.8 6 12 6 12z"/><circle cx="12" cy="9" r="2"/>'};return`<svg class="location-type-glyph type-${t}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths[t]}</svg>`}
-function locationShareGlyph(filled=false){return filled?'<svg class="location-share-glyph" viewBox="0 0 24 24" aria-hidden="true"><path class="share-tray-fill" d="M5 10h14v10H5z"/><path class="share-arrow-on-fill" d="M12 14V3m0 0L8 7m4-4 4 4"/></svg>':'<svg class="location-share-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10v10h14V10M12 14V3m0 0L8 7m4-4 4 4"/></svg>'}
+function locationShareGlyph(filled=false){return filled?'<svg class="location-share-glyph" viewBox="0 0 24 24" aria-hidden="true"><rect class="share-box-fill" x="4" y="8" width="16" height="13" rx="3"/><path class="share-arrow-on-fill" d="M12 15V3m0 0L8.5 6.5M12 3l3.5 3.5"/></svg>':'<svg class="location-share-glyph" viewBox="0 0 24 24" aria-hidden="true"><rect class="share-box-outline" x="4.75" y="8.75" width="14.5" height="11.5" rx="2.5"/><path class="share-arrow-outline" d="M12 15V3m0 0L8.5 6.5M12 3l3.5 3.5"/></svg>'}
 function locationShareStatus(value){const v=['ask','always'].includes(value)?value:'never';if(v==='never')return'';const filled=v==='ask',label=filled?'Rit delen: vraag mij':'Rit delen: altijd beschikbaar';return`<span class="location-share-status ${filled?'filled':'outline'}" title="${attr(label)}" aria-label="${attr(label)}">${locationShareGlyph(filled)}</span>`}
 function locationHasGps(l){return parseNum(l?.lat)!=null&&parseNum(l?.lng)!=null}
 function locationLinkStatus(l){const hasAddress=!!String(l?.address||'').trim(),hasGps=locationHasGps(l);let cls='none',label='Adres en GPS ontbreken',icon='A·⌖';if(hasAddress&&hasGps){cls='complete';label='Adres en GPS gekoppeld';icon='A↔⌖'}else if(hasAddress){cls='address-only';label='Adres aanwezig · GPS kan worden aangevuld';icon='A→⌖'}else if(hasGps){cls='gps-only';label='GPS aanwezig · adres kan worden aangevuld';icon='⌖→A'}return`<span class="location-link-status ${cls}" title="${attr(label)}" aria-label="${attr(label)}">${icon}</span>`}
-function locationStatusIcons(l){const share=locationShareStatus(l.shareRide||'never');return share?`<div class="location-status-icons">${share}</div>`:''}
+function locationStatusIcons(l){const share=locationShareStatus(l.shareRide||'never'),label=typeLabel(l.type);return`<div class="location-status-icons">${share}<span class="location-type-status" title="${attr(label)}" aria-label="${attr(label)}">${locationTypeIcon(l.type)}</span></div>`}
 function locationSortMode(){return data.settings.locationSortMode==='alpha'?'alpha':'smart'}
 function settingsMomentOrigin(){return data.locations.find(x=>x.id===settingsLocationOriginId)||data.lastEndpoint?.location||inferLast()?.location||null}
 function locationRegisteredTripCount(l){const completed=new Set(data.trips.map(t=>t.id)),seen=new Set();for(const t of data.trips){if(sameLoc(t.origin,l)||sameLoc(t.destination,l))seen.add(t.id)}for(const ev of data.events){if(ev.tripId&&completed.has(ev.tripId)&&sameLoc(ev.location,l))seen.add(ev.tripId)}return seen.size}
