@@ -1,0 +1,57 @@
+name: Apply 0.28.17 uniform IDs
+
+on:
+  push:
+    branches:
+      - feature/0.28.17-short-ids-location-merge
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply uniform ID patch
+        run: python .github/patches/patch_0_28_17_all_ids.py
+      - name: Check inline JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          for src in ['index.html','import.html']:
+              text=Path(src).read_text()
+              blocks=[]
+              for attrs,body in re.findall(r'<script([^>]*)>(.*?)</script>',text,re.S|re.I):
+                  if 'src=' not in attrs.lower():
+                      blocks.append(body)
+              out=Path('/tmp/'+src.replace('.html','.js'))
+              out.write_text('\n'.join(blocks))
+              print(src, 'inline scripts:', len(blocks))
+          PY
+          node --check /tmp/index.js
+          node --check /tmp/import.js
+      - name: Verify every persistent record uses core IDs
+        run: |
+          git diff --check
+          grep -q "CORE_ID_RE=/^\[A-Za-z0-9_-\]{12}$/" index.html
+          grep -q "assign(db.events);assign(db.trackPoints)" index.html
+          grep -q "data.events.push({id:newCoreId()" index.html
+          grep -q "const point={id:newCoreId()" index.html
+          grep -q "db.events.push({id:newCoreId()" import.html
+          ! grep -q "uid()" index.html
+          ! grep -q "uid()" import.html
+          ! grep -q "randomUUID" index.html
+          ! grep -q "randomUUID" import.html
+      - name: Commit application changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html import.html
+          git commit -m '0.28.17: use uniform short IDs for all records'
+          git push
