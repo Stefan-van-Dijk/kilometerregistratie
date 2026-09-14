@@ -1,0 +1,51 @@
+name: Apply 0.28.16 historical waypoints
+
+on:
+  push:
+    branches:
+      - feature/0.28.16-historical-waypoints
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply patch
+        run: python .github/patches/patch_0_28_16.py
+      - name: Check inline JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          for src in ['index.html','import.html']:
+              text=Path(src).read_text()
+              blocks=[]
+              for attrs,body in re.findall(r'<script([^>]*)>(.*?)</script>',text,re.S|re.I):
+                  if 'src=' not in attrs.lower(): blocks.append(body)
+              out=Path('/tmp/'+src.replace('.html','.js'))
+              out.write_text('\n'.join(blocks))
+              print(src, 'inline scripts:', len(blocks))
+          PY
+          node --check /tmp/index.js
+          node --check /tmp/import.js
+      - name: Verify intended changes
+        run: |
+          git diff --check
+          grep -q '0.28.16' index.html
+          grep -q 'notes-text-v2' import.html
+          grep -q 'pendingWaypoints' import.html
+          grep -q "endsWith('/import.html')" service-worker.js
+      - name: Commit app changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html import.html service-worker.js
+          git commit -m '0.28.16: import historical waypoints and multiple notes'
+          git push
