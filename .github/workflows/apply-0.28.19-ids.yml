@@ -1,0 +1,67 @@
+name: Apply 0.28.19 safe IDs
+
+on:
+  push:
+    branches:
+      - feature/0.28.19-safe-12-char-ids
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply patch
+        run: python .github/patches/patch_0_28_19_ids.py
+      - name: Check inline JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          for name in ['index.html','import.html','id-converter.html']:
+              text=Path(name).read_text()
+              blocks=[]
+              for attrs,body in re.findall(r'<script([^>]*)>(.*?)</script>',text,re.S|re.I):
+                  if 'src=' not in attrs.lower(): blocks.append(body)
+              Path('/tmp/'+name+'.js').write_text('\n'.join(blocks))
+          PY
+          node --check /tmp/index.html.js
+          node --check /tmp/import.html.js
+          node --check /tmp/id-converter.html.js
+      - name: Verify ID generator and no migration
+        run: |
+          git diff --check
+          grep -q "0.28.19" index.html
+          grep -q "kmreg-shell-0.28.19" service-worker.js
+          grep -q "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" index.html
+          grep -q "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" import.html
+          grep -q "id-converter.html" service-worker.js
+          grep -q "data-action=\"id-converter\"" index.html
+          grep -q "const point={id:uid(),tripId:data.activeTrip.id" index.html
+          ! grep -q "randomUUID" index.html
+          ! grep -q "randomUUID" import.html
+          ! grep -q "migrateCoreIds" index.html
+          ! grep -q "CORE_ID_ALPHABET" index.html
+      - name: Test 12-character alphabet
+        run: |
+          node - <<'NODE'
+          const A='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+          function uid(){const bytes=new Uint8Array(12);crypto.getRandomValues(bytes);return Array.from(bytes,b=>A[b&63]).join('')}
+          const ids=Array.from({length:10000},uid);
+          if(ids.some(x=>x.length!==12||!/^[A-Za-z0-9_-]{12}$/.test(x))) throw new Error('invalid id');
+          if(new Set(ids).size!==ids.length) throw new Error('collision in smoke test');
+          console.log('ID smoke test passed');
+          NODE
+      - name: Commit application changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html import.html service-worker.js id-converter.html
+          git commit -m '0.28.19: use 12-char IDs for new records'
+          git push
