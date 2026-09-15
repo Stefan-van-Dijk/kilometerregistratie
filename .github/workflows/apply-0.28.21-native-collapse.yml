@@ -1,0 +1,60 @@
+name: Apply 0.28.21 native collapse swipe
+
+on:
+  push:
+    branches:
+      - feature/0.28.21-native-collapse-swipe
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply patch
+        run: python .github/patches/patch_0_28_21_native_collapse.py
+      - name: Check inline JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          text=Path('index.html').read_text()
+          blocks=[]
+          for attrs,body in re.findall(r'<script([^>]*)>(.*?)</script>',text,re.S|re.I):
+              if 'src=' not in attrs.lower(): blocks.append(body)
+          Path('/tmp/index.js').write_text('\n'.join(blocks))
+          PY
+          node --check /tmp/index.js
+      - name: Verify intended UI behavior
+        run: |
+          git diff --check
+          grep -q "0.28.21" index.html
+          grep -q "kmreg-shell-0.28.21" service-worker.js
+          grep -q 'id="homePriority"' index.html
+          grep -q 'home-priority.compact' index.html
+          grep -q 'function beginScreenSwipeVisual' index.html
+          grep -q 'SCREEN_BACK_SWIPE_RATIO=.45' index.html
+          grep -q 'screen-swipe-layer' index.html
+          ! grep -q 'quickStatus' index.html
+          ! grep -q 'quickPrimary' index.html
+          ! grep -q 'screenSwipeBackdrop' index.html
+          ! grep -q 'function screenSwipePreviewHtml' index.html
+      - name: Verify storage and IDs untouched
+        run: |
+          grep -q "const KEY='kmreg-v4-data'" index.html
+          grep -q "function save(){" index.html
+          grep -q "const ID_ALPHABET='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';" index.html
+          ! grep -q 'migrateCoreIds' index.html
+      - name: Commit application changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html service-worker.js
+          git commit -m '0.28.21: collapse existing home status and reveal real swipe target'
+          git push
