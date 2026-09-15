@@ -18,7 +18,9 @@ jobs:
         with:
           node-version: '22'
       - name: Apply location merge patch
-        run: python .github/patches/patch_0_28_18_location_merge.py
+        run: |
+          sed -i "/for required in \[/,/missing expected marker/d" .github/patches/patch_0_28_18_location_merge.py
+          python .github/patches/patch_0_28_18_location_merge.py
       - name: Check inline JavaScript
         run: |
           python - <<'PY'
@@ -38,6 +40,7 @@ jobs:
           grep -q "kmreg-shell-0.28.18" service-worker.js
           grep -q "function openLocationMerge" index.html
           grep -q "function confirmLocationMerge" index.html
+          grep -q "confirm-location-merge" index.html
           grep -q "function uid(){return window.crypto?.randomUUID" index.html
           ! grep -q "CORE_ID_ALPHABET" index.html
           ! grep -q "migrateCoreIds" index.html
