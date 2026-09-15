@@ -1,0 +1,43 @@
+name: Refine 0.28.21
+
+on:
+  push:
+    branches:
+      - feature/0.28.21-native-collapse-swipe
+
+permissions:
+  contents: write
+
+jobs:
+  refine:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply refinement
+        run: python .github/patches/refine_0_28_21.py
+      - name: Validate
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          text=Path('index.html').read_text()
+          blocks=[]
+          for attrs,body in re.findall(r'<script([^>]*)>(.*?)</script>',text,re.S|re.I):
+              if 'src=' not in attrs.lower(): blocks.append(body)
+          Path('/tmp/index.js').write_text('\n'.join(blocks))
+          PY
+          node --check /tmp/index.js
+          git diff --check
+          grep -q 'home-priority.compact .home-priority-settings' index.html
+          ! grep -q '@media(max-width:430px).*home-priority-settings span{display:none}' index.html
+      - name: Commit refinement
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m '0.28.21: keep full settings label visible on iPhone'
+          git push
