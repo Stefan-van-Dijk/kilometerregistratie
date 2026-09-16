@@ -6,7 +6,7 @@ function injectShellScript(response){
   const type=response.headers.get('content-type')||'';
   if(!type.includes('text/html'))return response;
   return response.text().then(html=>{
-    if(!html.includes('shell-ui.js'))html=html.replace('</body>','<script src="./shell-ui.js"></script></body>');
+    if(!html.includes('shell-ui.js'))html=html.replace('</body>','<style id="km-shell-bootstrap-style">body.km-shell-locations-mode #kmShellSettingsContent>#app{display:block!important}</style><script src="./shell-ui.js"></script></body>');
     const headers=new Headers(response.headers);
     headers.delete('content-length');
     return new Response(html,{status:response.status,statusText:response.statusText,headers});
