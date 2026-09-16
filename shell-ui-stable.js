@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.3';
+  const BUILD='0.31.4';
   const DATA_KEY='kmreg-v4-data';
   const SECTION_KEY='kmreg-shell-section-v1';
   let gps={status:'idle',lat:null,lng:null,accuracy:null,matchedId:null,matchedRootId:null,distance:null,nearestId:null,nearestDistance:null,updatedAt:0,error:''};
@@ -54,7 +54,8 @@
     const today=$('#today');
     if(!today)return;
     const date=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date());
-    today.textContent=`${date} · ${BUILD}`;
+    const value=`${date} · ${BUILD}`;
+    if(today.textContent!==value)today.textContent=value;
   }
 
   function fixTimeHeader(){
@@ -251,7 +252,9 @@
         decorateLocations();
       }
     });
-    observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden']});
+    // Alleen wisselingen van de hoofdweergave volgen. Een brede subtree-observer
+    // zou de eigen tekst- en locatie-updates opnieuw waarnemen en iOS blokkeren.
+    observer.observe(document.body,{attributes:true,attributeFilter:['class']});
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
