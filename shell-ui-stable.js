@@ -1,0 +1,259 @@
+(function(){
+  'use strict';
+
+  const BUILD='0.31.3';
+  const DATA_KEY='kmreg-v4-data';
+  const SECTION_KEY='kmreg-shell-section-v1';
+  let gps={status:'idle',lat:null,lng:null,accuracy:null,matchedId:null,matchedRootId:null,distance:null,nearestId:null,nearestDistance:null,updatedAt:0,error:''};
+  let gpsPending=false;
+  let frameBound=false;
+
+  const $=(s,r=document)=>r.querySelector(s);
+  const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+
+  function readData(){
+    try{
+      const parsed=JSON.parse(localStorage.getItem(DATA_KEY)||'{}');
+      return {
+        settings:parsed.settings&&typeof parsed.settings==='object'?parsed.settings:{},
+        locations:Array.isArray(parsed.locations)?parsed.locations:[],
+        trips:Array.isArray(parsed.trips)?parsed.trips:[],
+        events:Array.isArray(parsed.events)?parsed.events:[]
+      };
+    }catch(_){return {settings:{},locations:[],trips:[],events:[]};}
+  }
+
+  function section(){
+    const value=localStorage.getItem(SECTION_KEY);
+    return ['rides','time','locations'].includes(value)?value:(document.body.classList.contains('time-mode')?'time':'rides');
+  }
+
+  function installCss(){
+    if($('#kmStable0313Style'))return;
+    const style=document.createElement('style');
+    style.id='kmStable0313Style';
+    style.textContent=`
+      .km-shell-top{position:static!important;top:auto!important;z-index:auto!important;background:transparent!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+      .km-shell-top-copy{padding-left:44px;padding-right:44px}
+      .km-shell-menu-button{position:fixed!important;z-index:92!important;top:calc(env(safe-area-inset-top) + 10px);left:max(12px,calc((100vw - 760px)/2 + 12px));width:42px!important;height:42px!important;border:1px solid color-mix(in srgb,var(--line) 82%,transparent)!important;border-radius:50%!important;background:color-mix(in srgb,var(--bg) 80%,transparent)!important;box-shadow:0 7px 24px rgba(0,0,0,.18);-webkit-backdrop-filter:blur(18px) saturate(165%);backdrop-filter:blur(18px) saturate(165%)}
+      .editor-nav{position:static!important;top:auto!important;background:transparent!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+      .editor-back{position:fixed!important;z-index:92!important;top:calc(env(safe-area-inset-top) + 10px);left:max(12px,calc((100vw - 820px)/2 + 12px))}
+      .editor-nav-actions{position:fixed!important;z-index:92!important;top:calc(env(safe-area-inset-top) + 10px);right:max(12px,calc((100vw - 820px)/2 + 12px));margin:0!important}
+      .km-current-status{margin:0 0 12px;padding:9px 1px 11px;border-bottom:1px solid var(--line);color:var(--muted);font-size:11px;line-height:1.4}
+      .km-current-status.good{color:var(--good)}
+      .km-current-status.warn{color:var(--warn)}
+      .km-shell-location-node.km-current-location>.km-shell-location-row{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+      .km-shell-location-node.km-current-location>.km-shell-location-row .km-shell-location-icon{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));color:var(--accent)}
+      .km-shell-location-node.km-current-location>.km-shell-location-row .km-shell-location-copy strong::after{content:' · hier';color:var(--accent);font-size:10px;font-weight:800}
+      @media(prefers-color-scheme:light){.km-shell-menu-button{background:rgba(255,255,255,.76)!important;box-shadow:0 6px 20px rgba(30,45,65,.12)}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function updateVersion(){
+    const today=$('#today');
+    if(!today)return;
+    const date=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date());
+    today.textContent=`${date} · ${BUILD}`;
+  }
+
+  function fixTimeHeader(){
+    const frame=$('#timeAppFrame');
+    if(!frame)return;
+    const apply=()=>{
+      try{
+        const doc=frame.contentDocument;
+        if(!doc?.head)return;
+        let style=doc.getElementById('kmStableTimeHeader');
+        if(!style){
+          style=doc.createElement('style');
+          style.id='kmStableTimeHeader';
+          style.textContent=`
+            .topbar{position:static!important;top:auto!important;z-index:auto!important;background:transparent!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+            #openSettings{display:none!important}
+          `;
+          doc.head.appendChild(style);
+        }
+      }catch(error){console.warn('Tijdkop kon niet worden aangepast.',error);}
+    };
+    if(!frameBound){
+      frameBound=true;
+      frame.addEventListener('load',()=>requestAnimationFrame(apply),{passive:true});
+    }
+    apply();
+  }
+
+  function byId(id,snapshot){return snapshot.locations.find(x=>String(x.id)===String(id))||null;}
+
+  function rootFor(location,snapshot){
+    let current=location;
+    const seen=new Set();
+    while(current?.parentId&&!seen.has(current.id)){
+      seen.add(current.id);
+      const parent=byId(current.parentId,snapshot);
+      if(!parent)break;
+      current=parent;
+    }
+    return current||location;
+  }
+
+  function coordsFor(location,snapshot){
+    let current=location;
+    const seen=new Set();
+    while(current&&!seen.has(current.id)){
+      seen.add(current.id);
+      const lat=Number(current.lat),lng=Number(current.lng);
+      if(Number.isFinite(lat)&&Number.isFinite(lng))return {lat,lng};
+      current=current.parentId?byId(current.parentId,snapshot):null;
+    }
+    return null;
+  }
+
+  function distance(a,b){
+    const R=6371000,rad=v=>v*Math.PI/180;
+    const dLat=rad(b.lat-a.lat),dLng=rad(b.lng-a.lng),lat1=rad(a.lat),lat2=rad(b.lat);
+    const h=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
+    return 2*R*Math.asin(Math.sqrt(h));
+  }
+
+  function radius(snapshot){
+    const candidates=[snapshot.settings.recognitionRadius,snapshot.settings.locationRecognitionRadius,snapshot.settings.locationRadius,snapshot.settings.radiusMeters];
+    const found=candidates.map(Number).find(v=>Number.isFinite(v)&&v>0);
+    return found||500;
+  }
+
+  function formatDistance(m){return !Number.isFinite(m)?'':m<1000?`${Math.round(m)} m`:`${(m/1000).toLocaleString('nl-NL',{maximumFractionDigits:1})} km`;}
+
+  function analyzePosition(position){
+    const snapshot=readData();
+    const point={lat:position.coords.latitude,lng:position.coords.longitude};
+    const candidates=snapshot.locations.map(location=>{
+      const coords=coordsFor(location,snapshot);
+      if(!coords)return null;
+      return {location,root:rootFor(location,snapshot),distance:distance(point,coords)};
+    }).filter(Boolean).sort((a,b)=>a.distance-b.distance);
+    const nearest=candidates[0]||null;
+    const matched=nearest&&nearest.distance<=radius(snapshot)?nearest:null;
+    gps={
+      status:'ready',lat:point.lat,lng:point.lng,accuracy:Number(position.coords.accuracy)||null,
+      matchedId:matched?.location.id||null,matchedRootId:matched?.root.id||null,distance:matched?.distance??null,
+      nearestId:nearest?.location.id||null,nearestDistance:nearest?.distance??null,updatedAt:Date.now(),error:''
+    };
+    decorateLocations();
+  }
+
+  function requestGps(force=false){
+    if(section()!=='locations'||!document.body.classList.contains('km-shell-locations-mode'))return;
+    if(gpsPending)return;
+    if(!force&&gps.updatedAt&&Date.now()-gps.updatedAt<60000){decorateLocations();return;}
+    if(!navigator.geolocation){gps={...gps,status:'error',error:'GPS is niet beschikbaar.',updatedAt:Date.now()};decorateLocations();return;}
+    gpsPending=true;
+    gps={...gps,status:'loading',error:''};
+    decorateLocations();
+    navigator.geolocation.getCurrentPosition(
+      pos=>{gpsPending=false;analyzePosition(pos);},
+      err=>{gpsPending=false;gps={...gps,status:'error',error:err.code===1?'Geen locatietoestemming.':'Huidige locatie kon niet worden bepaald.',updatedAt:Date.now()};decorateLocations();},
+      {enableHighAccuracy:true,timeout:12000,maximumAge:30000}
+    );
+  }
+
+  function tripCount(location,snapshot){
+    const ids=new Set();
+    for(const trip of snapshot.trips){if(trip.origin?.id===location.id||trip.destination?.id===location.id)ids.add(trip.id);}
+    for(const event of snapshot.events){if(event.tripId&&event.location?.id===location.id)ids.add(event.tripId);}
+    return ids.size;
+  }
+
+  function rootDistance(location,snapshot){
+    if(!Number.isFinite(gps.lat)||!Number.isFinite(gps.lng))return Infinity;
+    const coords=coordsFor(location,snapshot);
+    return coords?distance(gps,coords):Infinity;
+  }
+
+  function reorderRoots(snapshot){
+    const smart=$('.km-shell-location-sort button[data-mode="smart"]')?.classList.contains('active');
+    const tree=$('.km-shell-location-tree');
+    if(!smart||!tree)return;
+    const nodes=[...tree.children].filter(el=>el.matches?.('.km-shell-location-node'));
+    if(!nodes.length)return;
+    const groups=[];
+    let group=null;
+    for(const node of nodes){
+      if(node.dataset.depth==='0'||!group){group={id:node.dataset.shellLocationNode,nodes:[node]};groups.push(group);}else group.nodes.push(node);
+    }
+    groups.sort((a,b)=>{
+      const al=byId(a.id,snapshot),bl=byId(b.id,snapshot);
+      if(!al||!bl)return 0;
+      const ac=String(a.id)===String(gps.matchedRootId),bc=String(b.id)===String(gps.matchedRootId);
+      if(ac!==bc)return ac?-1:1;
+      const ad=rootDistance(al,snapshot),bd=rootDistance(bl,snapshot);
+      const near=Math.max(2000,radius(snapshot)*4),an=ad<=near,bn=bd<=near;
+      if(an!==bn)return an?-1:1;
+      if(an&&bn&&Math.abs(ad-bd)>25)return ad-bd;
+      return tripCount(bl,snapshot)-tripCount(al,snapshot)||String(al.name||'').localeCompare(String(bl.name||''),'nl',{sensitivity:'base'});
+    });
+    const frag=document.createDocumentFragment();
+    for(const g of groups)for(const node of g.nodes)frag.appendChild(node);
+    tree.appendChild(frag);
+  }
+
+  function decorateLocations(){
+    if(section()!=='locations')return;
+    const view=$('#kmShellLocationsView');
+    if(!view||view.hidden)return;
+    const snapshot=readData();
+    let status=$('#kmStableCurrentStatus',view);
+    if(!status){
+      status=document.createElement('div');
+      status.id='kmStableCurrentStatus';
+      status.className='km-current-status';
+      $('.km-shell-location-actions',view)?.insertAdjacentElement('afterend',status);
+    }
+    $$('.km-shell-location-node',view).forEach(node=>node.classList.remove('km-current-location'));
+    status.className='km-current-status';
+    if(gps.status==='loading'||gps.status==='idle')status.textContent='Huidige locatie wordt bepaald…';
+    else if(gps.status==='error'){status.classList.add('warn');status.textContent=gps.error;}
+    else{
+      const matched=gps.matchedId?byId(gps.matchedId,snapshot):null;
+      const nearest=gps.nearestId?byId(gps.nearestId,snapshot):null;
+      if(matched){
+        status.classList.add('good');
+        status.textContent=`Huidige locatie: ${matched.name} · ${formatDistance(gps.distance)}${gps.accuracy?` · GPS ±${Math.round(gps.accuracy)} m`:''}`;
+        const rootNode=view.querySelector(`[data-shell-location-node="${CSS.escape(String(gps.matchedRootId))}"]`);
+        rootNode?.classList.add('km-current-location');
+      }else if(nearest){
+        status.textContent=`Geen locatie binnen ${formatDistance(radius(snapshot))}. Dichtstbij: ${nearest.name} · ${formatDistance(gps.nearestDistance)}.`;
+      }else status.textContent='Geen opgeslagen locatie met GPS-coördinaten.';
+    }
+    reorderRoots(snapshot);
+  }
+
+  function init(){
+    installCss();
+    updateVersion();
+    fixTimeHeader();
+    if(section()==='locations')requestGps(false);
+
+    document.addEventListener('click',event=>{
+      if(event.target.closest('[data-shell-current-location]'))requestGps(true);
+      if(event.target.closest('[data-action="location-sort"]'))setTimeout(decorateLocations,0);
+      setTimeout(()=>{updateVersion();fixTimeHeader();if(section()==='locations')requestGps(false);},0);
+    },{passive:true});
+
+    window.addEventListener('storage',event=>{if(event.key===DATA_KEY)decorateLocations();});
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&section()==='locations')requestGps(true);});
+
+    const observer=new MutationObserver(()=>{
+      updateVersion();
+      fixTimeHeader();
+      if(section()==='locations'&&document.body.classList.contains('km-shell-locations-mode')){
+        requestGps(false);
+        decorateLocations();
+      }
+    });
+    observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden']});
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
