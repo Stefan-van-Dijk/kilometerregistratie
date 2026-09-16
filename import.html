@@ -31,9 +31,10 @@
         const names=await caches.keys();
         await Promise.all(names.filter(name=>name.startsWith('kmreg-shell-')).map(name=>caches.delete(name)));
       }
+      localStorage.setItem('kmreg-emergency-repair-0.31.5','done');
       const status=document.getElementById('kmEmergencyRepairStatus');
       if(status)status.textContent='Herstel voltooid. De app wordt schoon opnieuw geopend…';
-      setTimeout(()=>location.replace('./?recovered=0.31.4&ts='+Date.now()),350);
+      setTimeout(()=>location.replace('./?recovered=0.31.5&ts='+Date.now()),350);
     }catch(error){
       console.error(error);
       const status=document.getElementById('kmEmergencyRepairStatus');
