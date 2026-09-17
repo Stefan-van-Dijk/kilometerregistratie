@@ -1242,44 +1242,53 @@
   }
 
   function pageSwipeInteractive(target) {
-    return Boolean(target?.closest?.('button,input,select,textarea,a,label,summary,[contenteditable="true"],.swipe-row,.trip-swipe-row,.entry'));
+    return Boolean(target?.closest?.('button,input,select,textarea,a,label,summary,[contenteditable="true"]'));
+  }
+
+  function carouselIndex(offset) {
+    const current = SWIPE_SECTIONS.indexOf(section);
+    return (current + offset + SWIPE_SECTIONS.length) % SWIPE_SECTIONS.length;
   }
 
   function carouselTarget(dx) {
-    const index = SWIPE_SECTIONS.indexOf(section);
     const direction = dx < 0 ? 1 : -1;
-    const nextIndex = (index + direction + SWIPE_SECTIONS.length) % SWIPE_SECTIONS.length;
-    return { index, direction, nextIndex, section: SWIPE_SECTIONS[nextIndex] };
+    const nextIndex = carouselIndex(direction);
+    return { direction, nextIndex, section: SWIPE_SECTIONS[nextIndex] };
   }
 
-  function removeSwipePreview() {
-    document.querySelector('.km-shell-swipe-preview')?.remove();
-    if (pageSwipe) pageSwipe.preview = null;
+  function removeSwipePreviews() {
+    document.querySelectorAll('.km-shell-swipe-preview').forEach(preview => preview.remove());
   }
 
-  function buildSwipePreview(target) {
-    if (!pageSwipe) return null;
-    if (pageSwipe.preview && pageSwipe.previewSection === target.section) return pageSwipe.preview;
-    removeSwipePreview();
-
-    const currentSection = section;
-    const shell = $('.shell');
+  function createCarouselPreview(targetSection, direction) {
+    const shell = $('.shell:not(.km-shell-swipe-preview)');
     if (!shell) return null;
-    section = target.section;
+    section = targetSection;
     showSection();
     const preview = shell.cloneNode(true);
+    preview.classList.add('km-shell-swipe-preview');
+    preview.dataset.carouselDirection = String(direction);
+    preview.setAttribute('aria-hidden', 'true');
+    preview.setAttribute('inert', '');
+    preview.style.setProperty('--km-shell-preview-x', `${direction * window.innerWidth}px`);
+    return { element: preview, direction, section: targetSection };
+  }
+
+  function prepareCarouselPreviews(gesture) {
+    if (!gesture || gesture.prepared) return;
+    const currentSection = section;
+    const previousSection = SWIPE_SECTIONS[carouselIndex(-1)];
+    const nextSection = SWIPE_SECTIONS[carouselIndex(1)];
+    const previous = createCarouselPreview(previousSection, -1);
+    const next = createCarouselPreview(nextSection, 1);
     section = currentSection;
     showSection();
 
-    preview.classList.add('km-shell-swipe-preview');
-    preview.setAttribute('aria-hidden', 'true');
-    preview.setAttribute('inert', '');
-    preview.style.setProperty('--km-shell-preview-x', `${target.direction * window.innerWidth}px`);
-    document.body.appendChild(preview);
-    pageSwipe.preview = preview;
-    pageSwipe.previewSection = target.section;
-    pageSwipe.previewDirection = target.direction;
-    return preview;
+    gesture.previews = [previous, next].filter(Boolean);
+    const fragment = document.createDocumentFragment();
+    gesture.previews.forEach(item => fragment.appendChild(item.element));
+    document.body.appendChild(fragment);
+    gesture.prepared = true;
   }
 
   function paintPageSwipe(dx) {
@@ -1287,18 +1296,19 @@
     if (swipePaintFrame) return;
     swipePaintFrame = requestAnimationFrame(() => {
       swipePaintFrame = 0;
-      if (!pageSwipe?.horizontal) return;
-      const target = carouselTarget(swipePaintDx);
-      const preview = buildSwipePreview(target);
+      const gesture = pageSwipe;
+      if (!gesture?.horizontal) return;
       document.body.style.setProperty('--km-shell-swipe-x', `${Math.round(swipePaintDx)}px`);
-      if (preview) preview.style.setProperty('--km-shell-preview-x', `${Math.round(swipePaintDx + target.direction * window.innerWidth)}px`);
+      gesture.previews.forEach(item => {
+        item.element.style.setProperty('--km-shell-preview-x', `${Math.round(item.direction * window.innerWidth + swipePaintDx)}px`);
+      });
     });
   }
 
   function clearSwipeState() {
     if (swipePaintFrame) cancelAnimationFrame(swipePaintFrame);
     swipePaintFrame = 0;
-    removeSwipePreview();
+    removeSwipePreviews();
     const body = document.body;
     body.classList.remove('km-shell-page-dragging', 'km-shell-page-settling');
     body.style.removeProperty('--km-shell-swipe-x');
@@ -1306,19 +1316,21 @@
   }
 
   function settleSwipeBack(gesture) {
-    const preview = gesture?.preview;
-    const direction = gesture?.previewDirection || (gesture?.dx < 0 ? 1 : -1);
+    if (!gesture?.prepared) {
+      clearSwipeState();
+      return;
+    }
     const body = document.body;
     body.classList.remove('km-shell-page-dragging');
     body.classList.add('km-shell-page-settling');
-    body.style.setProperty('--km-shell-swipe-duration', '190ms');
+    body.style.setProperty('--km-shell-swipe-duration', '210ms');
     body.style.setProperty('--km-shell-swipe-x', '0px');
-    if (preview) {
-      preview.classList.add('km-shell-preview-settling');
-      preview.style.setProperty('--km-shell-swipe-duration', '190ms');
-      preview.style.setProperty('--km-shell-preview-x', `${direction * window.innerWidth}px`);
-    }
-    setTimeout(clearSwipeState, 220);
+    gesture.previews.forEach(item => {
+      item.element.classList.add('km-shell-preview-settling');
+      item.element.style.setProperty('--km-shell-swipe-duration', '210ms');
+      item.element.style.setProperty('--km-shell-preview-x', `${item.direction * window.innerWidth}px`);
+    });
+    setTimeout(clearSwipeState, 240);
   }
 
   function pageSwipeStart(event) {
@@ -1333,12 +1345,11 @@
       dx: 0,
       dy: 0,
       horizontal: false,
+      prepared: false,
+      previews: [],
       lastX: touch.clientX,
       lastAt: now,
-      velocityX: 0,
-      preview: null,
-      previewSection: null,
-      previewDirection: 0
+      velocityX: 0
     };
   }
 
@@ -1348,18 +1359,23 @@
     const now = performance.now();
     const elapsed = Math.max(1, now - pageSwipe.lastAt);
     const instantVelocity = (touch.clientX - pageSwipe.lastX) / elapsed;
-    pageSwipe.velocityX = pageSwipe.velocityX * .65 + instantVelocity * .35;
+    pageSwipe.velocityX = pageSwipe.velocityX * .62 + instantVelocity * .38;
     pageSwipe.lastX = touch.clientX;
     pageSwipe.lastAt = now;
     pageSwipe.dx = touch.clientX - pageSwipe.x;
     pageSwipe.dy = touch.clientY - pageSwipe.y;
 
+    if (!pageSwipe.prepared && Math.abs(pageSwipe.dx) > 3 && Math.abs(pageSwipe.dx) > Math.abs(pageSwipe.dy) * 1.08) {
+      prepareCarouselPreviews(pageSwipe);
+    }
+
     if (!pageSwipe.horizontal) {
       if (Math.abs(pageSwipe.dy) > 12 && Math.abs(pageSwipe.dy) > Math.abs(pageSwipe.dx)) {
         pageSwipe = null;
+        clearSwipeState();
         return;
       }
-      if (Math.abs(pageSwipe.dx) > 8 && Math.abs(pageSwipe.dx) > Math.abs(pageSwipe.dy) * 1.2) {
+      if (pageSwipe.prepared && Math.abs(pageSwipe.dx) > 7 && Math.abs(pageSwipe.dx) > Math.abs(pageSwipe.dy) * 1.15) {
         pageSwipe.horizontal = true;
         document.body.classList.add('km-shell-page-dragging');
       }
@@ -1368,28 +1384,29 @@
     if (!pageSwipe?.horizontal) return;
     paintPageSwipe(pageSwipe.dx);
     if (event.cancelable) event.preventDefault();
+    event.stopPropagation();
   }
 
-  function pageSwipeEnd() {
+  function pageSwipeEnd(event) {
     const gesture = pageSwipe;
+    pageSwipe = null;
     if (!gesture?.horizontal) {
-      pageSwipe = null;
       clearSwipeState();
       return;
     }
+    event.stopPropagation();
 
     if (swipePaintFrame) {
       cancelAnimationFrame(swipePaintFrame);
       swipePaintFrame = 0;
-      const target = carouselTarget(gesture.dx);
-      const preview = gesture.preview || buildSwipePreview(target);
       document.body.style.setProperty('--km-shell-swipe-x', `${Math.round(gesture.dx)}px`);
-      if (preview) preview.style.setProperty('--km-shell-preview-x', `${Math.round(gesture.dx + target.direction * window.innerWidth)}px`);
+      gesture.previews.forEach(item => {
+        item.element.style.setProperty('--km-shell-preview-x', `${Math.round(item.direction * window.innerWidth + gesture.dx)}px`);
+      });
     }
-    pageSwipe = null;
 
-    const distanceEnough = Math.abs(gesture.dx) >= Math.min(76, window.innerWidth * .18);
-    const flickEnough = Math.abs(gesture.velocityX) >= .42 && Math.abs(gesture.dx) >= 24;
+    const distanceEnough = Math.abs(gesture.dx) >= Math.min(72, window.innerWidth * .17);
+    const flickEnough = Math.abs(gesture.velocityX) >= .38 && Math.abs(gesture.dx) >= 22;
     const directionMatchesVelocity = Math.sign(gesture.velocityX || gesture.dx) === Math.sign(gesture.dx);
     if (!distanceEnough && !(flickEnough && directionMatchesVelocity)) {
       settleSwipeBack(gesture);
@@ -1401,8 +1418,8 @@
   function completeCarouselSwipe(gesture) {
     if (sectionTransitioning) return;
     const target = carouselTarget(gesture.dx);
-    const preview = gesture.preview;
-    if (!preview) {
+    const selectedPreview = gesture.previews.find(item => item.direction === target.direction);
+    if (!selectedPreview) {
       settleSwipeBack(gesture);
       return;
     }
@@ -1411,15 +1428,17 @@
     const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
     const exitOffset = target.direction > 0 ? -width : width;
     const remaining = Math.max(0, width - Math.abs(gesture.dx));
-    const duration = Math.max(120, Math.min(210, remaining * .28));
+    const duration = Math.max(150, Math.min(260, remaining * .34));
     const body = document.body;
     body.classList.remove('km-shell-page-dragging');
     body.classList.add('km-shell-page-settling');
     body.style.setProperty('--km-shell-swipe-duration', `${duration}ms`);
     body.style.setProperty('--km-shell-swipe-x', `${exitOffset}px`);
-    preview.classList.add('km-shell-preview-settling');
-    preview.style.setProperty('--km-shell-swipe-duration', `${duration}ms`);
-    preview.style.setProperty('--km-shell-preview-x', '0px');
+    gesture.previews.forEach(item => {
+      item.element.classList.add('km-shell-preview-settling');
+      item.element.style.setProperty('--km-shell-swipe-duration', `${duration}ms`);
+      item.element.style.setProperty('--km-shell-preview-x', `${item.direction * width + exitOffset}px`);
+    });
 
     setTimeout(() => {
       selectSection(target.section);
@@ -1427,7 +1446,7 @@
       body.style.removeProperty('--km-shell-swipe-x');
       body.style.removeProperty('--km-shell-swipe-duration');
       requestAnimationFrame(() => {
-        removeSwipePreview();
+        removeSwipePreviews();
         sectionTransitioning = false;
       });
     }, duration + 25);
@@ -1436,14 +1455,15 @@
   function bindSwipeDocument(doc) {
     if (!doc || swipeDocuments.has(doc)) return;
     swipeDocuments.add(doc);
-    doc.addEventListener('touchstart', pageSwipeStart, { passive: true });
-    doc.addEventListener('touchmove', pageSwipeMove, { passive: false });
-    doc.addEventListener('touchend', pageSwipeEnd, { passive: true });
-    doc.addEventListener('touchcancel', () => {
+    doc.addEventListener('touchstart', pageSwipeStart, { passive: true, capture: true });
+    doc.addEventListener('touchmove', pageSwipeMove, { passive: false, capture: true });
+    doc.addEventListener('touchend', pageSwipeEnd, { passive: true, capture: true });
+    doc.addEventListener('touchcancel', event => {
       const gesture = pageSwipe;
       pageSwipe = null;
+      if (gesture?.horizontal) event.stopPropagation();
       settleSwipeBack(gesture);
-    }, { passive: true });
+    }, { passive: true, capture: true });
   }
 
   function bindTimeFrameSwipe() {
