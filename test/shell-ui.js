@@ -27,6 +27,7 @@
   let timeFrameSettingsObserver = null;
   let shellSearchObserver = null;
   let shellUndoTimer = null;
+  let sectionTransitioning = false;
   const timeEnhancementDocuments = new WeakSet();
 
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -93,9 +94,14 @@
       .km-shell-settings-back{position:absolute;left:14px;top:calc(10px + env(safe-area-inset-top));display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:0;border-radius:50%;background:transparent;color:var(--accent);font-size:22px;font-weight:800;cursor:pointer}.km-shell-settings-back[hidden]{display:none!important}.km-shell-settings-back:active{background:var(--card2)}
       .km-shell-general-settings{max-width:760px;margin:0 auto;padding:8px 0 24px}.km-shell-general-intro{padding:8px 1px 16px;border-bottom:1px solid var(--line)}.km-shell-general-intro h2{margin:3px 0 5px;font-size:28px;letter-spacing:-.035em}.km-shell-general-intro p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
       .km-shell-general-card{padding:17px 1px;border-bottom:1px solid var(--line)}.km-shell-general-card>strong,.km-shell-general-card>small{display:block}.km-shell-general-card>strong{font-size:17px}.km-shell-general-card>small{margin-top:4px;color:var(--muted);font-size:11px;line-height:1.4}.km-shell-general-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:13px}.km-shell-general-actions .btn{width:100%;margin:0;text-align:center}.km-shell-general-nav{display:grid;gap:2px;margin-top:10px}.km-shell-general-nav button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px;padding:10px 1px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font-weight:760;text-align:left}.km-shell-general-nav button span:last-child{color:var(--muted);font-size:21px}.km-shell-general-advanced{margin-top:12px}.km-shell-general-advanced summary{color:var(--muted);font-size:12px;font-weight:750;cursor:pointer}.km-shell-general-status{margin-top:8px;color:var(--muted);font-size:11px;line-height:1.4}
-      @keyframes kmSettingsForwardIn{from{opacity:.35;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}@keyframes kmSettingsBackIn{from{opacity:.35;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}@keyframes kmPageForwardIn{from{opacity:.72;transform:translateX(22px)}to{opacity:1;transform:translateX(0)}}@keyframes kmPageBackIn{from{opacity:.72;transform:translateX(-22px)}to{opacity:1;transform:translateX(0)}}
+      @keyframes kmSettingsForwardIn{from{opacity:.35;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}@keyframes kmSettingsBackIn{from{opacity:.35;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
+      @keyframes kmPageExitForward{from{opacity:1;transform:translateX(0)}to{opacity:.62;transform:translateX(-22vw)}}@keyframes kmPageEnterForward{from{opacity:.7;transform:translateX(100vw)}to{opacity:1;transform:translateX(0)}}
+      @keyframes kmPageExitBack{from{opacity:1;transform:translateX(0)}to{opacity:.62;transform:translateX(22vw)}}@keyframes kmPageEnterBack{from{opacity:.7;transform:translateX(-100vw)}to{opacity:1;transform:translateX(0)}}
       .km-shell-settings-content.km-settings-forward-in>*{animation:kmSettingsForwardIn .24s cubic-bezier(.22,1,.36,1) both}.km-shell-settings-content.km-settings-back-in>*{animation:kmSettingsBackIn .24s cubic-bezier(.22,1,.36,1) both}
-      body.km-shell-page-forward .shell{animation:kmPageForwardIn .24s cubic-bezier(.22,1,.36,1) both}body.km-shell-page-back .shell{animation:kmPageBackIn .24s cubic-bezier(.22,1,.36,1) both}
+      body.km-shell-page-exit-forward .shell,body.km-shell-page-exit-forward .km-shell-menu-button{animation:kmPageExitForward .135s ease-in both}
+      body.km-shell-page-enter-forward .shell,body.km-shell-page-enter-forward .km-shell-menu-button{animation:kmPageEnterForward .28s cubic-bezier(.22,1,.36,1) both}
+      body.km-shell-page-exit-back .shell,body.km-shell-page-exit-back .km-shell-menu-button{animation:kmPageExitBack .135s ease-in both}
+      body.km-shell-page-enter-back .shell,body.km-shell-page-enter-back .km-shell-menu-button{animation:kmPageEnterBack .28s cubic-bezier(.22,1,.36,1) both}
       @media(max-width:480px){.km-shell-general-actions{grid-template-columns:1fr}}
       .shell>#timeAppFrame{position:relative;z-index:0}.km-shell-drawer-open .shell>#timeAppFrame{visibility:hidden!important;pointer-events:none!important}.editor-view>.km-shell-menu-button{display:none!important}
       .km-shell-locations{padding:2px 0 28px}.km-shell-locations-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:8px 1px 10px}.km-shell-locations-head h2{margin:2px 0 0;font-size:28px;letter-spacing:-.035em}.km-shell-location-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:5px 0 16px}.km-shell-location-actions button{min-height:44px}
@@ -226,9 +232,21 @@
       body:not(.time-mode) #app .list .swipe-row{border-radius:0!important}
       body:not(.time-mode) #app .trip-entry.expanded .list-item::after{display:none!important}
       body:not(.time-mode) #app .trip-inline-details{background:var(--card)!important}
+      /* Op iPhone ligt de navigatie onder de volledige verschuivende pagina. */
+      @media(max-width:820px){
+        html,body{overflow-x:hidden}
+        .shell{position:relative;z-index:20;min-height:100dvh;background:var(--bg);transition:transform .34s cubic-bezier(.22,1,.36,1),border-radius .34s ease,box-shadow .34s ease;will-change:transform}
+        .km-shell-menu-button{z-index:22!important;transition:transform .34s cubic-bezier(.22,1,.36,1),opacity .15s ease}
+        .km-shell-drawer{z-index:10!important;width:min(90vw,360px)!important;transform:none!important;opacity:0;pointer-events:none;box-shadow:none!important;transition:opacity .18s ease!important}
+        .km-shell-drawer.open{opacity:1;pointer-events:auto}
+        .km-shell-backdrop{z-index:21!important;inset:0 0 0 min(90vw,360px)!important;background:rgba(0,0,0,.1)!important}
+        body.km-shell-drawer-open .shell{transform:translateX(min(90vw,360px));border-radius:22px 0 0 22px;box-shadow:-14px 0 38px rgba(0,0,0,.24)}
+        body.km-shell-drawer-open .km-shell-menu-button{transform:translateX(min(90vw,360px))}
+        body.km-shell-settings-open .km-shell-drawer{opacity:0!important;pointer-events:none!important;transform:none!important}
+      }
       @media(prefers-color-scheme:light){.km-shell-drawer{background:rgba(255,255,255,.97);box-shadow:18px 0 52px rgba(30,45,65,.16)}.km-shell-settings-head{background:rgba(245,245,247,.93)}.km-shell-backdrop{background:rgba(0,0,0,.22)}.km-shell-settings{background:rgba(0,0,0,.22)}}
       @media(max-width:480px){.km-shell-drawer{width:min(86vw,330px)}.km-shell-settings-surface{height:96dvh;border-radius:21px 21px 0 0}.km-shell-settings-content{padding-left:12px;padding-right:12px}.km-shell-location-detail-grid{grid-template-columns:1fr}.km-shell-location-actions{grid-template-columns:1fr 1fr}}
-      @media(prefers-reduced-motion:reduce){.km-shell-drawer,.km-shell-backdrop,.km-shell-settings,.km-shell-settings-surface{transition:none!important}.km-shell-settings-content>*,body.km-shell-page-forward .shell,body.km-shell-page-back .shell{animation:none!important}}
+      @media(prefers-reduced-motion:reduce){.shell,.km-shell-menu-button,.km-shell-drawer,.km-shell-backdrop,.km-shell-settings,.km-shell-settings-surface{transition:none!important}.km-shell-settings-content>*,body[class*="km-shell-page-"] .shell,body[class*="km-shell-page-"] .km-shell-menu-button{animation:none!important}}
     `;
     document.head.appendChild(style);
   }
@@ -298,6 +316,7 @@
     document.body.appendChild(menu);
     menu.addEventListener('click', () => {
       if (section === 'time' && timeSettingsOpen) closeTimeSettingsPage();
+      else if (drawerOpen) closeDrawer();
       else openDrawer();
     });
 
@@ -1176,7 +1195,7 @@
   let pageSwipe = null;
 
   function pageSwipeBlocked() {
-    return drawerOpen || $('#kmShellSettings')?.classList.contains('open') || !$('#modal')?.hidden || document.body.classList.contains('editor-view');
+    return sectionTransitioning || drawerOpen || $('#kmShellSettings')?.classList.contains('open') || !$('#modal')?.hidden || document.body.classList.contains('editor-view');
   }
 
   function pageSwipeInteractive(target) {
@@ -1214,15 +1233,30 @@
   }
 
   function navigateByPageSwipe(direction) {
+    if (sectionTransitioning) return;
     const index = SWIPE_SECTIONS.indexOf(section);
     const nextIndex = index + direction;
     if (index < 0 || nextIndex < 0 || nextIndex >= SWIPE_SECTIONS.length) return;
-    const animationClass = direction > 0 ? 'km-shell-page-forward' : 'km-shell-page-back';
-    document.body.classList.remove('km-shell-page-forward', 'km-shell-page-back');
-    void document.body.offsetWidth;
-    document.body.classList.add(animationClass);
-    selectSection(SWIPE_SECTIONS[nextIndex]);
-    setTimeout(() => document.body.classList.remove(animationClass), 280);
+    sectionTransitioning = true;
+    const exitClass = direction > 0 ? 'km-shell-page-exit-forward' : 'km-shell-page-exit-back';
+    const enterClass = direction > 0 ? 'km-shell-page-enter-forward' : 'km-shell-page-enter-back';
+    document.body.classList.remove(
+      'km-shell-page-exit-forward',
+      'km-shell-page-exit-back',
+      'km-shell-page-enter-forward',
+      'km-shell-page-enter-back'
+    );
+    document.body.classList.add(exitClass);
+    setTimeout(() => {
+      document.body.classList.remove(exitClass);
+      selectSection(SWIPE_SECTIONS[nextIndex]);
+      void document.body.offsetWidth;
+      document.body.classList.add(enterClass);
+      setTimeout(() => {
+        document.body.classList.remove(enterClass);
+        sectionTransitioning = false;
+      }, 280);
+    }, 135);
   }
 
   function bindSwipeDocument(doc) {
