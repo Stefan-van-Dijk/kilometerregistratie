@@ -29,6 +29,8 @@
   let shellUndoTimer = null;
   let sectionTransitioning = false;
   const timeEnhancementDocuments = new WeakSet();
+  const windowScrollState = { top: Math.max(0, window.scrollY || 0), reverse: 0 };
+  const timeScrollState = { top: 0, reverse: 0 };
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -205,7 +207,9 @@
       .section-title h2{letter-spacing:-.02em}
       button,.btn,[role="button"],summary{touch-action:manipulation}
       /* Zoeken, compacte navigatie en eenduidige invoerschermen. */
-      .km-shell-search{display:flex;align-items:center;gap:7px;min-height:38px;margin:0 0 12px;padding:0 11px;border-radius:12px;background:color-mix(in srgb,var(--muted) 14%,transparent);color:var(--muted)}
+      .km-shell-search{position:sticky;top:calc(59px + env(safe-area-inset-top));z-index:39;display:flex;align-items:center;gap:7px;min-height:38px;margin:0 0 12px;padding:0 11px;border-radius:12px;background:color-mix(in srgb,var(--muted) 14%,var(--bg));color:var(--muted);transform:translateY(0);opacity:1;transition:transform .2s cubic-bezier(.22,1,.36,1),opacity .14s ease,box-shadow .2s ease;-webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%)}
+      body.km-shell-scrolled:not(.km-shell-search-revealed) .km-shell-search{transform:translateY(calc(-100% - 14px));opacity:0;pointer-events:none}
+      body.km-shell-search-revealed .km-shell-search{box-shadow:0 7px 18px color-mix(in srgb,#000 14%,transparent)}
       .km-shell-search>span{font-size:20px;line-height:1;transform:rotate(-15deg)}
       .km-shell-search input{flex:1;min-width:0;height:38px;padding:0;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:16px}
       .km-shell-search input::placeholder{color:var(--muted)}
@@ -239,8 +243,8 @@
       body:not(.time-mode) #app .trip-inline-details{background:var(--card)!important}
       /* Op iPhone ligt de navigatie onder de volledige verschuivende pagina. */
       @media(max-width:820px){
-        html,body{overflow-x:hidden}
-        .shell{position:relative;z-index:20;min-height:100dvh;background:var(--bg);transition:transform .34s cubic-bezier(.22,1,.36,1),border-radius .34s ease,box-shadow .34s ease;will-change:transform}
+        html,body{overflow-x:clip}
+        .shell{position:relative;z-index:20;min-height:100dvh;background:var(--bg);transition:transform .34s cubic-bezier(.22,1,.36,1),border-radius .34s ease,box-shadow .34s ease}
         .km-shell-menu-button{z-index:22!important;transition:transform .34s cubic-bezier(.22,1,.36,1),opacity .15s ease}
         .km-shell-drawer{z-index:10!important;width:min(90vw,360px)!important;transform:none!important;opacity:0;pointer-events:none;box-shadow:none!important;transition:opacity .18s ease!important}
         .km-shell-drawer.open{opacity:1;pointer-events:auto}
@@ -512,9 +516,11 @@
       const doc = frame?.contentDocument;
       if (!doc || timeEnhancementDocuments.has(doc)) return;
       timeEnhancementDocuments.add(doc);
+      timeScrollState.top = Math.max(0, doc.scrollingElement?.scrollTop || 0);
+      timeScrollState.reverse = 0;
       doc.addEventListener('scroll', () => {
         if (section !== 'time') return;
-        document.body.classList.toggle('km-shell-scrolled', (doc.scrollingElement?.scrollTop || 0) > 24);
+        updateScrollChrome(doc.scrollingElement?.scrollTop || 0, timeScrollState);
       }, { passive: true });
       doc.addEventListener('click', event => {
         const remove = event.target.closest?.('[data-swipe-action="delete"]');
@@ -544,9 +550,28 @@
     } catch (_) {}
   }
 
+  function updateScrollChrome(scrollTop, state) {
+    const top = Math.max(0, Number(scrollTop) || 0);
+    const delta = top - state.top;
+    if (top <= 24) {
+      document.body.classList.remove('km-shell-scrolled', 'km-shell-search-revealed');
+      state.reverse = 0;
+    } else {
+      document.body.classList.add('km-shell-scrolled');
+      if (delta < -.35) {
+        state.reverse += -delta;
+        if (state.reverse >= 5) document.body.classList.add('km-shell-search-revealed');
+      } else if (delta > .35) {
+        state.reverse = 0;
+        document.body.classList.remove('km-shell-search-revealed');
+      }
+    }
+    state.top = top;
+  }
+
   function bindHeaderCollapse() {
     const update = () => {
-      if (section !== 'time') document.body.classList.toggle('km-shell-scrolled', window.scrollY > 24);
+      if (section !== 'time') updateScrollChrome(window.scrollY, windowScrollState);
     };
     window.addEventListener('scroll', update, { passive: true });
     update();
@@ -555,7 +580,10 @@
   function selectSection(next) {
     if (!ROOT_SECTIONS.has(next)) return;
     section = next;
-    document.body.classList.remove('km-shell-scrolled');
+    document.body.classList.remove('km-shell-scrolled', 'km-shell-search-revealed');
+    windowScrollState.top = Math.max(0, window.scrollY || 0);
+    windowScrollState.reverse = 0;
+    timeScrollState.reverse = 0;
     resetShellSearch();
     localStorage.setItem(SECTION_KEY, section);
     localStorage.setItem(MODE_KEY, section === 'time' ? 'time' : 'kilometers');
