@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const BUILD = '0.31.9';
+  const BUILD = '0.31.10';
   const DATA_KEY = 'kmreg-v4-data';
   const MODE_KEY = 'kmreg-active-app-v1';
   const SECTION_KEY = 'kmreg-shell-section-v1';
@@ -294,9 +294,12 @@
     if (title && title.textContent !== wantedTitle) title.textContent = wantedTitle;
     if (menu) {
       const isBack = section === 'time' && timeSettingsOpen;
-      menu.textContent = isBack ? '←' : '☰';
-      menu.setAttribute('aria-label', isBack ? 'Terug naar tijd / taken' : 'Menu openen');
-      menu.setAttribute('aria-expanded', isBack ? 'false' : String(drawerOpen));
+      const wantedIcon = isBack ? '←' : '☰';
+      const wantedLabel = isBack ? 'Terug naar tijd / taken' : 'Menu openen';
+      const wantedExpanded = isBack ? 'false' : String(drawerOpen);
+      if (menu.textContent !== wantedIcon) menu.textContent = wantedIcon;
+      if (menu.getAttribute('aria-label') !== wantedLabel) menu.setAttribute('aria-label', wantedLabel);
+      if (menu.getAttribute('aria-expanded') !== wantedExpanded) menu.setAttribute('aria-expanded', wantedExpanded);
     }
     if (meta) {
       let wantedMeta = '';

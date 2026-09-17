@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.9';
+  const BUILD='0.31.10';
   const DATA_KEY='kmreg-v4-data';
   const SECTION_KEY='kmreg-shell-section-v1';
   let gps={status:'idle',lat:null,lng:null,accuracy:null,matchedId:null,matchedRootId:null,distance:null,nearestId:null,nearestDistance:null,updatedAt:0,error:''};
