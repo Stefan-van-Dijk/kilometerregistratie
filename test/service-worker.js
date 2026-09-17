@@ -1,5 +1,5 @@
-const CACHE='kmreg-test-shell-0.31.10-test.1';
-const SHELL=['./','./index.html','./shell-ui.js?v=0.31.10-test.1','./shell-ui-stable.js?v=0.31.10-test.1','./id-converter.html','./manifest.webmanifest','./app-icon.svg'];
+const CACHE='kmreg-test-shell-0.31.10-json-v2';
+const SHELL=['./','./index.html','./log-json-v2.js?v=2.0.0','./shell-ui.js?v=0.31.10-test.1','./shell-ui-stable.js?v=0.31.10-test.1','./id-converter.html','./manifest.webmanifest','./app-icon.svg'];
 
 function injectShellScript(response){
   if(!response)return response;
