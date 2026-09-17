@@ -25,6 +25,9 @@
   let timeSettingsOpen = false;
   let activeSettingsTarget = null;
   let timeFrameSettingsObserver = null;
+  let shellSearchObserver = null;
+  let shellUndoTimer = null;
+  const timeEnhancementDocuments = new WeakSet();
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -190,6 +193,26 @@
       .km-shell-location-buttons button{color:var(--accent)!important;font-size:17px!important}.km-shell-location-chevron{color:color-mix(in srgb,var(--muted) 62%,transparent)!important;font-size:21px!important}
       .section-title h2{letter-spacing:-.02em}
       button,.btn,[role="button"],summary{touch-action:manipulation}
+      /* Zoeken, compacte navigatie en eenduidige invoerschermen. */
+      .km-shell-search{display:flex;align-items:center;gap:7px;min-height:38px;margin:0 0 12px;padding:0 11px;border-radius:12px;background:color-mix(in srgb,var(--muted) 14%,transparent);color:var(--muted)}
+      .km-shell-search>span{font-size:20px;line-height:1;transform:rotate(-15deg)}
+      .km-shell-search input{flex:1;min-width:0;height:38px;padding:0;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:16px}
+      .km-shell-search input::placeholder{color:var(--muted)}
+      .km-shell-search input::-webkit-search-cancel-button{display:none}
+      .km-shell-search button{width:25px;height:25px;padding:0;border:0;border-radius:50%;background:color-mix(in srgb,var(--muted) 28%,transparent);color:var(--bg);font-size:18px;line-height:1}
+      .km-shell-search-status{margin:-3px 0 14px;padding:20px 2px;color:var(--muted);font-size:13px;text-align:center}
+      body.km-shell-scrolled .top.km-shell-top{min-height:59px!important;padding-top:calc(9px + env(safe-area-inset-top))!important;padding-bottom:9px!important}
+      .top.km-shell-top,.km-shell-title,.km-shell-meta{transition:min-height .22s ease,padding .22s ease,font-size .22s ease,opacity .18s ease,margin .22s ease}
+      body.km-shell-scrolled .km-shell-title{font-size:18px!important;letter-spacing:-.015em!important}
+      body.km-shell-scrolled .km-shell-meta{height:0;margin:0!important;opacity:0;overflow:hidden}
+      body.editor-view .km-shell-top,body.editor-view .km-shell-search,body.editor-view .km-shell-search-status{display:none!important}
+      body.editor-view .editor-nav{z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent)!important;-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%)}
+      body.editor-view .editor-page .edit-section{margin:0 0 11px;padding:14px;border:.5px solid var(--line)!important;border-radius:16px;background:var(--card)}
+      body.editor-view .editor-page .edit-section:first-of-type{padding-top:14px!important;border-top:.5px solid var(--line)!important}
+      body.editor-view .editor-savebar{border-top:.5px solid var(--line)!important;background:color-mix(in srgb,var(--bg) 88%,transparent)!important;-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%)}
+      .km-shell-undo{position:fixed;z-index:150;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:18px;width:max-content;max-width:calc(100vw - 28px);padding:12px 14px;border-radius:14px;background:rgba(35,35,38,.96);box-shadow:0 10px 34px rgba(0,0,0,.3);color:#fff;font-size:13px;opacity:0;transform:translate(-50%,14px);pointer-events:none;transition:opacity .2s ease,transform .24s cubic-bezier(.22,1,.36,1)}
+      .km-shell-undo.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}.km-shell-undo button{padding:2px 0;border:0;background:transparent;color:#64a8ff;font-weight:750}
+      .toast.km-action-toast{display:flex!important;align-items:center;gap:18px;max-width:calc(100vw - 28px)!important;border-radius:14px!important;text-align:left!important}.toast.km-action-toast span{min-width:0}.toast.km-action-toast button{padding:2px 0;border:0;background:transparent;color:#0a67c8;font-weight:800}
       /* Correcties voor iPhone-safe-areas, scheidingslijnen en overlay-stapeling. */
       .shell{padding-top:0!important}
       .top.km-shell-top{z-index:40!important}
@@ -254,6 +277,24 @@
     top.innerHTML = '';
     top.classList.add('km-shell-top');
     top.append(menuSlot, copy, spacer, legacy);
+
+    const search = document.createElement('div');
+    search.id = 'kmShellSearch';
+    search.className = 'km-shell-search';
+    search.innerHTML = '<span aria-hidden="true">⌕</span><input id="kmShellSearchInput" type="search" autocomplete="off" enterkeyhint="search" aria-label="Zoeken"><button id="kmShellSearchClear" type="button" aria-label="Zoekopdracht wissen" hidden>×</button>';
+    top.insertAdjacentElement('afterend', search);
+    $('#kmShellSearchInput', search).addEventListener('input', event => {
+      $('#kmShellSearchClear', search).hidden = !event.target.value;
+      applyShellSearch();
+    });
+    $('#kmShellSearchClear', search).addEventListener('click', () => {
+      const input = $('#kmShellSearchInput', search);
+      input.value = '';
+      input.focus();
+      $('#kmShellSearchClear', search).hidden = true;
+      applyShellSearch();
+    });
+
     document.body.appendChild(menu);
     menu.addEventListener('click', () => {
       if (section === 'time' && timeSettingsOpen) closeTimeSettingsPage();
@@ -356,9 +397,142 @@
     return (topAction.dataset.action === 'home' ? 'settings' : 'ride') === wanted;
   }
 
+  function normalizedSearch(value) {
+    return String(value || '').toLocaleLowerCase('nl-NL').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  }
+
+  function currentSearchValue() {
+    return normalizedSearch($('#kmShellSearchInput')?.value);
+  }
+
+  function updateSearchPlaceholder() {
+    const input = $('#kmShellSearchInput');
+    if (!input) return;
+    const labels = { rides: 'Zoek in ritten', time: 'Zoek in tijd en taken', locations: 'Zoek in locaties' };
+    input.placeholder = labels[section] || 'Zoeken';
+  }
+
+  function resetShellSearch() {
+    const input = $('#kmShellSearchInput');
+    if (input) input.value = '';
+    const clear = $('#kmShellSearchClear');
+    if (clear) clear.hidden = true;
+    document.body.classList.remove('km-shell-searching');
+    applyShellSearch();
+  }
+
+  function setSearchMatches(nodes, query) {
+    let visible = 0;
+    for (const node of nodes) {
+      const match = !query || normalizedSearch(node.textContent).includes(query);
+      node.hidden = !match;
+      if (match) visible += 1;
+    }
+    return visible;
+  }
+
+  function applyShellSearch() {
+    const query = currentSearchValue();
+    document.body.classList.toggle('km-shell-searching', Boolean(query));
+    let visible = 0;
+    if (section === 'rides') {
+      const nodes = $$('#app .trip-entry');
+      visible = setSearchMatches(nodes, query);
+      $$('#app .trip-group').forEach(group => {
+        const items = [...group.querySelectorAll('.trip-entry')];
+        group.hidden = Boolean(query) && items.length > 0 && items.every(item => item.hidden);
+      });
+    } else if (section === 'locations') {
+      visible = setSearchMatches($$('#kmShellLocationsView .km-shell-location-node'), query);
+    } else {
+      try {
+        const doc = $('#timeAppFrame')?.contentDocument;
+        const nodes = [...(doc?.querySelectorAll('.activity-entry-shell') || [])];
+        visible = setSearchMatches(nodes, query);
+      } catch (_) {}
+    }
+    const status = $('#kmShellSearchStatus');
+    if (status) {
+      status.hidden = !query || visible > 0;
+      status.textContent = query && visible === 0 ? 'Geen resultaten gevonden.' : '';
+    }
+  }
+
+  function showShellUndo(message, action) {
+    let banner = $('#kmShellUndo');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'kmShellUndo';
+      banner.className = 'km-shell-undo';
+      document.body.appendChild(banner);
+    }
+    clearTimeout(shellUndoTimer);
+    banner.innerHTML = '';
+    const text = document.createElement('span');
+    text.textContent = message;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = 'Herstel';
+    button.addEventListener('click', async () => {
+      clearTimeout(shellUndoTimer);
+      banner.classList.remove('show');
+      await action();
+    }, { once: true });
+    banner.append(text, button);
+    requestAnimationFrame(() => banner.classList.add('show'));
+    shellUndoTimer = setTimeout(() => banner.classList.remove('show'), 6000);
+  }
+
+  function bindTimeEnhancements(frame = $('#timeAppFrame')) {
+    try {
+      const doc = frame?.contentDocument;
+      if (!doc || timeEnhancementDocuments.has(doc)) return;
+      timeEnhancementDocuments.add(doc);
+      doc.addEventListener('scroll', () => {
+        if (section !== 'time') return;
+        document.body.classList.toggle('km-shell-scrolled', (doc.scrollingElement?.scrollTop || 0) > 24);
+      }, { passive: true });
+      doc.addEventListener('click', event => {
+        const remove = event.target.closest?.('[data-swipe-action="delete"]');
+        if (!remove) return;
+        const key = 'urenregistratie.test.pwa.v1';
+        const before = localStorage.getItem(key);
+        setTimeout(() => {
+          const after = localStorage.getItem(key);
+          if (!before || before === after) return;
+          showShellUndo('Registratie verwijderd', () => {
+            localStorage.setItem(key, before);
+            frame.src = frame.src;
+            syncChrome();
+          });
+        }, 120);
+      }, true);
+      const main = doc.getElementById('main');
+      if (main) {
+        const observer = new MutationObserver(() => {
+          applyShellSearch();
+          requestAnimationFrame(() => {
+            if (currentSearchValue()) applyShellSearch();
+          });
+        });
+        observer.observe(main, { childList: true, subtree: true });
+      }
+    } catch (_) {}
+  }
+
+  function bindHeaderCollapse() {
+    const update = () => {
+      if (section !== 'time') document.body.classList.toggle('km-shell-scrolled', window.scrollY > 24);
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  }
+
   function selectSection(next) {
     if (!ROOT_SECTIONS.has(next)) return;
     section = next;
+    document.body.classList.remove('km-shell-scrolled');
+    resetShellSearch();
     localStorage.setItem(SECTION_KEY, section);
     localStorage.setItem(MODE_KEY, section === 'time' ? 'time' : 'kilometers');
     if (section === 'time') ensureOriginalMode('time');
@@ -432,6 +606,7 @@
       }
       if (meta.textContent !== wantedMeta) meta.textContent = wantedMeta;
     }
+    updateSearchPlaceholder();
     syncDrawerSelection();
   }
 
@@ -519,8 +694,7 @@
     const sortMode = snapshot.settings.locationSortMode === 'alpha' ? 'alpha' : 'smart';
     const roots = orderedRoots(snapshot);
     root.innerHTML = `
-      <div class="km-shell-locations-head"><div><div class="kicker">Gedeeld</div><h2>Locaties</h2></div><span class="muted">${snapshot.locations.length}</span></div>
-      <div class="km-shell-location-actions"><button type="button" class="btn secondary" data-shell-current-location>Huidige locatie +</button><button type="button" class="btn secondary" data-shell-add-location>Nieuwe locatie +</button></div>
+      <div class="km-shell-location-actions"><button type="button" class="btn secondary" data-shell-current-location>Huidige locatie</button><button type="button" class="btn" data-shell-add-location>Nieuwe locatie</button></div>
       <div class="km-shell-location-sort" aria-label="Locaties sorteren"><button type="button" class="${sortMode === 'smart' ? 'active' : ''}" data-action="location-sort" data-mode="smart">◎ Logisch</button><button type="button" class="${sortMode === 'alpha' ? 'active' : ''}" data-action="location-sort" data-mode="alpha">A–Z Naam</button></div>
       ${roots.length ? `<div class="km-shell-location-tree">${roots.map(location => locationNodeHtml(location, 0, snapshot)).join('')}</div>` : '<div class="km-shell-empty">Nog geen locaties opgeslagen.</div>'}`;
   }
@@ -827,6 +1001,11 @@
           body.km-accordion-embedded-settings .settings-accordion{border-color:var(--line)}
           body.km-accordion-embedded-settings .settings-accordion summary{min-height:54px;padding-left:0;padding-right:0}
           body.km-accordion-embedded-settings .settings-accordion-body{padding-left:0;padding-right:0}
+          .modal-backdrop{align-items:flex-end!important;padding:0!important;background:rgba(0,0,0,.38)!important}
+          .modal{position:relative!important;width:100%!important;max-width:none!important;max-height:92dvh!important;margin:0!important;padding:18px 16px calc(18px + env(safe-area-inset-bottom))!important;border-radius:26px 26px 0 0!important;border:.5px solid var(--line)!important;border-bottom:0!important;overflow:auto!important}
+          .modal::before{content:"";position:absolute;top:7px;left:50%;width:36px;height:5px;border-radius:99px;background:color-mix(in srgb,var(--muted) 45%,transparent);transform:translateX(-50%)}
+          .modal-head{position:sticky!important;top:-18px;z-index:2;margin:0 -16px 8px!important;padding:16px 16px 10px!important;border-bottom:.5px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%)}
+          .modal-head h2{font-size:17px!important;text-align:center!important}
         `;
         doc.head.appendChild(style);
       }
@@ -1060,6 +1239,8 @@
     try {
       bindSwipeDocument(frame?.contentDocument);
       applyUnifiedTimeStyles(frame);
+      bindTimeEnhancements(frame);
+      applyShellSearch();
     } catch (_) {}
   }
 
@@ -1136,6 +1317,7 @@
         setTimeout(() => location.reload(), 60);
       }
       syncChrome();
+      applyShellSearch();
     });
     observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
 
@@ -1152,8 +1334,14 @@
     installStorageHierarchyPatch();
     installChrome();
     installShellElements();
+    const searchStatus = document.createElement('div');
+    searchStatus.id = 'kmShellSearchStatus';
+    searchStatus.className = 'km-shell-search-status';
+    searchStatus.hidden = true;
+    $('#kmShellSearch')?.insertAdjacentElement('afterend', searchStatus);
     bindGlobalEvents();
     bindPageSwipes();
+    bindHeaderCollapse();
     showSection();
     filterTripLocationSelects();
     // Na sluiten van Instellingen moet het paneel zichtbaar blijven; normale herlaad start rustig gesloten.
