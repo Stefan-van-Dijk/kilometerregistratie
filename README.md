@@ -58,9 +58,9 @@ Voor volledig automatische week- of maandmail kan later een kleine serverless ba
 
 ## Privacy en opslag
 
-Alle ritten, locaties, instellingen en GPS-trackpunten worden in deze versie lokaal in IndexedDB van de browser bewaard. Publiceer dus nooit een export/backupbestand in de openbare GitHub repository.
+Ritten, locaties, taken en instellingen worden lokaal in de browser bewaard; GPS-trackpunten gebruiken aanvullend IndexedDB. Publiceer daarom nooit een export- of back-upbestand in de openbare GitHub-repository.
 
-Maak regelmatig een backup via **Instellingen → Backup exporteren**. Browserdata kan verdwijnen wanneer websitegegevens worden gewist of een apparaat wordt vervangen.
+Maak regelmatig via **Instellingen → Data & back-up → Complete export** één herstelbare JSON-bundel. Die bevat de brondata van kilometer- en tijdregistratie, de vaste identiteitstabel en het afgeleide kaart-/relatiemodel. **Alleen kilometerback-up** blijft beschikbaar voor een losse kopie van de kilometergegevens. Browserdata kan verdwijnen wanneer websitegegevens worden gewist of een apparaat wordt vervangen.
 
 ## Bestanden
 

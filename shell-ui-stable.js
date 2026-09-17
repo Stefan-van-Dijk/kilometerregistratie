@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.6';
+  const BUILD='0.31.7';
   const DATA_KEY='kmreg-v4-data';
   const SECTION_KEY='kmreg-shell-section-v1';
   let gps={status:'idle',lat:null,lng:null,accuracy:null,matchedId:null,matchedRootId:null,distance:null,nearestId:null,nearestDistance:null,updatedAt:0,error:''};
@@ -36,6 +36,7 @@
       .km-shell-top{position:static!important;top:auto!important;z-index:auto!important;background:transparent!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
       .km-shell-top-copy{padding-left:44px;padding-right:44px}
       .km-shell-menu-button{position:fixed!important;z-index:92!important;top:calc(env(safe-area-inset-top) + 10px);left:max(12px,calc((100vw - 760px)/2 + 12px));width:42px!important;height:42px!important;border:1px solid color-mix(in srgb,var(--line) 82%,transparent)!important;border-radius:50%!important;background:color-mix(in srgb,var(--bg) 80%,transparent)!important;box-shadow:0 7px 24px rgba(0,0,0,.18);-webkit-backdrop-filter:blur(18px) saturate(165%);backdrop-filter:blur(18px) saturate(165%)}
+      .shell>#timeAppFrame{position:relative!important;z-index:0!important}.km-shell-drawer-open .shell>#timeAppFrame{visibility:hidden!important;pointer-events:none!important}
       .editor-nav{position:static!important;top:auto!important;background:transparent!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
       .editor-back{position:fixed!important;z-index:92!important;top:calc(env(safe-area-inset-top) + 10px);left:max(12px,calc((100vw - 820px)/2 + 12px))}
       .editor-nav-actions{position:fixed!important;z-index:92!important;top:calc(env(safe-area-inset-top) + 10px);right:max(12px,calc((100vw - 820px)/2 + 12px));margin:0!important}
