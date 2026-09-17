@@ -135,6 +135,61 @@
       .km-shell-settings-panel-host>.time-app-frame{display:block!important;width:100%;min-height:280px!important;border:0}
       .km-shell-settings-loading{padding:16px 1px;color:var(--muted);font-size:12px}
       @keyframes kmSettingsPanelIn{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+      /* iPhone Mail-achtige navigatie en gegroepeerde lijsten. */
+      html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+      body{-webkit-tap-highlight-color:transparent}
+      .shell{padding-left:16px!important;padding-right:16px!important}
+      .top.km-shell-top{position:sticky!important;top:0!important;z-index:70!important;margin:0 -16px 8px!important;padding:calc(11px + env(safe-area-inset-top)) 58px 12px!important;grid-template-columns:minmax(0,1fr)!important;min-height:86px;border-bottom:.5px solid color-mix(in srgb,var(--line) 72%,transparent);background:color-mix(in srgb,var(--bg) 84%,transparent)!important;-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%)}
+      .km-shell-top>.km-shell-top-spacer{display:none!important}
+      .km-shell-top-copy{text-align:left!important;overflow:visible!important}
+      .km-shell-top-copy .eyebrow{display:none!important}
+      .km-shell-title{margin:0!important;font-size:32px!important;line-height:1.05;font-weight:780!important;letter-spacing:-.035em!important}
+      .km-shell-meta{margin-top:5px!important;font-size:11px!important;line-height:1.25;color:var(--muted)!important}
+      .km-shell-menu-button{top:calc(env(safe-area-inset-top) + 15px)!important;left:max(12px,calc((100vw - 760px)/2 + 12px))!important;width:40px!important;height:40px!important;border-radius:50%!important;background:color-mix(in srgb,var(--accent) 11%,transparent)!important;color:var(--accent)!important;font-size:21px!important;font-weight:700;transition:opacity .15s ease,transform .15s ease}
+      .km-shell-menu-button:active{opacity:.55;transform:scale(.94);background:color-mix(in srgb,var(--accent) 16%,transparent)!important}
+      .km-shell-drawer{width:min(90vw,360px)!important;border-radius:0 24px 24px 0;border-right:.5px solid var(--line)!important;padding-left:12px!important;padding-right:12px!important}
+      .km-shell-drawer-head{padding:7px 12px 18px!important}.km-shell-drawer-head strong{font-size:32px!important;font-weight:780!important;letter-spacing:-.035em!important}.km-shell-drawer-head small{font-size:12px!important}
+      .km-shell-nav{overflow:hidden;gap:0!important;border:.5px solid var(--line);border-radius:16px;background:var(--card)}
+      .km-shell-nav-button{position:relative;min-height:55px!important;padding:8px 13px!important;border-radius:0!important;font-size:16px!important;font-weight:600!important}
+      .km-shell-nav-button:not(:last-child)::after{content:"";position:absolute;left:52px;right:0;bottom:0;height:.5px;background:var(--line)}
+      .km-shell-nav-button .icon{width:29px!important;height:29px!important;border:0!important;border-radius:50%!important;background:color-mix(in srgb,var(--accent) 14%,transparent)!important;color:var(--accent)!important;font-size:15px!important}
+      .km-shell-nav-button.active{background:color-mix(in srgb,var(--accent) 11%,var(--card))!important;color:var(--accent)!important}.km-shell-nav-button.active .icon{background:var(--accent)!important;color:#fff!important}
+      .km-shell-drawer-footer{border-top:0!important;padding:12px 4px 2px!important}.km-shell-settings-button{margin-left:auto;border-radius:50%!important;background:var(--card)!important;color:var(--accent)!important}
+      .km-shell-settings-surface::before{content:"";position:absolute;z-index:3;top:7px;left:50%;width:36px;height:5px;border-radius:99px;background:color-mix(in srgb,var(--muted) 45%,transparent);transform:translateX(-50%)}
+      .km-shell-settings-surface{position:relative;border-radius:28px 28px 0 0!important}
+      .km-shell-settings-head{padding-top:calc(15px + env(safe-area-inset-top))!important;border-bottom:.5px solid var(--line)!important}
+      .km-shell-settings-close{right:13px!important;top:calc(14px + env(safe-area-inset-top))!important;width:34px!important;height:34px!important;background:color-mix(in srgb,var(--muted) 16%,var(--card2))!important;color:var(--muted)!important;font-size:23px!important;font-weight:650}
+      .km-shell-settings-title{font-size:17px!important;font-weight:650!important}
+      .km-shell-general-intro{padding:10px 3px 12px!important}.km-shell-general-intro p{font-size:12px!important}
+      .km-shell-settings-accordion{margin:0!important;border-radius:0!important;border-width:0 .5px .5px!important}
+      .km-shell-settings-accordion:first-of-type{border-top:.5px solid var(--line)!important;border-radius:16px 16px 0 0!important}
+      .km-shell-settings-accordion:last-of-type{border-radius:0 0 16px 16px!important}
+      .km-shell-settings-accordion summary{min-height:62px!important;padding:11px 14px!important}
+      .km-shell-settings-accordion-title strong{font-size:16px!important;font-weight:620!important}
+      .km-shell-settings-accordion-arrow{font-size:23px!important;color:color-mix(in srgb,var(--muted) 65%,transparent)!important}
+      .km-shell-settings-accordion-body{padding-left:14px!important;padding-right:14px!important}
+      body:not(.time-mode) #app .hero,body:not(.time-mode) #app .summary,body:not(.time-mode) #app .notice,body:not(.time-mode) #app .empty{border-width:.5px!important;border-radius:16px!important}
+      body:not(.time-mode) #app .list{border-width:.5px!important;border-radius:16px!important}
+      body:not(.time-mode) #app .list .list-item{position:relative;border-bottom:0!important}
+      body:not(.time-mode) #app .list .list-item::after{content:"";position:absolute;left:58px;right:0;bottom:0;height:.5px;background:var(--line);pointer-events:none}
+      body:not(.time-mode) #app .list .trip-entry:last-child .list-item::after{display:none}
+      body:not(.time-mode) #app .swipe-edit{background:#0a84ff!important;color:#fff!important}
+      body:not(.time-mode) #app .swipe-delete{background:#ff453a!important;color:#fff!important}
+      body:not(.time-mode) #app .chev{color:color-mix(in srgb,var(--muted) 62%,transparent)!important;font-size:20px!important}
+      body:not(.time-mode) #app .btn:active,.km-shell-locations button:active{opacity:.68}
+      .km-shell-locations-head{padding:7px 2px 12px!important}.km-shell-locations-head h2{font-size:22px!important;font-weight:720!important;letter-spacing:-.025em!important}
+      .km-shell-location-actions{overflow:hidden;gap:0!important;border:.5px solid var(--line);border-radius:14px;background:var(--card)}
+      .km-shell-location-actions button{border:0!important;border-radius:0!important;background:transparent!important;color:var(--accent)!important;font-weight:650!important}.km-shell-location-actions button:first-child{border-right:.5px solid var(--line)!important}
+      .km-shell-location-sort{border-width:.5px!important;border-radius:9px!important;background:color-mix(in srgb,var(--muted) 13%,transparent)!important}
+      .km-shell-location-tree{border-width:.5px!important;border-radius:16px!important}
+      .km-shell-location-row{position:relative;min-height:62px!important;border-bottom:0!important;padding-left:13px!important}
+      .km-shell-location-row::after{content:"";position:absolute;left:52px;right:0;bottom:0;height:.5px;background:var(--line)}
+      .km-shell-location-node:last-child>.km-shell-location-row::after{display:none}
+      .km-shell-location-icon{border:0!important;border-radius:50%!important;background:color-mix(in srgb,var(--accent) 14%,transparent)!important;color:var(--accent)!important}
+      .km-shell-location-copy strong{font-size:15px!important;font-weight:620!important}.km-shell-location-copy small{font-size:11px!important}
+      .km-shell-location-buttons button{color:var(--accent)!important;font-size:17px!important}.km-shell-location-chevron{color:color-mix(in srgb,var(--muted) 62%,transparent)!important;font-size:21px!important}
+      .section-title h2{letter-spacing:-.02em}
+      button,.btn,[role="button"],summary{touch-action:manipulation}
       @media(prefers-color-scheme:light){.km-shell-drawer{background:rgba(255,255,255,.97);box-shadow:18px 0 52px rgba(30,45,65,.16)}.km-shell-settings-head{background:rgba(245,245,247,.93)}.km-shell-backdrop{background:rgba(0,0,0,.22)}.km-shell-settings{background:rgba(0,0,0,.22)}}
       @media(max-width:480px){.km-shell-drawer{width:min(86vw,330px)}.km-shell-settings-surface{height:96dvh;border-radius:21px 21px 0 0}.km-shell-settings-content{padding-left:12px;padding-right:12px}.km-shell-location-detail-grid{grid-template-columns:1fr}.km-shell-location-actions{grid-template-columns:1fr 1fr}}
       @media(prefers-reduced-motion:reduce){.km-shell-drawer,.km-shell-backdrop,.km-shell-settings,.km-shell-settings-surface{transition:none!important}.km-shell-settings-content>*,body.km-shell-page-forward .shell,body.km-shell-page-back .shell{animation:none!important}}
@@ -210,7 +265,7 @@
     drawer.className = 'km-shell-drawer';
     drawer.setAttribute('aria-label', 'Navigatie');
     drawer.innerHTML = `
-      <div class="km-shell-drawer-head"><strong>Registratie</strong><small>Ritten, tijd en plaatsen in één app</small></div>
+      <div class="km-shell-drawer-head"><strong>Log</strong><small>Ritten, tijd en locaties</small></div>
       <nav class="km-shell-nav">
         <button class="km-shell-nav-button" type="button" data-shell-section="rides"><span class="icon">↗</span><span>Ritten</span></button>
         <button class="km-shell-nav-button" type="button" data-shell-section="time"><span class="icon">◷</span><span>Tijd / taken</span></button>
@@ -738,6 +793,24 @@
           body.km-accordion-embedded-settings .settings-page{padding:0!important}
           body.km-accordion-embedded-settings .settings-accordion:first-of-type{border-top:0}
           body.km-accordion-embedded-settings .settings-accordion:last-child{border-bottom:0}
+          html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+          body{-webkit-tap-highlight-color:transparent}
+          .content{padding-top:4px!important}
+          .period-nav,.summary,.suggestion,.active-card{border-color:color-mix(in srgb,var(--line) 86%,transparent)!important;border-radius:16px!important}
+          .period-arrow{color:var(--accent)!important;background:color-mix(in srgb,var(--accent) 10%,var(--surface2))!important}
+          .period-tabs{border:0!important;border-radius:9px!important;background:color-mix(in srgb,var(--muted) 13%,transparent)!important}
+          .section>.list{border-color:color-mix(in srgb,var(--line) 86%,transparent)!important;border-radius:16px!important}
+          .activity-swipe-surface.entry{position:relative!important;padding:14px 12px!important;background:var(--surface)!important}
+          .activity-swipe-surface.entry::after{content:"";position:absolute;left:70px;right:0;bottom:0;height:.5px;background:var(--line);pointer-events:none}
+          .activity-entry-shell:last-child .activity-swipe-surface.entry::after{display:none}
+          .activity-swipe-edit{background:#0a84ff!important;color:#fff!important}
+          .activity-swipe-delete{background:#ff453a!important;color:#fff!important}
+          .section-title h2,.section-title h3{font-size:20px!important;letter-spacing:-.02em}
+          .btn:active,.period-arrow:active,.entry:active{opacity:.68}
+          .chev{color:color-mix(in srgb,var(--muted) 62%,transparent)!important;font-size:20px!important}
+          body.km-accordion-embedded-settings .settings-accordion{border-color:var(--line)}
+          body.km-accordion-embedded-settings .settings-accordion summary{min-height:54px;padding-left:0;padding-right:0}
+          body.km-accordion-embedded-settings .settings-accordion-body{padding-left:0;padding-right:0}
         `;
         doc.head.appendChild(style);
       }
