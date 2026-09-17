@@ -102,6 +102,8 @@
       body.km-shell-page-enter-forward .shell,body.km-shell-page-enter-forward .km-shell-menu-button{animation:kmPageEnterForward .28s cubic-bezier(.22,1,.36,1) both}
       body.km-shell-page-exit-back .shell,body.km-shell-page-exit-back .km-shell-menu-button{animation:kmPageExitBack .135s ease-in both}
       body.km-shell-page-enter-back .shell,body.km-shell-page-enter-back .km-shell-menu-button{animation:kmPageEnterBack .28s cubic-bezier(.22,1,.36,1) both}
+      body.km-shell-page-dragging .shell,body.km-shell-page-dragging .km-shell-menu-button{animation:none!important;transition:none!important;transform:translate3d(var(--km-shell-swipe-x,0px),0,0)!important;will-change:transform}
+      body.km-shell-page-settling .shell,body.km-shell-page-settling .km-shell-menu-button{animation:none!important;transition:transform var(--km-shell-swipe-duration,220ms) cubic-bezier(.22,1,.36,1)!important;transform:translate3d(var(--km-shell-swipe-x,0px),0,0)!important;will-change:transform}
       @media(max-width:480px){.km-shell-general-actions{grid-template-columns:1fr}}
       .shell>#timeAppFrame{position:relative;z-index:0}.km-shell-drawer-open .shell>#timeAppFrame{visibility:hidden!important;pointer-events:none!important}.editor-view>.km-shell-menu-button{display:none!important}
       .km-shell-locations{padding:2px 0 28px}.km-shell-locations-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:8px 1px 10px}.km-shell-locations-head h2{margin:2px 0 0;font-size:28px;letter-spacing:-.035em}.km-shell-location-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:5px 0 16px}.km-shell-location-actions button{min-height:44px}
@@ -1202,61 +1204,124 @@
     return Boolean(target?.closest?.('button,input,select,textarea,a,label,summary,[contenteditable="true"],.swipe-row,.trip-swipe-row,.entry'));
   }
 
+  function swipeTargetIndex(dx) {
+    const index = SWIPE_SECTIONS.indexOf(section);
+    const direction = dx < 0 ? 1 : -1;
+    const nextIndex = index + direction;
+    return { index, direction, nextIndex, valid: index >= 0 && nextIndex >= 0 && nextIndex < SWIPE_SECTIONS.length };
+  }
+
+  function applySwipeOffset(px, settling = false, duration = 220) {
+    const body = document.body;
+    body.style.setProperty('--km-shell-swipe-x', `${Math.round(px)}px`);
+    body.style.setProperty('--km-shell-swipe-duration', `${duration}ms`);
+    body.classList.toggle('km-shell-page-dragging', !settling);
+    body.classList.toggle('km-shell-page-settling', settling);
+  }
+
+  function clearSwipeOffset() {
+    const body = document.body;
+    body.classList.remove('km-shell-page-dragging', 'km-shell-page-settling');
+    body.style.removeProperty('--km-shell-swipe-x');
+    body.style.removeProperty('--km-shell-swipe-duration');
+  }
+
+  function cancelPageSwipe() {
+    if (!document.body.classList.contains('km-shell-page-dragging')) {
+      clearSwipeOffset();
+      return;
+    }
+    applySwipeOffset(0, true, 190);
+    setTimeout(clearSwipeOffset, 210);
+  }
+
   function pageSwipeStart(event) {
     if (event.touches?.length !== 1 || pageSwipeBlocked()) return;
     const touch = event.touches[0];
     const edge = touch.clientX <= 30 || touch.clientX >= window.innerWidth - 30;
     if (!edge && pageSwipeInteractive(event.target)) return;
-    pageSwipe = { x: touch.clientX, y: touch.clientY, dx: 0, dy: 0, horizontal: false };
+    const now = performance.now();
+    pageSwipe = {
+      x: touch.clientX,
+      y: touch.clientY,
+      dx: 0,
+      dy: 0,
+      horizontal: false,
+      lastX: touch.clientX,
+      lastAt: now,
+      velocityX: 0
+    };
   }
 
   function pageSwipeMove(event) {
     if (!pageSwipe || event.touches?.length !== 1) return;
     const touch = event.touches[0];
+    const now = performance.now();
+    const elapsed = Math.max(1, now - pageSwipe.lastAt);
+    const instantVelocity = (touch.clientX - pageSwipe.lastX) / elapsed;
+    pageSwipe.velocityX = pageSwipe.velocityX * .65 + instantVelocity * .35;
+    pageSwipe.lastX = touch.clientX;
+    pageSwipe.lastAt = now;
     pageSwipe.dx = touch.clientX - pageSwipe.x;
     pageSwipe.dy = touch.clientY - pageSwipe.y;
+
     if (!pageSwipe.horizontal) {
       if (Math.abs(pageSwipe.dy) > 12 && Math.abs(pageSwipe.dy) > Math.abs(pageSwipe.dx)) {
         pageSwipe = null;
         return;
       }
-      if (Math.abs(pageSwipe.dx) > 12 && Math.abs(pageSwipe.dx) > Math.abs(pageSwipe.dy) * 1.25) pageSwipe.horizontal = true;
+      if (Math.abs(pageSwipe.dx) > 8 && Math.abs(pageSwipe.dx) > Math.abs(pageSwipe.dy) * 1.2) {
+        pageSwipe.horizontal = true;
+      }
     }
-    if (pageSwipe?.horizontal && event.cancelable) event.preventDefault();
+
+    if (!pageSwipe?.horizontal) return;
+    const target = swipeTargetIndex(pageSwipe.dx);
+    const visibleDx = target.valid ? pageSwipe.dx : pageSwipe.dx * .18;
+    applySwipeOffset(visibleDx);
+    if (event.cancelable) event.preventDefault();
   }
 
   function pageSwipeEnd() {
     const gesture = pageSwipe;
     pageSwipe = null;
-    if (!gesture?.horizontal || Math.abs(gesture.dx) < 72 || Math.abs(gesture.dx) < Math.abs(gesture.dy) * 1.3) return;
-    navigateByPageSwipe(gesture.dx < 0 ? 1 : -1);
+    if (!gesture?.horizontal) {
+      clearSwipeOffset();
+      return;
+    }
+
+    const target = swipeTargetIndex(gesture.dx);
+    const distanceEnough = Math.abs(gesture.dx) >= Math.min(76, window.innerWidth * .18);
+    const flickEnough = Math.abs(gesture.velocityX) >= .42 && Math.abs(gesture.dx) >= 24;
+    const directionMatchesVelocity = Math.sign(gesture.velocityX || gesture.dx) === Math.sign(gesture.dx);
+    if (!target.valid || (!distanceEnough && !(flickEnough && directionMatchesVelocity))) {
+      cancelPageSwipe();
+      return;
+    }
+    completePageSwipe(target.direction, target.nextIndex, gesture.dx);
   }
 
-  function navigateByPageSwipe(direction) {
+  function completePageSwipe(direction, nextIndex, currentOffset = 0) {
     if (sectionTransitioning) return;
-    const index = SWIPE_SECTIONS.indexOf(section);
-    const nextIndex = index + direction;
-    if (index < 0 || nextIndex < 0 || nextIndex >= SWIPE_SECTIONS.length) return;
     sectionTransitioning = true;
-    const exitClass = direction > 0 ? 'km-shell-page-exit-forward' : 'km-shell-page-exit-back';
-    const enterClass = direction > 0 ? 'km-shell-page-enter-forward' : 'km-shell-page-enter-back';
-    document.body.classList.remove(
-      'km-shell-page-exit-forward',
-      'km-shell-page-exit-back',
-      'km-shell-page-enter-forward',
-      'km-shell-page-enter-back'
-    );
-    document.body.classList.add(exitClass);
+    const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    const exitOffset = direction > 0 ? -width : width;
+    const remaining = Math.max(0, width - Math.abs(currentOffset));
+    const exitDuration = Math.max(110, Math.min(190, remaining * .24));
+    applySwipeOffset(exitOffset, true, exitDuration);
+
     setTimeout(() => {
-      document.body.classList.remove(exitClass);
       selectSection(SWIPE_SECTIONS[nextIndex]);
+      document.body.classList.remove('km-shell-page-settling');
+      document.body.classList.add('km-shell-page-dragging');
+      document.body.style.setProperty('--km-shell-swipe-x', `${direction > 0 ? width : -width}px`);
       void document.body.offsetWidth;
-      document.body.classList.add(enterClass);
+      applySwipeOffset(0, true, 270);
       setTimeout(() => {
-        document.body.classList.remove(enterClass);
+        clearSwipeOffset();
         sectionTransitioning = false;
-      }, 280);
-    }, 135);
+      }, 290);
+    }, exitDuration + 20);
   }
 
   function bindSwipeDocument(doc) {
@@ -1265,7 +1330,10 @@
     doc.addEventListener('touchstart', pageSwipeStart, { passive: true });
     doc.addEventListener('touchmove', pageSwipeMove, { passive: false });
     doc.addEventListener('touchend', pageSwipeEnd, { passive: true });
-    doc.addEventListener('touchcancel', () => { pageSwipe = null; }, { passive: true });
+    doc.addEventListener('touchcancel', () => {
+      pageSwipe = null;
+      cancelPageSwipe();
+    }, { passive: true });
   }
 
   function bindTimeFrameSwipe() {
