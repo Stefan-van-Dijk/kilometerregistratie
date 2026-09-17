@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const BUILD = '0.31.6';
+  const BUILD = '0.31.7';
   const DATA_KEY = 'kmreg-v4-data';
   const MODE_KEY = 'kmreg-active-app-v1';
   const SECTION_KEY = 'kmreg-shell-section-v1';
@@ -70,7 +70,7 @@
     style.textContent = `
       .km-shell-top{display:grid!important;grid-template-columns:42px minmax(0,1fr) 42px;align-items:center!important;gap:8px;padding:12px 0 14px!important}
       .km-shell-menu-button,.km-shell-top-spacer{width:40px;height:40px}
-      .km-shell-menu-button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:12px;background:transparent;color:var(--text);font-size:24px;line-height:1;cursor:pointer}
+      .km-shell-menu-button{position:fixed;z-index:92;top:calc(env(safe-area-inset-top) + 10px);left:max(12px,calc((100vw - 760px)/2 + 12px));display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:12px;background:transparent;color:var(--text);font-size:24px;line-height:1;cursor:pointer;touch-action:manipulation}
       .km-shell-menu-button:active{background:var(--card2)}
       .km-shell-top-copy{text-align:center;overflow:hidden}.km-shell-top-copy .eyebrow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.km-shell-title{margin-top:3px;font-size:20px;font-weight:850;letter-spacing:-.025em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.km-shell-meta{margin-top:3px;color:var(--muted);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       .km-shell-legacy{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important}
@@ -84,6 +84,7 @@
       .km-shell-settings{position:fixed;z-index:120;inset:0;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.38);opacity:0;pointer-events:none;transition:opacity .22s ease}.km-shell-settings.open{opacity:1;pointer-events:auto}
       .km-shell-settings-surface{width:100%;height:min(94dvh,900px);display:flex;flex-direction:column;border-radius:24px 24px 0 0;border:1px solid var(--line);border-bottom:0;background:var(--bg);box-shadow:0 -18px 52px rgba(0,0,0,.34);transform:translateY(102%);transition:transform .28s cubic-bezier(.2,.8,.2,1);overflow:hidden}.km-shell-settings.open .km-shell-settings-surface{transform:translateY(0)}
       .km-shell-settings-head{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:8px;flex:0 0 auto;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line);background:rgba(13,17,23,.92);-webkit-backdrop-filter:blur(22px) saturate(165%);backdrop-filter:blur(22px) saturate(165%)}.km-shell-settings-title{text-align:center;font-size:16px;font-weight:850}.km-shell-settings-close{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:0;border-radius:50%;background:var(--card2);color:var(--text);font-size:25px;cursor:pointer}.km-shell-settings-content{flex:1;min-height:0;overflow:auto;padding:8px 16px calc(24px + env(safe-area-inset-bottom))}.km-shell-settings-content>#app{display:block!important;max-width:760px;margin:0 auto}.km-shell-settings-content .time-app-frame{display:block!important;width:100%;height:100%!important;min-height:0!important;opacity:1!important}
+      .shell>#timeAppFrame{position:relative;z-index:0}.km-shell-drawer-open .shell>#timeAppFrame{visibility:hidden!important;pointer-events:none!important}.editor-view>.km-shell-menu-button{display:none!important}
       .km-shell-locations{padding:2px 0 28px}.km-shell-locations-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:8px 1px 10px}.km-shell-locations-head h2{margin:2px 0 0;font-size:28px;letter-spacing:-.035em}.km-shell-location-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:5px 0 16px}.km-shell-location-actions button{min-height:44px}
       .km-shell-location-sort{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px;margin-bottom:8px;border:1px solid var(--line);border-radius:12px;background:var(--card)}.km-shell-location-sort button{min-height:34px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-size:11px;font-weight:800}.km-shell-location-sort button.active{background:var(--card2);color:var(--text)}
       .km-shell-location-tree{border-top:1px solid var(--line)}.km-shell-location-node{--depth:0;margin-left:calc(var(--depth) * 20px)}.km-shell-location-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:9px;min-height:58px;padding:10px 2px;border-bottom:1px solid var(--line)}.km-shell-location-node[data-depth="1"] .km-shell-location-row{position:relative}.km-shell-location-node[data-depth="1"] .km-shell-location-row::before{content:"";position:absolute;left:-12px;top:0;bottom:50%;width:9px;border-left:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0 0 0 6px}.km-shell-location-icon{display:flex;align-items:center;justify-content:center;width:27px;height:27px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:15px}.km-shell-location-copy{min-width:0}.km-shell-location-copy strong,.km-shell-location-copy small{display:block}.km-shell-location-copy strong{font-size:14px}.km-shell-location-copy small{margin-top:3px;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.km-shell-location-buttons{display:flex;align-items:center;gap:3px}.km-shell-location-buttons button{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border:0;border-radius:9px;background:transparent;color:var(--muted);font-size:19px}.km-shell-location-buttons button:active{background:var(--card2);color:var(--text)}.km-shell-location-chevron{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;color:var(--muted);font-size:19px}.km-shell-location-details{padding:10px 2px 12px 37px;border-bottom:1px solid var(--line);color:var(--muted);font-size:11px;line-height:1.5}.km-shell-location-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.km-shell-location-detail{padding:8px 0}.km-shell-location-detail span,.km-shell-location-detail strong{display:block}.km-shell-location-detail span{font-size:9px;text-transform:uppercase;letter-spacing:.06em}.km-shell-location-detail strong{margin-top:2px;color:var(--text);font-size:11px}.km-shell-child-add{margin-top:7px;padding:4px 0;border:0;background:transparent;color:var(--accent);font-size:11px;font-weight:800}.km-shell-empty{padding:24px 2px;color:var(--muted);font-size:13px}
@@ -111,6 +112,8 @@
     menu.className = 'km-shell-menu-button';
     menu.type = 'button';
     menu.setAttribute('aria-label', 'Menu openen');
+    menu.setAttribute('aria-controls', 'kmShellDrawer');
+    menu.setAttribute('aria-expanded', 'false');
     menu.textContent = '☰';
 
     const copy = document.createElement('div');
@@ -133,9 +136,13 @@
     if (legacyAction) legacy.appendChild(legacyAction);
     if (legacyMeta) legacy.appendChild(legacyMeta);
 
+    const menuSlot = document.createElement('span');
+    menuSlot.className = 'km-shell-top-spacer';
+    menuSlot.setAttribute('aria-hidden', 'true');
     top.innerHTML = '';
     top.classList.add('km-shell-top');
-    top.append(menu, copy, spacer, legacy);
+    top.append(menuSlot, copy, spacer, legacy);
+    document.body.appendChild(menu);
     menu.addEventListener('click', openDrawer);
 
     if (today) {
@@ -195,6 +202,8 @@
     if ($('#kmShellSettings')?.classList.contains('open')) return;
     drawerOpen = true;
     localStorage.setItem(DRAWER_KEY, '1');
+    document.body.classList.add('km-shell-drawer-open');
+    $('#kmShellMenuButton')?.setAttribute('aria-expanded', 'true');
     $('#kmShellDrawer')?.classList.add('open');
     $('#kmShellBackdrop')?.classList.add('open');
     syncDrawerSelection();
@@ -203,6 +212,8 @@
   function closeDrawer() {
     drawerOpen = false;
     localStorage.removeItem(DRAWER_KEY);
+    document.body.classList.remove('km-shell-drawer-open');
+    $('#kmShellMenuButton')?.setAttribute('aria-expanded', 'false');
     $('#kmShellDrawer')?.classList.remove('open');
     $('#kmShellBackdrop')?.classList.remove('open');
   }
@@ -624,6 +635,8 @@
     document.body.style.overflow = '';
     // Het zijpaneel blijft bewust open staan achter de sheet.
     drawerOpen = true;
+    document.body.classList.add('km-shell-drawer-open');
+    $('#kmShellMenuButton')?.setAttribute('aria-expanded', 'true');
     $('#kmShellDrawer')?.classList.add('open');
     $('#kmShellBackdrop')?.classList.add('open');
     localStorage.setItem(DRAWER_KEY, '1');
