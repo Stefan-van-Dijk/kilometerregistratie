@@ -83,11 +83,14 @@
       .km-shell-nav{display:grid;gap:4px}.km-shell-nav-button{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:9px 11px;border:0;border-radius:12px;background:transparent;color:var(--text);font-weight:760;text-align:left;cursor:pointer}.km-shell-nav-button .icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:15px}.km-shell-nav-button.active{background:var(--card2)}.km-shell-nav-button.active .icon{border-color:rgba(77,163,255,.45);color:var(--accent);background:rgba(77,163,255,.09)}
       .km-shell-drawer-spacer{flex:1}.km-shell-drawer-footer{display:flex;justify-content:flex-end;padding:10px 4px 2px;border-top:1px solid var(--line)}.km-shell-settings-button{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border:0;border-radius:14px;background:transparent;color:var(--text);font-size:23px;cursor:pointer}.km-shell-settings-button:active{background:var(--card2)}
       .km-shell-settings{position:fixed;z-index:120;inset:0;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.38);opacity:0;pointer-events:none;transition:opacity .22s ease}.km-shell-settings.open{opacity:1;pointer-events:auto}
-      .km-shell-settings-surface{width:100%;height:min(94dvh,900px);display:flex;flex-direction:column;border-radius:24px 24px 0 0;border:1px solid var(--line);border-bottom:0;background:var(--bg);box-shadow:0 -18px 52px rgba(0,0,0,.34);transform:translateY(102%);transition:transform .28s cubic-bezier(.2,.8,.2,1);overflow:hidden}.km-shell-settings.open .km-shell-settings-surface{transform:translateY(0)}
-      .km-shell-settings-head{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:8px;flex:0 0 auto;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line);background:rgba(13,17,23,.92);-webkit-backdrop-filter:blur(22px) saturate(165%);backdrop-filter:blur(22px) saturate(165%)}.km-shell-settings-title{text-align:center;font-size:16px;font-weight:850}.km-shell-settings-close{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:0;border-radius:50%;background:var(--card2);color:var(--text);font-size:25px;cursor:pointer}.km-shell-settings-content{flex:1;min-height:0;overflow:auto;padding:8px 16px calc(24px + env(safe-area-inset-bottom))}.km-shell-settings-content>#app{display:block!important;max-width:760px;margin:0 auto}.km-shell-settings-content .time-app-frame{display:block!important;width:100%;height:100%!important;min-height:0!important;opacity:1!important}
-      .km-shell-settings-back{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:0;border-radius:50%;background:transparent;color:var(--accent);font-size:27px;cursor:pointer}.km-shell-settings-back[hidden]{display:none!important}.km-shell-settings-back:active{background:var(--card2)}
+      .km-shell-settings-surface{width:100%;height:min(94dvh,900px);display:flex;flex-direction:column;border-radius:24px 24px 0 0;border:1px solid var(--line);border-bottom:0;background:var(--bg);box-shadow:0 -18px 52px rgba(0,0,0,.34);transform:translateY(104%);transition:transform .46s cubic-bezier(.22,1,.36,1);overflow:hidden;will-change:transform}.km-shell-settings.open .km-shell-settings-surface{transform:translateY(0)}
+      .km-shell-settings-head{position:relative;display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:8px;flex:0 0 auto;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line);background:rgba(13,17,23,.92);-webkit-backdrop-filter:blur(22px) saturate(165%);backdrop-filter:blur(22px) saturate(165%)}.km-shell-settings-title{text-align:center;font-size:16px;font-weight:850}.km-shell-settings-close{position:absolute;right:14px;top:calc(10px + env(safe-area-inset-top));display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:0;border-radius:50%;background:var(--card2);color:var(--text);font-size:25px;cursor:pointer}.km-shell-settings-content{position:relative;flex:1;min-height:0;overflow:auto;padding:8px 16px calc(24px + env(safe-area-inset-bottom))}.km-shell-settings-content>#app{display:block!important;max-width:760px;margin:0 auto}.km-shell-settings-content .time-app-frame{display:block!important;width:100%;height:100%!important;min-height:0!important;opacity:1!important}
+      .km-shell-settings-back{position:absolute;left:14px;top:calc(10px + env(safe-area-inset-top));display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:0;border-radius:50%;background:transparent;color:var(--accent);font-size:22px;font-weight:800;cursor:pointer}.km-shell-settings-back[hidden]{display:none!important}.km-shell-settings-back:active{background:var(--card2)}
       .km-shell-general-settings{max-width:760px;margin:0 auto;padding:8px 0 24px}.km-shell-general-intro{padding:8px 1px 16px;border-bottom:1px solid var(--line)}.km-shell-general-intro h2{margin:3px 0 5px;font-size:28px;letter-spacing:-.035em}.km-shell-general-intro p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
       .km-shell-general-card{padding:17px 1px;border-bottom:1px solid var(--line)}.km-shell-general-card>strong,.km-shell-general-card>small{display:block}.km-shell-general-card>strong{font-size:17px}.km-shell-general-card>small{margin-top:4px;color:var(--muted);font-size:11px;line-height:1.4}.km-shell-general-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:13px}.km-shell-general-actions .btn{width:100%;margin:0;text-align:center}.km-shell-general-nav{display:grid;gap:2px;margin-top:10px}.km-shell-general-nav button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px;padding:10px 1px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font-weight:760;text-align:left}.km-shell-general-nav button span:last-child{color:var(--muted);font-size:21px}.km-shell-general-advanced{margin-top:12px}.km-shell-general-advanced summary{color:var(--muted);font-size:12px;font-weight:750;cursor:pointer}.km-shell-general-status{margin-top:8px;color:var(--muted);font-size:11px;line-height:1.4}
+      @keyframes kmSettingsForwardIn{from{opacity:.35;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}@keyframes kmSettingsBackIn{from{opacity:.35;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}@keyframes kmPageForwardIn{from{opacity:.72;transform:translateX(22px)}to{opacity:1;transform:translateX(0)}}@keyframes kmPageBackIn{from{opacity:.72;transform:translateX(-22px)}to{opacity:1;transform:translateX(0)}}
+      .km-shell-settings-content.km-settings-forward-in>*{animation:kmSettingsForwardIn .24s cubic-bezier(.22,1,.36,1) both}.km-shell-settings-content.km-settings-back-in>*{animation:kmSettingsBackIn .24s cubic-bezier(.22,1,.36,1) both}
+      body.km-shell-page-forward .shell{animation:kmPageForwardIn .24s cubic-bezier(.22,1,.36,1) both}body.km-shell-page-back .shell{animation:kmPageBackIn .24s cubic-bezier(.22,1,.36,1) both}
       @media(max-width:480px){.km-shell-general-actions{grid-template-columns:1fr}}
       .shell>#timeAppFrame{position:relative;z-index:0}.km-shell-drawer-open .shell>#timeAppFrame{visibility:hidden!important;pointer-events:none!important}.editor-view>.km-shell-menu-button{display:none!important}
       .km-shell-locations{padding:2px 0 28px}.km-shell-locations-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:8px 1px 10px}.km-shell-locations-head h2{margin:2px 0 0;font-size:28px;letter-spacing:-.035em}.km-shell-location-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:5px 0 16px}.km-shell-location-actions button{min-height:44px}
@@ -98,7 +101,7 @@
       body.editor-view #kmShellLocationsView{display:none!important}
       @media(prefers-color-scheme:light){.km-shell-drawer{background:rgba(255,255,255,.97);box-shadow:18px 0 52px rgba(30,45,65,.16)}.km-shell-settings-head{background:rgba(245,245,247,.93)}.km-shell-backdrop{background:rgba(0,0,0,.22)}.km-shell-settings{background:rgba(0,0,0,.22)}}
       @media(max-width:480px){.km-shell-drawer{width:min(86vw,330px)}.km-shell-settings-surface{height:96dvh;border-radius:21px 21px 0 0}.km-shell-settings-content{padding-left:12px;padding-right:12px}.km-shell-location-detail-grid{grid-template-columns:1fr}.km-shell-location-actions{grid-template-columns:1fr 1fr}}
-      @media(prefers-reduced-motion:reduce){.km-shell-drawer,.km-shell-backdrop,.km-shell-settings,.km-shell-settings-surface{transition:none!important}}
+      @media(prefers-reduced-motion:reduce){.km-shell-drawer,.km-shell-backdrop,.km-shell-settings,.km-shell-settings-surface{transition:none!important}.km-shell-settings-content>*,body.km-shell-page-forward .shell,body.km-shell-page-back .shell{animation:none!important}}
     `;
     document.head.appendChild(style);
   }
@@ -191,7 +194,7 @@
     settings.className = 'km-shell-settings';
     settings.innerHTML = `
       <section class="km-shell-settings-surface" role="dialog" aria-modal="true" aria-labelledby="kmShellSettingsTitle">
-        <header class="km-shell-settings-head"><button id="kmShellSettingsBack" class="km-shell-settings-back" type="button" aria-label="Terug naar algemene instellingen" hidden>‹</button><div id="kmShellSettingsTitle" class="km-shell-settings-title">Algemene instellingen</div><button id="kmShellSettingsClose" class="km-shell-settings-close" type="button" aria-label="Instellingen sluiten">×</button></header>
+        <header class="km-shell-settings-head"><button id="kmShellSettingsBack" class="km-shell-settings-back" type="button" aria-label="Terug naar algemene instellingen" hidden>←</button><div id="kmShellSettingsTitle" class="km-shell-settings-title">Algemene instellingen</div><button id="kmShellSettingsClose" class="km-shell-settings-close" type="button" aria-label="Instellingen sluiten">×</button></header>
         <div id="kmShellSettingsContent" class="km-shell-settings-content"></div>
       </section>`;
     $('#kmShellSettingsClose', settings).addEventListener('click', closeSettingsSheet);
@@ -199,6 +202,7 @@
       if ($('#kmShellSettingsContent > #timeAppFrame')) restoreTimeFrame();
       if (kmSettingsMounted) restoreKmApp();
       renderGeneralSettings();
+      animateSettingsContent('back');
     });
 
     const locationsView = document.createElement('main');
@@ -559,6 +563,15 @@
     if (back) back.hidden = !visible;
   }
 
+  function animateSettingsContent(direction) {
+    const content = $('#kmShellSettingsContent');
+    if (!content) return;
+    content.classList.remove('km-settings-forward-in', 'km-settings-back-in');
+    void content.offsetWidth;
+    content.classList.add(direction === 'back' ? 'km-settings-back-in' : 'km-settings-forward-in');
+    setTimeout(() => content.classList.remove('km-settings-forward-in', 'km-settings-back-in'), 280);
+  }
+
   function renderGeneralSettings() {
     const content = $('#kmShellSettingsContent');
     if (!content) return false;
@@ -631,6 +644,7 @@
       return;
     }
     setSettingsBackVisible(true);
+    animateSettingsContent('forward');
   }
 
   function mountKmSettings() {
@@ -685,14 +699,23 @@
     if (title) title.textContent = 'Instellingen tijd / taken';
     const open = () => {
       try {
-        const button = frame.contentDocument?.getElementById('openSettings');
-        if (button) button.click();
+        if (timeFrameView() !== 'settings') {
+          const direct = frame.contentWindow?.openSettings;
+          if (typeof direct === 'function') direct.call(frame.contentWindow);
+          else frame.contentDocument?.getElementById('openSettings')?.click();
+        }
+        setTimeSettingsOpen(timeFrameView() === 'settings');
       } catch (error) {
         console.warn('Tijdinstellingen konden niet worden geopend.', error);
       }
     };
-    if (frame.contentDocument?.readyState === 'complete') requestAnimationFrame(open);
-    else frame.addEventListener('load', () => requestAnimationFrame(open), { once: true });
+    const openRepeatedly = () => {
+      open();
+      setTimeout(open, 80);
+      setTimeout(open, 220);
+    };
+    if (frame.contentDocument?.readyState === 'complete') requestAnimationFrame(openRepeatedly);
+    else frame.addEventListener('load', () => requestAnimationFrame(openRepeatedly), { once: true });
     return true;
   }
 
@@ -799,6 +822,81 @@
     showSection();
   }
 
+  const SWIPE_SECTIONS = ['rides', 'time', 'locations'];
+  const swipeDocuments = new WeakSet();
+  let pageSwipe = null;
+
+  function pageSwipeBlocked() {
+    return drawerOpen || $('#kmShellSettings')?.classList.contains('open') || !$('#modal')?.hidden || document.body.classList.contains('editor-view');
+  }
+
+  function pageSwipeInteractive(target) {
+    return Boolean(target?.closest?.('button,input,select,textarea,a,label,summary,[contenteditable="true"],.swipe-row,.trip-swipe-row,.entry'));
+  }
+
+  function pageSwipeStart(event) {
+    if (event.touches?.length !== 1 || pageSwipeBlocked()) return;
+    const touch = event.touches[0];
+    const edge = touch.clientX <= 30 || touch.clientX >= window.innerWidth - 30;
+    if (!edge && pageSwipeInteractive(event.target)) return;
+    pageSwipe = { x: touch.clientX, y: touch.clientY, dx: 0, dy: 0, horizontal: false };
+  }
+
+  function pageSwipeMove(event) {
+    if (!pageSwipe || event.touches?.length !== 1) return;
+    const touch = event.touches[0];
+    pageSwipe.dx = touch.clientX - pageSwipe.x;
+    pageSwipe.dy = touch.clientY - pageSwipe.y;
+    if (!pageSwipe.horizontal) {
+      if (Math.abs(pageSwipe.dy) > 12 && Math.abs(pageSwipe.dy) > Math.abs(pageSwipe.dx)) {
+        pageSwipe = null;
+        return;
+      }
+      if (Math.abs(pageSwipe.dx) > 12 && Math.abs(pageSwipe.dx) > Math.abs(pageSwipe.dy) * 1.25) pageSwipe.horizontal = true;
+    }
+    if (pageSwipe?.horizontal && event.cancelable) event.preventDefault();
+  }
+
+  function pageSwipeEnd() {
+    const gesture = pageSwipe;
+    pageSwipe = null;
+    if (!gesture?.horizontal || Math.abs(gesture.dx) < 72 || Math.abs(gesture.dx) < Math.abs(gesture.dy) * 1.3) return;
+    navigateByPageSwipe(gesture.dx < 0 ? 1 : -1);
+  }
+
+  function navigateByPageSwipe(direction) {
+    const index = SWIPE_SECTIONS.indexOf(section);
+    const nextIndex = index + direction;
+    if (index < 0 || nextIndex < 0 || nextIndex >= SWIPE_SECTIONS.length) return;
+    const animationClass = direction > 0 ? 'km-shell-page-forward' : 'km-shell-page-back';
+    document.body.classList.remove('km-shell-page-forward', 'km-shell-page-back');
+    void document.body.offsetWidth;
+    document.body.classList.add(animationClass);
+    selectSection(SWIPE_SECTIONS[nextIndex]);
+    setTimeout(() => document.body.classList.remove(animationClass), 280);
+  }
+
+  function bindSwipeDocument(doc) {
+    if (!doc || swipeDocuments.has(doc)) return;
+    swipeDocuments.add(doc);
+    doc.addEventListener('touchstart', pageSwipeStart, { passive: true });
+    doc.addEventListener('touchmove', pageSwipeMove, { passive: false });
+    doc.addEventListener('touchend', pageSwipeEnd, { passive: true });
+    doc.addEventListener('touchcancel', () => { pageSwipe = null; }, { passive: true });
+  }
+
+  function bindTimeFrameSwipe() {
+    const frame = $('#timeAppFrame');
+    try { bindSwipeDocument(frame?.contentDocument); } catch (_) {}
+  }
+
+  function bindPageSwipes() {
+    bindSwipeDocument(document);
+    const frame = $('#timeAppFrame');
+    frame?.addEventListener('load', () => requestAnimationFrame(bindTimeFrameSwipe), { passive: true });
+    bindTimeFrameSwipe();
+  }
+
   function bindGlobalEvents() {
     window.addEventListener('kmreg-test-shell-select-section', event => selectSection(event.detail?.section));
     window.addEventListener('kmreg-test-shell-open-settings', () => openSettingsSheet());
@@ -882,6 +980,7 @@
     installChrome();
     installShellElements();
     bindGlobalEvents();
+    bindPageSwipes();
     showSection();
     filterTripLocationSelects();
     // Na sluiten van Instellingen moet het paneel zichtbaar blijven; normale herlaad start rustig gesloten.
