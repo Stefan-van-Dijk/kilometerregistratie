@@ -117,6 +117,7 @@
       body.km-shell-page-settling .shell:not(.km-shell-swipe-preview){animation:none!important;transition:transform var(--km-shell-swipe-duration,220ms) cubic-bezier(.22,1,.36,1)!important;transform:translate3d(var(--km-shell-swipe-x,0px),0,0)!important;will-change:transform;backface-visibility:hidden}
       .km-shell-swipe-preview{position:fixed!important;inset:0!important;z-index:30!important;width:100vw!important;max-width:none!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;overflow:hidden!important;pointer-events:none!important;background:var(--bg)!important;transform:translate3d(var(--km-shell-preview-x,100vw),0,0);will-change:transform;backface-visibility:hidden;contain:paint}
       .km-shell-swipe-preview.km-shell-preview-settling{transition:transform var(--km-shell-swipe-duration,220ms) cubic-bezier(.22,1,.36,1)!important}
+      .km-shell-swipe-preview.km-shell-carousel-idle{visibility:hidden!important;transition:none!important}
       @media(max-width:480px){.km-shell-general-actions{grid-template-columns:1fr}}
       .shell>#timeAppFrame{position:relative;z-index:0}.km-shell-drawer-open .shell>#timeAppFrame{visibility:hidden!important;pointer-events:none!important}.editor-view>.km-shell-menu-button{display:none!important}
       .km-shell-locations{padding:2px 0 28px}.km-shell-locations-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:8px 1px 10px}.km-shell-locations-head h2{margin:2px 0 0;font-size:28px;letter-spacing:-.035em}.km-shell-location-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:5px 0 16px}.km-shell-location-actions button{min-height:44px}
@@ -602,6 +603,7 @@
     }
     closeDrawer();
     showSection();
+    scheduleCarouselPanelRefresh(90);
   }
 
   function showSection() {
@@ -1236,59 +1238,97 @@
   let pageSwipe = null;
   let swipePaintFrame = 0;
   let swipePaintDx = 0;
+  let carouselPanels = [];
+  let carouselRefreshTimer = null;
+  let carouselPreparing = false;
 
   function pageSwipeBlocked() {
-    return sectionTransitioning || drawerOpen || $('#kmShellSettings')?.classList.contains('open') || !$('#modal')?.hidden || document.body.classList.contains('editor-view');
+    return sectionTransitioning || carouselPreparing || drawerOpen || $('#kmShellSettings')?.classList.contains('open') || !$('#modal')?.hidden || document.body.classList.contains('editor-view');
   }
 
   function pageSwipeInteractive(target) {
     return Boolean(target?.closest?.('button,input,select,textarea,a,label,summary,[contenteditable="true"]'));
   }
 
-  function carouselIndex(offset) {
-    const current = SWIPE_SECTIONS.indexOf(section);
+  function carouselIndex(offset, baseSection = section) {
+    const current = SWIPE_SECTIONS.indexOf(baseSection);
     return (current + offset + SWIPE_SECTIONS.length) % SWIPE_SECTIONS.length;
   }
 
-  function carouselTarget(dx) {
+  function carouselTarget(dx, baseSection = section) {
     const direction = dx < 0 ? 1 : -1;
-    const nextIndex = carouselIndex(direction);
+    const nextIndex = carouselIndex(direction, baseSection);
     return { direction, nextIndex, section: SWIPE_SECTIONS[nextIndex] };
   }
 
-  function removeSwipePreviews() {
+  function removeCarouselPanels() {
+    carouselPanels.forEach(item => item.element.remove());
     document.querySelectorAll('.km-shell-swipe-preview').forEach(preview => preview.remove());
+    carouselPanels = [];
   }
 
-  function createCarouselPreview(targetSection, direction) {
+  function createCarouselPanel(targetSection, direction) {
     const shell = $('.shell:not(.km-shell-swipe-preview)');
     if (!shell) return null;
     section = targetSection;
     showSection();
-    const preview = shell.cloneNode(true);
-    preview.classList.add('km-shell-swipe-preview');
-    preview.dataset.carouselDirection = String(direction);
-    preview.setAttribute('aria-hidden', 'true');
-    preview.setAttribute('inert', '');
-    preview.style.setProperty('--km-shell-preview-x', `${direction * window.innerWidth}px`);
-    return { element: preview, direction, section: targetSection };
+    const panel = shell.cloneNode(true);
+    panel.classList.add('km-shell-swipe-preview', 'km-shell-carousel-idle');
+    panel.dataset.carouselDirection = String(direction);
+    panel.dataset.carouselSection = targetSection;
+    panel.setAttribute('aria-hidden', 'true');
+    panel.setAttribute('inert', '');
+    panel.style.setProperty('--km-shell-preview-x', `${direction * window.innerWidth}px`);
+    return { element: panel, direction, section: targetSection };
   }
 
-  function prepareCarouselPreviews(gesture) {
-    if (!gesture || gesture.prepared) return;
-    const currentSection = section;
-    const previousSection = SWIPE_SECTIONS[carouselIndex(-1)];
-    const nextSection = SWIPE_SECTIONS[carouselIndex(1)];
-    const previous = createCarouselPreview(previousSection, -1);
-    const next = createCarouselPreview(nextSection, 1);
-    section = currentSection;
-    showSection();
+  function rebuildCarouselPanels() {
+    if (pageSwipe || sectionTransitioning || carouselPreparing || drawerOpen || $('#kmShellSettings')?.classList.contains('open') || document.body.classList.contains('editor-view')) {
+      scheduleCarouselPanelRefresh(240);
+      return;
+    }
 
-    gesture.previews = [previous, next].filter(Boolean);
-    const fragment = document.createDocumentFragment();
-    gesture.previews.forEach(item => fragment.appendChild(item.element));
-    document.body.appendChild(fragment);
-    gesture.prepared = true;
+    carouselPreparing = true;
+    const currentSection = section;
+    try {
+      removeCarouselPanels();
+      const previousSection = SWIPE_SECTIONS[carouselIndex(-1, currentSection)];
+      const nextSection = SWIPE_SECTIONS[carouselIndex(1, currentSection)];
+      const previous = createCarouselPanel(previousSection, -1);
+      const next = createCarouselPanel(nextSection, 1);
+      section = currentSection;
+      showSection();
+
+      carouselPanels = [previous, next].filter(Boolean);
+      const fragment = document.createDocumentFragment();
+      carouselPanels.forEach(item => fragment.appendChild(item.element));
+      document.body.appendChild(fragment);
+    } finally {
+      section = currentSection;
+      showSection();
+      carouselPreparing = false;
+    }
+  }
+
+  function scheduleCarouselPanelRefresh(delay = 90) {
+    clearTimeout(carouselRefreshTimer);
+    carouselRefreshTimer = setTimeout(rebuildCarouselPanels, delay);
+  }
+
+  function showCarouselPanels() {
+    carouselPanels.forEach(item => {
+      item.element.classList.remove('km-shell-carousel-idle', 'km-shell-preview-settling');
+      item.element.style.setProperty('--km-shell-preview-x', `${item.direction * window.innerWidth}px`);
+    });
+  }
+
+  function hideCarouselPanels() {
+    carouselPanels.forEach(item => {
+      item.element.classList.remove('km-shell-preview-settling');
+      item.element.classList.add('km-shell-carousel-idle');
+      item.element.style.removeProperty('--km-shell-swipe-duration');
+      item.element.style.setProperty('--km-shell-preview-x', `${item.direction * window.innerWidth}px`);
+    });
   }
 
   function paintPageSwipe(dx) {
@@ -1299,24 +1339,25 @@
       const gesture = pageSwipe;
       if (!gesture?.horizontal) return;
       document.body.style.setProperty('--km-shell-swipe-x', `${Math.round(swipePaintDx)}px`);
-      gesture.previews.forEach(item => {
+      gesture.panels.forEach(item => {
         item.element.style.setProperty('--km-shell-preview-x', `${Math.round(item.direction * window.innerWidth + swipePaintDx)}px`);
       });
     });
   }
 
-  function clearSwipeState() {
+  function clearSwipeState({ keepPanels = true } = {}) {
     if (swipePaintFrame) cancelAnimationFrame(swipePaintFrame);
     swipePaintFrame = 0;
-    removeSwipePreviews();
     const body = document.body;
     body.classList.remove('km-shell-page-dragging', 'km-shell-page-settling');
     body.style.removeProperty('--km-shell-swipe-x');
     body.style.removeProperty('--km-shell-swipe-duration');
+    if (keepPanels) hideCarouselPanels();
+    else removeCarouselPanels();
   }
 
   function settleSwipeBack(gesture) {
-    if (!gesture?.prepared) {
+    if (!gesture?.panels?.length) {
       clearSwipeState();
       return;
     }
@@ -1325,28 +1366,32 @@
     body.classList.add('km-shell-page-settling');
     body.style.setProperty('--km-shell-swipe-duration', '210ms');
     body.style.setProperty('--km-shell-swipe-x', '0px');
-    gesture.previews.forEach(item => {
+    gesture.panels.forEach(item => {
       item.element.classList.add('km-shell-preview-settling');
       item.element.style.setProperty('--km-shell-swipe-duration', '210ms');
       item.element.style.setProperty('--km-shell-preview-x', `${item.direction * window.innerWidth}px`);
     });
-    setTimeout(clearSwipeState, 240);
+    setTimeout(() => clearSwipeState(), 235);
   }
 
   function pageSwipeStart(event) {
     if (event.touches?.length !== 1 || pageSwipeBlocked()) return;
+    if (carouselPanels.length !== 2) {
+      scheduleCarouselPanelRefresh(0);
+      return;
+    }
     const touch = event.touches[0];
     const edge = touch.clientX <= 30 || touch.clientX >= window.innerWidth - 30;
     if (!edge && pageSwipeInteractive(event.target)) return;
     const now = performance.now();
     pageSwipe = {
+      section,
       x: touch.clientX,
       y: touch.clientY,
       dx: 0,
       dy: 0,
       horizontal: false,
-      prepared: false,
-      previews: [],
+      panels: carouselPanels,
       lastX: touch.clientX,
       lastAt: now,
       velocityX: 0
@@ -1365,18 +1410,14 @@
     pageSwipe.dx = touch.clientX - pageSwipe.x;
     pageSwipe.dy = touch.clientY - pageSwipe.y;
 
-    if (!pageSwipe.prepared && Math.abs(pageSwipe.dx) > 3 && Math.abs(pageSwipe.dx) > Math.abs(pageSwipe.dy) * 1.08) {
-      prepareCarouselPreviews(pageSwipe);
-    }
-
     if (!pageSwipe.horizontal) {
-      if (Math.abs(pageSwipe.dy) > 12 && Math.abs(pageSwipe.dy) > Math.abs(pageSwipe.dx)) {
+      if (Math.abs(pageSwipe.dy) > 11 && Math.abs(pageSwipe.dy) > Math.abs(pageSwipe.dx)) {
         pageSwipe = null;
-        clearSwipeState();
         return;
       }
-      if (pageSwipe.prepared && Math.abs(pageSwipe.dx) > 7 && Math.abs(pageSwipe.dx) > Math.abs(pageSwipe.dy) * 1.15) {
+      if (Math.abs(pageSwipe.dx) > 6 && Math.abs(pageSwipe.dx) > Math.abs(pageSwipe.dy) * 1.12) {
         pageSwipe.horizontal = true;
+        showCarouselPanels();
         document.body.classList.add('km-shell-page-dragging');
       }
     }
@@ -1390,23 +1431,20 @@
   function pageSwipeEnd(event) {
     const gesture = pageSwipe;
     pageSwipe = null;
-    if (!gesture?.horizontal) {
-      clearSwipeState();
-      return;
-    }
+    if (!gesture?.horizontal) return;
     event.stopPropagation();
 
     if (swipePaintFrame) {
       cancelAnimationFrame(swipePaintFrame);
       swipePaintFrame = 0;
       document.body.style.setProperty('--km-shell-swipe-x', `${Math.round(gesture.dx)}px`);
-      gesture.previews.forEach(item => {
+      gesture.panels.forEach(item => {
         item.element.style.setProperty('--km-shell-preview-x', `${Math.round(item.direction * window.innerWidth + gesture.dx)}px`);
       });
     }
 
-    const distanceEnough = Math.abs(gesture.dx) >= Math.min(72, window.innerWidth * .17);
-    const flickEnough = Math.abs(gesture.velocityX) >= .38 && Math.abs(gesture.dx) >= 22;
+    const distanceEnough = Math.abs(gesture.dx) >= Math.min(68, window.innerWidth * .16);
+    const flickEnough = Math.abs(gesture.velocityX) >= .34 && Math.abs(gesture.dx) >= 20;
     const directionMatchesVelocity = Math.sign(gesture.velocityX || gesture.dx) === Math.sign(gesture.dx);
     if (!distanceEnough && !(flickEnough && directionMatchesVelocity)) {
       settleSwipeBack(gesture);
@@ -1417,9 +1455,9 @@
 
   function completeCarouselSwipe(gesture) {
     if (sectionTransitioning) return;
-    const target = carouselTarget(gesture.dx);
-    const selectedPreview = gesture.previews.find(item => item.direction === target.direction);
-    if (!selectedPreview) {
+    const target = carouselTarget(gesture.dx, gesture.section);
+    const selectedPanel = gesture.panels.find(item => item.direction === target.direction);
+    if (!selectedPanel) {
       settleSwipeBack(gesture);
       return;
     }
@@ -1428,13 +1466,13 @@
     const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
     const exitOffset = target.direction > 0 ? -width : width;
     const remaining = Math.max(0, width - Math.abs(gesture.dx));
-    const duration = Math.max(150, Math.min(260, remaining * .34));
+    const duration = Math.max(170, Math.min(280, remaining * .36));
     const body = document.body;
     body.classList.remove('km-shell-page-dragging');
     body.classList.add('km-shell-page-settling');
     body.style.setProperty('--km-shell-swipe-duration', `${duration}ms`);
     body.style.setProperty('--km-shell-swipe-x', `${exitOffset}px`);
-    gesture.previews.forEach(item => {
+    gesture.panels.forEach(item => {
       item.element.classList.add('km-shell-preview-settling');
       item.element.style.setProperty('--km-shell-swipe-duration', `${duration}ms`);
       item.element.style.setProperty('--km-shell-preview-x', `${item.direction * width + exitOffset}px`);
@@ -1446,10 +1484,11 @@
       body.style.removeProperty('--km-shell-swipe-x');
       body.style.removeProperty('--km-shell-swipe-duration');
       requestAnimationFrame(() => {
-        removeSwipePreviews();
+        clearSwipeState({ keepPanels: false });
         sectionTransitioning = false;
+        scheduleCarouselPanelRefresh(40);
       });
-    }, duration + 25);
+    }, duration + 20);
   }
 
   function bindSwipeDocument(doc) {
@@ -1473,6 +1512,7 @@
       applyUnifiedTimeStyles(frame);
       bindTimeEnhancements(frame);
       applyShellSearch();
+      scheduleCarouselPanelRefresh(120);
     } catch (_) {}
   }
 
@@ -1481,6 +1521,7 @@
     const frame = $('#timeAppFrame');
     frame?.addEventListener('load', () => requestAnimationFrame(bindTimeFrameSwipe), { passive: true });
     bindTimeFrameSwipe();
+    window.addEventListener('resize', () => scheduleCarouselPanelRefresh(160), { passive: true });
   }
 
   function bindGlobalEvents() {
@@ -1576,6 +1617,7 @@
     bindHeaderCollapse();
     showSection();
     filterTripLocationSelects();
+    scheduleCarouselPanelRefresh(140);
     // Na sluiten van Instellingen moet het paneel zichtbaar blijven; normale herlaad start rustig gesloten.
     closeDrawer();
   }
