@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const BUILD = '0.31.7';
+  const BUILD = '0.31.8';
   const DATA_KEY = 'kmreg-v4-data';
   const MODE_KEY = 'kmreg-active-app-v1';
   const SECTION_KEY = 'kmreg-shell-section-v1';
@@ -22,6 +22,7 @@
   let timeFrameOriginalParent = null;
   let timeFrameOriginalNext = null;
   let locationEditorAugmentQueued = false;
+  let timeSettingsOpen = false;
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -143,7 +144,10 @@
     top.classList.add('km-shell-top');
     top.append(menuSlot, copy, spacer, legacy);
     document.body.appendChild(menu);
-    menu.addEventListener('click', openDrawer);
+    menu.addEventListener('click', () => {
+      if (section === 'time' && timeSettingsOpen) closeTimeSettingsPage();
+      else openDrawer();
+    });
 
     if (today) {
       today.textContent = new Intl.DateTimeFormat('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()) + ' · ' + BUILD;
@@ -284,9 +288,16 @@
   function syncChrome() {
     const title = $('#kmShellTitle');
     const meta = $('#kmShellMeta');
+    const menu = $('#kmShellMenuButton');
     const labels = { rides: 'Ritten', time: 'Tijd / taken', locations: 'Locaties' };
-    const wantedTitle = labels[section] || 'Registratie';
+    const wantedTitle = section === 'time' && timeSettingsOpen ? 'Instellingen' : (labels[section] || 'Registratie');
     if (title && title.textContent !== wantedTitle) title.textContent = wantedTitle;
+    if (menu) {
+      const isBack = section === 'time' && timeSettingsOpen;
+      menu.textContent = isBack ? '←' : '☰';
+      menu.setAttribute('aria-label', isBack ? 'Terug naar tijd / taken' : 'Menu openen');
+      menu.setAttribute('aria-expanded', isBack ? 'false' : String(drawerOpen));
+    }
     if (meta) {
       let wantedMeta = '';
       if (section === 'rides') {
@@ -584,7 +595,57 @@
     return true;
   }
 
+  function timeFrameView() {
+    const frame = $('#timeAppFrame');
+    try {
+      return frame?.contentDocument?.getElementById('appTaskCount')?.dataset.navigationView === 'settings' ? 'settings' : 'home';
+    } catch (_) {
+      return 'home';
+    }
+  }
+
+  function setTimeSettingsOpen(open) {
+    timeSettingsOpen = Boolean(open);
+    document.body.classList.toggle('km-shell-time-settings-open', timeSettingsOpen);
+    syncChrome();
+  }
+
+  function clickTimeSettingsToggle(wantedView) {
+    const frame = $('#timeAppFrame');
+    if (!frame) return false;
+    try {
+      const current = timeFrameView();
+      if (current === wantedView) {
+        setTimeSettingsOpen(wantedView === 'settings');
+        return true;
+      }
+      const button = frame.contentDocument?.getElementById('openSettings');
+      if (!button) return false;
+      button.click();
+      requestAnimationFrame(() => setTimeSettingsOpen(timeFrameView() === 'settings'));
+      return true;
+    } catch (error) {
+      console.warn('Tijdinstellingen konden niet worden geopend.', error);
+      return false;
+    }
+  }
+
+  function openTimeSettingsPage() {
+    closeDrawer();
+    if (clickTimeSettingsToggle('settings')) return;
+    const frame = $('#timeAppFrame');
+    frame?.addEventListener('load', () => clickTimeSettingsToggle('settings'), { once: true });
+  }
+
+  function closeTimeSettingsPage() {
+    if (!clickTimeSettingsToggle('home')) setTimeSettingsOpen(false);
+  }
+
   function openSettingsSheet() {
+    if (section === 'time') {
+      openTimeSettingsPage();
+      return;
+    }
     const settings = $('#kmShellSettings');
     if (!settings || settings.classList.contains('open')) return;
     const content = $('#kmShellSettingsContent');
@@ -646,6 +707,11 @@
   function bindGlobalEvents() {
     window.addEventListener('kmreg-shell-select-section', event => selectSection(event.detail?.section));
     window.addEventListener('kmreg-shell-open-settings', () => openSettingsSheet());
+    window.addEventListener('message', event => {
+      const frame = $('#timeAppFrame');
+      if (event.origin !== window.location.origin || event.source !== frame?.contentWindow || event.data?.type !== 'urenregistratie-view') return;
+      setTimeSettingsOpen(event.data.view === 'settings');
+    });
 
     document.addEventListener('click', event => {
       const edit = event.target.closest('[data-shell-edit-location]');
