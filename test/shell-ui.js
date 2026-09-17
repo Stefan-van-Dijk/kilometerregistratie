@@ -98,6 +98,16 @@
       .km-shell-drawer-head{padding:4px 8px 17px}.km-shell-drawer-head strong{display:block;font-size:19px;letter-spacing:-.02em}.km-shell-drawer-head small{display:block;margin-top:4px;color:var(--muted);font-size:11px}
       .km-shell-nav{display:grid;gap:4px}.km-shell-nav-button{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:9px 11px;border:0;border-radius:12px;background:transparent;color:var(--text);font-weight:760;text-align:left;cursor:pointer}.km-shell-nav-button .icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:15px}.km-shell-nav-button.active{background:var(--card2)}.km-shell-nav-button.active .icon{border-color:rgba(77,163,255,.45);color:var(--accent);background:rgba(77,163,255,.09)}
       .km-shell-drawer-spacer{flex:1}.km-shell-drawer-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 4px 2px;border-top:1px solid var(--line)}.km-shell-version{display:inline-flex!important;align-items:center;gap:7px;flex:0 0 auto;min-width:0;padding:6px 9px;border:1px solid color-mix(in srgb,var(--accent) 28%,var(--line));border-radius:10px;background:color-mix(in srgb,var(--accent) 10%,transparent);color:var(--text)!important;font-size:11px;font-weight:750;line-height:1;white-space:nowrap;visibility:visible!important;opacity:1!important}.km-shell-version-label{color:var(--accent);font-size:9px;font-weight:850;letter-spacing:.08em}.km-shell-version-number{overflow:hidden;text-overflow:ellipsis}.km-shell-settings-button{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border:0;border-radius:14px;background:transparent;color:var(--text);font-size:23px;cursor:pointer}.km-shell-settings-button:active{background:var(--card2)}
+      .km-shell-tabbar{position:fixed;z-index:80;left:50%;bottom:calc(9px + env(safe-area-inset-bottom));width:min(430px,calc(100vw - 24px));height:72px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:6px;border:.5px solid color-mix(in srgb,var(--line) 80%,transparent);border-radius:28px;background:color-mix(in srgb,var(--card) 82%,transparent);box-shadow:0 12px 36px rgba(0,0,0,.18),inset 0 .5px 0 color-mix(in srgb,#fff 55%,transparent);-webkit-backdrop-filter:blur(28px) saturate(190%);backdrop-filter:blur(28px) saturate(190%);transform:translateX(-50%);transition:opacity .2s ease,transform .28s cubic-bezier(.22,1,.36,1);isolation:isolate}
+      .km-shell-tab-button{position:relative;z-index:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 4px;border:0;border-radius:22px;background:transparent;color:var(--muted);font:inherit;font-size:10px;font-weight:720;line-height:1;letter-spacing:-.01em;cursor:pointer;touch-action:manipulation;transition:color .18s ease,background .24s cubic-bezier(.22,1,.36,1),transform .16s ease}
+      .km-shell-tab-button svg{width:23px;height:23px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .24s cubic-bezier(.22,1,.36,1)}
+      .km-shell-tab-button.active{background:color-mix(in srgb,var(--accent) 15%,var(--card));color:var(--accent)}
+      .km-shell-tab-button.active svg{transform:translateY(-1px)}
+      .km-shell-tab-button:active{transform:scale(.94)}
+      body.km-shell-drawer-open .km-shell-tabbar,body.km-shell-settings-open .km-shell-tabbar,body.km-shell-time-settings-open .km-shell-tabbar,body.editor-view .km-shell-tabbar{opacity:0;transform:translate(-50%,18px) scale(.98);pointer-events:none}
+      .shell{padding-bottom:calc(108px + env(safe-area-inset-bottom))!important}
+      @keyframes kmTabPageIn{from{opacity:.72;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+      body.km-shell-tab-transition .shell{animation:kmTabPageIn .22s cubic-bezier(.22,1,.36,1) both}
       .km-shell-settings{position:fixed;z-index:120;inset:0;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.38);opacity:0;pointer-events:none;transition:opacity .22s ease}.km-shell-settings.open{opacity:1;pointer-events:auto}
       .km-shell-settings-surface{width:100%;height:min(94dvh,900px);display:flex;flex-direction:column;border-radius:24px 24px 0 0;border:1px solid var(--line);border-bottom:0;background:var(--bg);box-shadow:0 -18px 52px rgba(0,0,0,.34);transform:translateY(104%);transition:transform .46s cubic-bezier(.22,1,.36,1);overflow:hidden;will-change:transform}.km-shell-settings.open .km-shell-settings-surface{transform:translateY(0)}
       .km-shell-settings-head{position:relative;display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:8px;flex:0 0 auto;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line);background:rgba(13,17,23,.92);-webkit-backdrop-filter:blur(22px) saturate(165%);backdrop-filter:blur(22px) saturate(165%)}.km-shell-settings-title{text-align:center;font-size:16px;font-weight:850}.km-shell-settings-close{position:absolute;right:14px;top:calc(10px + env(safe-area-inset-top));display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:0;border-radius:50%;background:var(--card2);color:var(--text);font-size:25px;cursor:pointer}.km-shell-settings-content{position:relative;flex:1;min-height:0;overflow:auto;padding:8px 16px calc(24px + env(safe-area-inset-bottom))}.km-shell-settings-content>#app{display:block!important;max-width:760px;margin:0 auto}.km-shell-settings-content .time-app-frame{display:block!important;width:100%;height:100%!important;min-height:0!important;opacity:1!important}
@@ -105,19 +115,7 @@
       .km-shell-general-settings{max-width:760px;margin:0 auto;padding:8px 0 24px}.km-shell-general-intro{padding:8px 1px 16px;border-bottom:1px solid var(--line)}.km-shell-general-intro h2{margin:3px 0 5px;font-size:28px;letter-spacing:-.035em}.km-shell-general-intro p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
       .km-shell-general-card{padding:17px 1px;border-bottom:1px solid var(--line)}.km-shell-general-card>strong,.km-shell-general-card>small{display:block}.km-shell-general-card>strong{font-size:17px}.km-shell-general-card>small{margin-top:4px;color:var(--muted);font-size:11px;line-height:1.4}.km-shell-general-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:13px}.km-shell-general-actions .btn{width:100%;margin:0;text-align:center}.km-shell-general-nav{display:grid;gap:2px;margin-top:10px}.km-shell-general-nav button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px;padding:10px 1px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font-weight:760;text-align:left}.km-shell-general-nav button span:last-child{color:var(--muted);font-size:21px}.km-shell-general-advanced{margin-top:12px}.km-shell-general-advanced summary{color:var(--muted);font-size:12px;font-weight:750;cursor:pointer}.km-shell-general-status{margin-top:8px;color:var(--muted);font-size:11px;line-height:1.4}
       @keyframes kmSettingsForwardIn{from{opacity:.35;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}@keyframes kmSettingsBackIn{from{opacity:.35;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
-      @keyframes kmPageExitForward{from{opacity:1;transform:translateX(0)}to{opacity:.62;transform:translateX(-22vw)}}@keyframes kmPageEnterForward{from{opacity:.7;transform:translateX(100vw)}to{opacity:1;transform:translateX(0)}}
-      @keyframes kmPageExitBack{from{opacity:1;transform:translateX(0)}to{opacity:.62;transform:translateX(22vw)}}@keyframes kmPageEnterBack{from{opacity:.7;transform:translateX(-100vw)}to{opacity:1;transform:translateX(0)}}
       .km-shell-settings-content.km-settings-forward-in>*{animation:kmSettingsForwardIn .24s cubic-bezier(.22,1,.36,1) both}.km-shell-settings-content.km-settings-back-in>*{animation:kmSettingsBackIn .24s cubic-bezier(.22,1,.36,1) both}
-      body.km-shell-page-exit-forward .shell,body.km-shell-page-exit-forward .km-shell-menu-button{animation:kmPageExitForward .135s ease-in both}
-      body.km-shell-page-enter-forward .shell,body.km-shell-page-enter-forward .km-shell-menu-button{animation:kmPageEnterForward .28s cubic-bezier(.22,1,.36,1) both}
-      body.km-shell-page-exit-back .shell,body.km-shell-page-exit-back .km-shell-menu-button{animation:kmPageExitBack .135s ease-in both}
-      body.km-shell-page-enter-back .shell,body.km-shell-page-enter-back .km-shell-menu-button{animation:kmPageEnterBack .28s cubic-bezier(.22,1,.36,1) both}
-      body.km-shell-page-dragging{overflow-x:hidden}
-      body.km-shell-page-dragging .shell:not(.km-shell-swipe-preview){animation:none!important;transition:none!important;transform:translate3d(var(--km-shell-swipe-x,0px),0,0)!important;will-change:transform;backface-visibility:hidden}
-      body.km-shell-page-settling .shell:not(.km-shell-swipe-preview){animation:none!important;transition:transform var(--km-shell-swipe-duration,220ms) cubic-bezier(.22,1,.36,1)!important;transform:translate3d(var(--km-shell-swipe-x,0px),0,0)!important;will-change:transform;backface-visibility:hidden}
-      .km-shell-swipe-preview{position:fixed!important;inset:0!important;z-index:30!important;width:100vw!important;max-width:none!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;overflow:hidden!important;pointer-events:none!important;background:var(--bg)!important;transform:translate3d(var(--km-shell-preview-x,100vw),0,0);will-change:transform;backface-visibility:hidden;contain:paint}
-      .km-shell-swipe-preview.km-shell-preview-settling{transition:transform var(--km-shell-swipe-duration,220ms) cubic-bezier(.22,1,.36,1)!important}
-      .km-shell-swipe-preview.km-shell-carousel-idle{visibility:hidden!important;transition:none!important}
       @media(max-width:480px){.km-shell-general-actions{grid-template-columns:1fr}}
       .shell>#timeAppFrame{position:relative;z-index:0}.km-shell-drawer-open .shell>#timeAppFrame{visibility:hidden!important;pointer-events:none!important}.editor-view>.km-shell-menu-button{display:none!important}
       .km-shell-locations{padding:2px 0 28px}.km-shell-locations-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:8px 1px 10px}.km-shell-locations-head h2{margin:2px 0 0;font-size:28px;letter-spacing:-.035em}.km-shell-location-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:5px 0 16px}.km-shell-location-actions button{min-height:44px}
@@ -264,7 +262,7 @@
       }
       @media(prefers-color-scheme:light){.km-shell-drawer{background:rgba(255,255,255,.97);box-shadow:18px 0 52px rgba(30,45,65,.16)}.km-shell-settings-head{background:rgba(245,245,247,.93)}.km-shell-backdrop{background:rgba(0,0,0,.22)}.km-shell-settings{background:rgba(0,0,0,.22)}}
       @media(max-width:480px){.km-shell-drawer{width:min(86vw,330px)}.km-shell-settings-surface{height:96dvh;border-radius:21px 21px 0 0}.km-shell-settings-content{padding-left:12px;padding-right:12px}.km-shell-location-detail-grid{grid-template-columns:1fr}.km-shell-location-actions{grid-template-columns:1fr 1fr}}
-      @media(prefers-reduced-motion:reduce){.shell,.km-shell-menu-button,.km-shell-drawer,.km-shell-backdrop,.km-shell-settings,.km-shell-settings-surface{transition:none!important}.km-shell-settings-content>*,body[class*="km-shell-page-"] .shell,body[class*="km-shell-page-"] .km-shell-menu-button{animation:none!important}}
+      @media(prefers-reduced-motion:reduce){.shell,.km-shell-menu-button,.km-shell-drawer,.km-shell-backdrop,.km-shell-settings,.km-shell-settings-surface,.km-shell-tabbar,.km-shell-tab-button{transition:none!important}.km-shell-settings-content>*,body.km-shell-tab-transition .shell{animation:none!important}}
     `;
     document.head.appendChild(style);
   }
@@ -388,7 +386,26 @@
     const shell = $('.shell');
     if (shell) shell.appendChild(locationsView);
 
-    document.body.append(backdrop, drawer, settings);
+    const tabbar = document.createElement('nav');
+    tabbar.id = 'kmShellTabBar';
+    tabbar.className = 'km-shell-tabbar';
+    tabbar.setAttribute('aria-label', 'Hoofdnavigatie');
+    tabbar.innerHTML = `
+      <button class="km-shell-tab-button" type="button" data-shell-tab="rides" aria-label="Ritten">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17.5h16M6.5 17.5l1.2-6.2h8.6l1.2 6.2M8.8 11.3l1-3h4.4l1 3"/><circle cx="8" cy="18" r="1.5"/><circle cx="16" cy="18" r="1.5"/></svg><span>Ritten</span>
+      </button>
+      <button class="km-shell-tab-button" type="button" data-shell-tab="time" aria-label="Tijd en taken">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3.3 2"/></svg><span>Tijd/taken</span>
+      </button>
+      <button class="km-shell-tab-button" type="button" data-shell-tab="locations" aria-label="Locaties">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.8 6-11a6 6 0 1 0-12 0c0 5.2 6 11 6 11Z"/><circle cx="12" cy="10" r="2.2"/></svg><span>Locaties</span>
+      </button>`;
+    tabbar.addEventListener('click', event => {
+      const button = event.target.closest('[data-shell-tab]');
+      if (button) selectSection(button.dataset.shellTab);
+    });
+
+    document.body.append(backdrop, drawer, settings, tabbar);
   }
 
   function openDrawer() {
@@ -412,7 +429,13 @@
   }
 
   function syncDrawerSelection() {
-    $$('.km-shell-nav-button').forEach(button => button.classList.toggle('active', button.dataset.shellSection === section));
+    $('.km-shell-nav-button').forEach(button => button.classList.toggle('active', button.dataset.shellSection === section));
+    $('.km-shell-tab-button').forEach(button => {
+      const active = button.dataset.shellTab === section;
+      button.classList.toggle('active', active);
+      if (active) button.setAttribute('aria-current', 'page');
+      else button.removeAttribute('aria-current');
+    });
   }
 
   function originalIsTimeMode() {
@@ -588,8 +611,15 @@
 
   function selectSection(next) {
     if (!ROOT_SECTIONS.has(next)) return;
+    if (next === section) {
+      closeDrawer();
+      scrollActiveSectionToTop();
+      return;
+    }
+
+    const openedFromDrawer = drawerOpen;
     section = next;
-    document.body.classList.remove('km-shell-scrolled', 'km-shell-search-revealed');
+    document.body.classList.remove('km-shell-scrolled', 'km-shell-search-revealed', 'km-shell-tab-transition');
     windowScrollState.top = Math.max(0, window.scrollY || 0);
     windowScrollState.reverse = 0;
     timeScrollState.reverse = 0;
@@ -603,7 +633,12 @@
     }
     closeDrawer();
     showSection();
-    scheduleCarouselPanelRefresh(90);
+
+    if (!openedFromDrawer) {
+      void $('.shell')?.offsetWidth;
+      document.body.classList.add('km-shell-tab-transition');
+      setTimeout(() => document.body.classList.remove('km-shell-tab-transition'), 240);
+    }
   }
 
   function showSection() {
@@ -1233,295 +1268,30 @@
     showSection();
   }
 
-  const SWIPE_SECTIONS = ['rides', 'time', 'locations'];
-  const swipeDocuments = new WeakSet();
-  let pageSwipe = null;
-  let swipePaintFrame = 0;
-  let swipePaintDx = 0;
-  let carouselPanels = [];
-  let carouselRefreshTimer = null;
-  let carouselPreparing = false;
-
-  function pageSwipeBlocked() {
-    return sectionTransitioning || carouselPreparing || drawerOpen || $('#kmShellSettings')?.classList.contains('open') || !$('#modal')?.hidden || document.body.classList.contains('editor-view');
-  }
-
-  function pageSwipeInteractive(target) {
-    return Boolean(target?.closest?.('button,input,select,textarea,a,label,summary,[contenteditable="true"]'));
-  }
-
-  function carouselIndex(offset, baseSection = section) {
-    const current = SWIPE_SECTIONS.indexOf(baseSection);
-    return (current + offset + SWIPE_SECTIONS.length) % SWIPE_SECTIONS.length;
-  }
-
-  function carouselTarget(dx, baseSection = section) {
-    const direction = dx < 0 ? 1 : -1;
-    const nextIndex = carouselIndex(direction, baseSection);
-    return { direction, nextIndex, section: SWIPE_SECTIONS[nextIndex] };
-  }
-
-  function removeCarouselPanels() {
-    carouselPanels.forEach(item => item.element.remove());
-    document.querySelectorAll('.km-shell-swipe-preview').forEach(preview => preview.remove());
-    carouselPanels = [];
-  }
-
-  function createCarouselPanel(targetSection, direction) {
-    const shell = $('.shell:not(.km-shell-swipe-preview)');
-    if (!shell) return null;
-    section = targetSection;
-    showSection();
-    const panel = shell.cloneNode(true);
-    panel.classList.add('km-shell-swipe-preview', 'km-shell-carousel-idle');
-    panel.dataset.carouselDirection = String(direction);
-    panel.dataset.carouselSection = targetSection;
-    panel.setAttribute('aria-hidden', 'true');
-    panel.setAttribute('inert', '');
-    panel.style.setProperty('--km-shell-preview-x', `${direction * window.innerWidth}px`);
-    return { element: panel, direction, section: targetSection };
-  }
-
-  function rebuildCarouselPanels() {
-    if (pageSwipe || sectionTransitioning || carouselPreparing || drawerOpen || $('#kmShellSettings')?.classList.contains('open') || document.body.classList.contains('editor-view')) {
-      scheduleCarouselPanelRefresh(240);
-      return;
-    }
-
-    carouselPreparing = true;
-    const currentSection = section;
-    try {
-      removeCarouselPanels();
-      const previousSection = SWIPE_SECTIONS[carouselIndex(-1, currentSection)];
-      const nextSection = SWIPE_SECTIONS[carouselIndex(1, currentSection)];
-      const previous = createCarouselPanel(previousSection, -1);
-      const next = createCarouselPanel(nextSection, 1);
-      section = currentSection;
-      showSection();
-
-      carouselPanels = [previous, next].filter(Boolean);
-      const fragment = document.createDocumentFragment();
-      carouselPanels.forEach(item => fragment.appendChild(item.element));
-      document.body.appendChild(fragment);
-    } finally {
-      section = currentSection;
-      showSection();
-      carouselPreparing = false;
+  function scrollActiveSectionToTop() {
+    document.body.classList.remove('km-shell-search-revealed');
+    if (section === 'time') {
+      try {
+        $('#timeAppFrame')?.contentDocument?.scrollingElement?.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (_) {}
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
-  function scheduleCarouselPanelRefresh(delay = 90) {
-    clearTimeout(carouselRefreshTimer);
-    carouselRefreshTimer = setTimeout(rebuildCarouselPanels, delay);
-  }
-
-  function showCarouselPanels() {
-    carouselPanels.forEach(item => {
-      item.element.classList.remove('km-shell-carousel-idle', 'km-shell-preview-settling');
-      item.element.style.setProperty('--km-shell-preview-x', `${item.direction * window.innerWidth}px`);
-    });
-  }
-
-  function hideCarouselPanels() {
-    carouselPanels.forEach(item => {
-      item.element.classList.remove('km-shell-preview-settling');
-      item.element.classList.add('km-shell-carousel-idle');
-      item.element.style.removeProperty('--km-shell-swipe-duration');
-      item.element.style.setProperty('--km-shell-preview-x', `${item.direction * window.innerWidth}px`);
-    });
-  }
-
-  function paintPageSwipe(dx) {
-    swipePaintDx = dx;
-    if (swipePaintFrame) return;
-    swipePaintFrame = requestAnimationFrame(() => {
-      swipePaintFrame = 0;
-      const gesture = pageSwipe;
-      if (!gesture?.horizontal) return;
-      document.body.style.setProperty('--km-shell-swipe-x', `${Math.round(swipePaintDx)}px`);
-      gesture.panels.forEach(item => {
-        item.element.style.setProperty('--km-shell-preview-x', `${Math.round(item.direction * window.innerWidth + swipePaintDx)}px`);
-      });
-    });
-  }
-
-  function clearSwipeState({ keepPanels = true } = {}) {
-    if (swipePaintFrame) cancelAnimationFrame(swipePaintFrame);
-    swipePaintFrame = 0;
-    const body = document.body;
-    body.classList.remove('km-shell-page-dragging', 'km-shell-page-settling');
-    body.style.removeProperty('--km-shell-swipe-x');
-    body.style.removeProperty('--km-shell-swipe-duration');
-    if (keepPanels) hideCarouselPanels();
-    else removeCarouselPanels();
-  }
-
-  function settleSwipeBack(gesture) {
-    if (!gesture?.panels?.length) {
-      clearSwipeState();
-      return;
-    }
-    const body = document.body;
-    body.classList.remove('km-shell-page-dragging');
-    body.classList.add('km-shell-page-settling');
-    body.style.setProperty('--km-shell-swipe-duration', '210ms');
-    body.style.setProperty('--km-shell-swipe-x', '0px');
-    gesture.panels.forEach(item => {
-      item.element.classList.add('km-shell-preview-settling');
-      item.element.style.setProperty('--km-shell-swipe-duration', '210ms');
-      item.element.style.setProperty('--km-shell-preview-x', `${item.direction * window.innerWidth}px`);
-    });
-    setTimeout(() => clearSwipeState(), 235);
-  }
-
-  function pageSwipeStart(event) {
-    if (event.touches?.length !== 1 || pageSwipeBlocked()) return;
-    if (carouselPanels.length !== 2) {
-      scheduleCarouselPanelRefresh(0);
-      return;
-    }
-    const touch = event.touches[0];
-    const edge = touch.clientX <= 30 || touch.clientX >= window.innerWidth - 30;
-    if (!edge && pageSwipeInteractive(event.target)) return;
-    const now = performance.now();
-    pageSwipe = {
-      section,
-      x: touch.clientX,
-      y: touch.clientY,
-      dx: 0,
-      dy: 0,
-      horizontal: false,
-      panels: carouselPanels,
-      lastX: touch.clientX,
-      lastAt: now,
-      velocityX: 0
-    };
-  }
-
-  function pageSwipeMove(event) {
-    if (!pageSwipe || event.touches?.length !== 1) return;
-    const touch = event.touches[0];
-    const now = performance.now();
-    const elapsed = Math.max(1, now - pageSwipe.lastAt);
-    const instantVelocity = (touch.clientX - pageSwipe.lastX) / elapsed;
-    pageSwipe.velocityX = pageSwipe.velocityX * .62 + instantVelocity * .38;
-    pageSwipe.lastX = touch.clientX;
-    pageSwipe.lastAt = now;
-    pageSwipe.dx = touch.clientX - pageSwipe.x;
-    pageSwipe.dy = touch.clientY - pageSwipe.y;
-
-    if (!pageSwipe.horizontal) {
-      if (Math.abs(pageSwipe.dy) > 11 && Math.abs(pageSwipe.dy) > Math.abs(pageSwipe.dx)) {
-        pageSwipe = null;
-        return;
-      }
-      if (Math.abs(pageSwipe.dx) > 6 && Math.abs(pageSwipe.dx) > Math.abs(pageSwipe.dy) * 1.12) {
-        pageSwipe.horizontal = true;
-        showCarouselPanels();
-        document.body.classList.add('km-shell-page-dragging');
-      }
-    }
-
-    if (!pageSwipe?.horizontal) return;
-    paintPageSwipe(pageSwipe.dx);
-    if (event.cancelable) event.preventDefault();
-    event.stopPropagation();
-  }
-
-  function pageSwipeEnd(event) {
-    const gesture = pageSwipe;
-    pageSwipe = null;
-    if (!gesture?.horizontal) return;
-    event.stopPropagation();
-
-    if (swipePaintFrame) {
-      cancelAnimationFrame(swipePaintFrame);
-      swipePaintFrame = 0;
-      document.body.style.setProperty('--km-shell-swipe-x', `${Math.round(gesture.dx)}px`);
-      gesture.panels.forEach(item => {
-        item.element.style.setProperty('--km-shell-preview-x', `${Math.round(item.direction * window.innerWidth + gesture.dx)}px`);
-      });
-    }
-
-    const distanceEnough = Math.abs(gesture.dx) >= Math.min(68, window.innerWidth * .16);
-    const flickEnough = Math.abs(gesture.velocityX) >= .34 && Math.abs(gesture.dx) >= 20;
-    const directionMatchesVelocity = Math.sign(gesture.velocityX || gesture.dx) === Math.sign(gesture.dx);
-    if (!distanceEnough && !(flickEnough && directionMatchesVelocity)) {
-      settleSwipeBack(gesture);
-      return;
-    }
-    completeCarouselSwipe(gesture);
-  }
-
-  function completeCarouselSwipe(gesture) {
-    if (sectionTransitioning) return;
-    const target = carouselTarget(gesture.dx, gesture.section);
-    const selectedPanel = gesture.panels.find(item => item.direction === target.direction);
-    if (!selectedPanel) {
-      settleSwipeBack(gesture);
-      return;
-    }
-
-    sectionTransitioning = true;
-    const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-    const exitOffset = target.direction > 0 ? -width : width;
-    const remaining = Math.max(0, width - Math.abs(gesture.dx));
-    const duration = Math.max(170, Math.min(280, remaining * .36));
-    const body = document.body;
-    body.classList.remove('km-shell-page-dragging');
-    body.classList.add('km-shell-page-settling');
-    body.style.setProperty('--km-shell-swipe-duration', `${duration}ms`);
-    body.style.setProperty('--km-shell-swipe-x', `${exitOffset}px`);
-    gesture.panels.forEach(item => {
-      item.element.classList.add('km-shell-preview-settling');
-      item.element.style.setProperty('--km-shell-swipe-duration', `${duration}ms`);
-      item.element.style.setProperty('--km-shell-preview-x', `${item.direction * width + exitOffset}px`);
-    });
-
-    setTimeout(() => {
-      selectSection(target.section);
-      body.classList.remove('km-shell-page-settling');
-      body.style.removeProperty('--km-shell-swipe-x');
-      body.style.removeProperty('--km-shell-swipe-duration');
-      requestAnimationFrame(() => {
-        clearSwipeState({ keepPanels: false });
-        sectionTransitioning = false;
-        scheduleCarouselPanelRefresh(40);
-      });
-    }, duration + 20);
-  }
-
-  function bindSwipeDocument(doc) {
-    if (!doc || swipeDocuments.has(doc)) return;
-    swipeDocuments.add(doc);
-    doc.addEventListener('touchstart', pageSwipeStart, { passive: true, capture: true });
-    doc.addEventListener('touchmove', pageSwipeMove, { passive: false, capture: true });
-    doc.addEventListener('touchend', pageSwipeEnd, { passive: true, capture: true });
-    doc.addEventListener('touchcancel', event => {
-      const gesture = pageSwipe;
-      pageSwipe = null;
-      if (gesture?.horizontal) event.stopPropagation();
-      settleSwipeBack(gesture);
-    }, { passive: true, capture: true });
-  }
-
-  function bindTimeFrameSwipe() {
+  function bindTimeFrameEnhancements() {
     const frame = $('#timeAppFrame');
     try {
-      bindSwipeDocument(frame?.contentDocument);
       applyUnifiedTimeStyles(frame);
       bindTimeEnhancements(frame);
       applyShellSearch();
-      scheduleCarouselPanelRefresh(120);
     } catch (_) {}
   }
 
-  function bindPageSwipes() {
-    bindSwipeDocument(document);
+  function bindEmbeddedTimeApp() {
     const frame = $('#timeAppFrame');
-    frame?.addEventListener('load', () => requestAnimationFrame(bindTimeFrameSwipe), { passive: true });
-    bindTimeFrameSwipe();
-    window.addEventListener('resize', () => scheduleCarouselPanelRefresh(160), { passive: true });
+    frame?.addEventListener('load', () => requestAnimationFrame(bindTimeFrameEnhancements), { passive: true });
+    bindTimeFrameEnhancements();
   }
 
   function bindGlobalEvents() {
@@ -1613,11 +1383,10 @@
     searchStatus.hidden = true;
     $('#kmShellSearch')?.insertAdjacentElement('afterend', searchStatus);
     bindGlobalEvents();
-    bindPageSwipes();
+    bindEmbeddedTimeApp();
     bindHeaderCollapse();
     showSection();
     filterTripLocationSelects();
-    scheduleCarouselPanelRefresh(140);
     // Na sluiten van Instellingen moet het paneel zichtbaar blijven; normale herlaad start rustig gesloten.
     closeDrawer();
   }
