@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0c0f">
+<title>Kilometerregistratie · ID-converter</title>
+<style>
+:root{color-scheme:dark;--bg:#0a0c0f;--card:#11151a;--card2:#171c23;--text:#f4f7fb;--muted:#9aa7b7;--line:#242a33;--accent:#4da3ff;--good:#49d17d;--warn:#ffbd4a;--bad:#ff6767;--r:16px}*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{min-height:100dvh}.shell{max-width:760px;margin:auto;padding:calc(18px + env(safe-area-inset-top)) 16px calc(30px + env(safe-area-inset-bottom))}.eyebrow{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em}h1{margin:6px 0 8px;font-size:28px;letter-spacing:-.03em}p{color:var(--muted);line-height:1.5}.card{margin-top:14px;padding:16px;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}.drop{display:grid;place-items:center;min-height:170px;padding:18px;border:1.5px dashed var(--line);border-radius:14px;text-align:center;background:var(--card2);transition:.15s}.drop.drag{border-color:var(--accent);background:rgba(77,163,255,.09)}.drop strong,.drop small{display:block}.drop small{margin-top:5px;color:var(--muted)}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:11px 14px;border:0;border-radius:12px;background:var(--accent);color:#fff;font:inherit;font-weight:800;cursor:pointer}.btn.secondary{background:var(--card2);border:1px solid var(--line);color:var(--text)}.btn[disabled]{opacity:.45;cursor:not-allowed}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.row .btn{flex:1 1 180px}.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.stat{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card2)}.stat span,.stat strong{display:block}.stat span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}.stat strong{margin-top:4px;font-size:20px}.notice{margin-top:12px;padding:11px 12px;border-left:2px solid var(--accent);background:rgba(77,163,255,.06);color:var(--muted);font-size:12px;line-height:1.45}.notice.good{border-left-color:var(--good)}.notice.warn{border-left-color:var(--warn)}.map{margin-top:12px;max-height:240px;overflow:auto;border-top:1px solid var(--line)}.map-row{display:grid;grid-template-columns:90px minmax(0,1fr) 24px minmax(0,1fr);gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-family:"SFMono-Regular",Consolas,monospace;font-size:11px}.map-row span:first-child{color:var(--muted);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.map-row b{font-weight:700;overflow-wrap:anywhere}.arrow{color:var(--muted);text-align:center}.hidden{display:none!important}.status{margin-top:8px;color:var(--muted);font-size:12px}.footer{margin-top:18px;color:var(--muted);font-size:11px;text-align:center}@media(prefers-color-scheme:light){:root{color-scheme:light;--bg:#f5f5f7;--card:#fff;--card2:#eceef2;--text:#1d1d1f;--muted:#6e6e73;--line:#d7d9de;--accent:#007aff;--good:#248a3d;--warn:#8a5b00;--bad:#d70015}.drop{background:#fff}}@media(max-width:520px){.stats{grid-template-columns:1fr}.row{flex-direction:column}.map-row{grid-template-columns:72px minmax(0,1fr);gap:3px 8px}.map-row .arrow{display:none}.map-row b:last-child{grid-column:2}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="eyebrow">Offline hulpmiddel · 0.28.19</div>
+  <h1>ID-converter</h1>
+  <p>Converteert alleen oude identifiers in een kilometerregistratie-back-up naar 12 tekens uit <code>A-Z a-z 0-9 - _</code>. Bestaande geldige 12-teken-ID's blijven ongewijzigd. Alles gebeurt lokaal in deze browser.</p>
+
+  <section class="card">
+    <div id="drop" class="drop" tabindex="0" role="button" aria-label="Kies of sleep een JSON-back-up">
+      <div><strong>Sleep je JSON-back-up hierheen</strong><small>of kies één bestand</small><button class="btn secondary" id="pickBtn" type="button" style="margin-top:12px">Bestand kiezen</button></div>
+      <input id="fileInput" type="file" accept="application/json,.json" hidden>
+    </div>
+    <div id="status" class="status">Er wordt niets in de app gewijzigd.</div>
+  </section>
+
+  <section id="result" class="card hidden">
+    <div class="eyebrow">Controle</div>
+    <div id="stats" class="stats"></div>
+    <div id="notice" class="notice"></div>
+    <div id="mapping" class="map"></div>
+    <div class="row"><button id="downloadBtn" class="btn" type="button">Geconverteerde JSON downloaden</button><button id="resetBtn" class="btn secondary" type="button">Ander bestand</button></div>
+  </section>
+
+  <div class="footer">De originele JSON blijft onaangeroerd. Importeer het geconverteerde bestand pas nadat je de samenvatting hebt gecontroleerd.</div>
+</div>
+<script>
+(()=>{
+'use strict';
+const ALPHABET='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_',VALID=/^[A-Za-z0-9_-]{12}$/;
+const $=s=>document.querySelector(s),drop=$('#drop'),fileInput=$('#fileInput'),status=$('#status'),result=$('#result'),stats=$('#stats'),notice=$('#notice'),mapping=$('#mapping'),downloadBtn=$('#downloadBtn');
+let converted=null,sourceName='kilometerregistratie-backup.json',lastReport=null;
+
+function newId(used){for(let attempt=0;attempt<1000;attempt++){const bytes=new Uint8Array(12);if(globalThis.crypto?.getRandomValues)crypto.getRandomValues(bytes);else for(let i=0;i<bytes.length;i++)bytes[i]=Math.floor(Math.random()*256);const id=Array.from(bytes,b=>ALPHABET[b&63]).join('');if(!used.has(id)){used.add(id);return id}}throw new Error('Kon geen unieke ID maken.')}
+function clone(v){return JSON.parse(JSON.stringify(v))}
+function arr(v){return Array.isArray(v)?v:[]}
+function mapOldId(id,map){return typeof id==='string'&&map.has(id)?map.get(id):id}
+function remapLocationSnapshot(loc,locationMap){if(!loc||typeof loc!=='object')return loc;loc.id=mapOldId(loc.id,locationMap);return loc}
+function collectIds(data){const out=[];for(const l of arr(data.locations))if(typeof l?.id==='string')out.push(l.id);for(const t of arr(data.trips))if(typeof t?.id==='string')out.push(t.id);for(const e of arr(data.events))if(typeof e?.id==='string')out.push(e.id);for(const p of arr(data.trackPoints))if(typeof p?.id==='string')out.push(p.id);if(typeof data.activeTrip?.id==='string')out.push(data.activeTrip.id);return out}
+function buildMap(records,used,label){const map=new Map();for(const record of records){const old=record?.id;if(typeof old!=='string'||!old||VALID.test(old)||map.has(old))continue;map.set(old,newId(used))}return map}
+function convertBackup(input){if(!input||typeof input!=='object'||Array.isArray(input))throw new Error('Dit is geen geldige kilometerregistratie-back-up.');const data=clone(input),used=new Set(collectIds(data).filter(id=>VALID.test(id))),locations=arr(data.locations),trips=arr(data.trips),events=arr(data.events),points=arr(data.trackPoints),locationMap=buildMap(locations,used,'locatie'),tripMap=buildMap(trips,used,'rit'),eventMap=buildMap(events,used,'registratie'),pointMap=buildMap(points,used,'GPS-punt');
+if(data.activeTrip?.id&&!VALID.test(data.activeTrip.id)&&!tripMap.has(data.activeTrip.id))tripMap.set(data.activeTrip.id,newId(used));
+for(const l of locations)l.id=mapOldId(l.id,locationMap);
+for(const t of trips){t.id=mapOldId(t.id,tripMap);for(const key of ['origin','destination','plannedDestination','expectedDestination'])if(t[key])remapLocationSnapshot(t[key],locationMap)}
+for(const e of events){e.id=mapOldId(e.id,eventMap);e.tripId=mapOldId(e.tripId,tripMap);if(e.location)remapLocationSnapshot(e.location,locationMap)}
+for(const p of points){p.id=mapOldId(p.id,pointMap);p.tripId=mapOldId(p.tripId,tripMap)}
+if(data.activeTrip){data.activeTrip.id=mapOldId(data.activeTrip.id,tripMap);for(const key of ['origin','expectedDestination','plannedDestination'])if(data.activeTrip[key])remapLocationSnapshot(data.activeTrip[key],locationMap)}
+if(data.lastEndpoint?.location)remapLocationSnapshot(data.lastEndpoint.location,locationMap);
+const maps=[['Locatie',locationMap],['Rit',tripMap],['Registratie',eventMap],['GPS-punt',pointMap]],rows=[];for(const [type,map] of maps)for(const [oldId,newIdValue] of map)rows.push({type,oldId,newId:newIdValue});
+const allPrimary=[...locations,...trips,...events,...points].map(x=>x?.id).filter(Boolean);if(data.activeTrip?.id)allPrimary.push(data.activeTrip.id);const invalid=allPrimary.filter(id=>!VALID.test(id)),duplicates=allPrimary.length-new Set(allPrimary).size;
+return{data,rows,report:{locations:locationMap.size,trips:tripMap.size,events:eventMap.size,points:pointMap.size,total:rows.length,invalid:invalid.length,duplicates}}}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderReport(r){lastReport=r;const x=r.report;stats.innerHTML=[['Locaties',x.locations],['Ritten',x.trips],['Tank/omrij',x.events],['GPS-punten',x.points]].map(([k,v])=>`<div class="stat"><span>${k}</span><strong>${v}</strong></div>`).join('');if(x.invalid||x.duplicates){notice.className='notice warn';notice.innerHTML=`Controle nodig: ${x.invalid} ongeldige primaire ID's en ${x.duplicates} dubbele primaire ID's na conversie.`;downloadBtn.disabled=true}else{notice.className='notice good';notice.innerHTML=x.total?`${x.total} oude identifiers zijn vervangen. Bestaande geldige 12-teken-ID's zijn behouden.`:'Alle primaire identifiers waren al 12 tekens; er hoefde niets te worden aangepast.';downloadBtn.disabled=false}mapping.innerHTML=r.rows.slice(0,200).map(row=>`<div class="map-row"><span>${esc(row.type)}</span><b>${esc(row.oldId)}</b><div class="arrow">→</div><b>${esc(row.newId)}</b></div>`).join('')+(r.rows.length>200?`<div class="status">Alleen de eerste 200 omzettingen worden hier getoond.</div>`:'');result.classList.remove('hidden')}
+async function readFile(file){sourceName=file.name||sourceName;status.textContent='Bestand controleren…';const input=JSON.parse(await file.text());const r=convertBackup(input);converted=r.data;renderReport(r);status.textContent=`${file.name} gelezen · ${r.report.total} ID's om te zetten.`}
+async function handleFiles(files){const file=[...files][0];if(!file)return;try{await readFile(file)}catch(e){console.error(e);converted=null;result.classList.add('hidden');status.textContent='Fout: '+(e.message||'bestand kon niet worden gelezen.')}}
+function download(){if(!converted||lastReport?.report.invalid||lastReport?.report.duplicates)return;const blob=new Blob([JSON.stringify(converted,null,2)],{type:'application/json'}),a=document.createElement('a'),base=sourceName.replace(/\.json$/i,'');a.href=URL.createObjectURL(blob);a.download=base+'-ids12.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
+function reset(){converted=null;lastReport=null;fileInput.value='';result.classList.add('hidden');status.textContent='Er wordt niets in de app gewijzigd.'}
+$('#pickBtn').addEventListener('click',e=>{e.stopPropagation();fileInput.click()});drop.addEventListener('click',e=>{if(!e.target.closest('button'))fileInput.click()});drop.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click()}});fileInput.addEventListener('change',e=>handleFiles(e.target.files));for(const type of ['dragenter','dragover'])drop.addEventListener(type,e=>{e.preventDefault();drop.classList.add('drag')});for(const type of ['dragleave','drop'])drop.addEventListener(type,e=>{e.preventDefault();drop.classList.remove('drag')});drop.addEventListener('drop',e=>handleFiles(e.dataTransfer?.files||[]));downloadBtn.addEventListener('click',download);$('#resetBtn').addEventListener('click',reset);
+})();
+</script>
+</body>
+</html>

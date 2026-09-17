@@ -1,0 +1,19 @@
+{
+  "name": "Log Test",
+  "short_name": "Log Test",
+  "description": "Testomgeving – persoonlijke kilometerregistratie voor ritten, kilometerstanden en rapportage.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0a0c0f",
+  "theme_color": "#0a0c0f",
+  "lang": "nl-NL",
+  "icons": [
+    {
+      "src": "./app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
