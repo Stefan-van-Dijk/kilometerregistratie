@@ -555,7 +555,7 @@ body.time-mode .shell{max-width:760px;padding-bottom:0}
 <script>
 (()=>{
 'use strict';
-const APP_BUILD='0.31.7',KEY='kmreg-v4-data',APP_MODE_KEY='kmreg-active-app-v1',TIME_STORAGE_KEY='urenregistratie.pwa.v1',REGISTRATION_IDENTITY_KEY='registratie-identiteiten-v1',REGISTRATION_MODEL_SCHEMA='registratie-model.v1',REGISTRATION_EXPORT_KIND='complete_backup',GEOCODE_CACHE_KEY='kmreg-geocode-cache-v1',GEOCODER_DEFAULT_BASE='https://nominatim.openstreetmap.org',SCREEN_EDGE_SWIPE_ZONE=32,SCREEN_EDGE_SWIPE_DISTANCE=72;
+const APP_BUILD='0.31.8',KEY='kmreg-v4-data',APP_MODE_KEY='kmreg-active-app-v1',TIME_STORAGE_KEY='urenregistratie.pwa.v1',REGISTRATION_IDENTITY_KEY='registratie-identiteiten-v1',REGISTRATION_MODEL_SCHEMA='registratie-model.v1',REGISTRATION_EXPORT_KIND='complete_backup',GEOCODE_CACHE_KEY='kmreg-geocode-cache-v1',GEOCODER_DEFAULT_BASE='https://nominatim.openstreetmap.org',SCREEN_EDGE_SWIPE_ZONE=32,SCREEN_EDGE_SWIPE_DISTANCE=72;
 const DEFAULT={settings:{name:'',vehicleBrand:'',vehicleModel:'',plate:'',initialOdometer:'',registrationStart:new Date().toISOString().slice(0,10),reportEmail:'',recognitionRadius:500,privateDays:[],privateTimeStart:'',privateTimeEnd:'',navigationMode:'system',lastBackupAt:null,swipeDeleteEnabled:true,destinationTimeWindowHours:2,geocoderBaseUrl:GEOCODER_DEFAULT_BASE,locationSortMode:'smart'},locations:[],trips:[],events:[],trackPoints:[],activeTrip:null,lastEndpoint:null,lastCompletion:null};
 let data=load(),view='ride',appMode=localStorage.getItem(APP_MODE_KEY)==='time'?'time':'kilometers',timeAppView='home',selectedWeek=new Date(),periodMode='week',gpsWatch=null,gpsTimer=null,gpsLatest=null,odoSwipe=null,periodGesture=null,periodLastTap=0,expandedTripId=null,tripSwipe=null,trackStoreReady=false,trackDbPromise=null,settingsLocationCheck=0,geocodeQueue=Promise.resolve(),geocodeLastAt=0,expandedLocationId=null,settingsLocationsOpen=false,settingsLocationOriginId=null,screenSwipe=null,editorReturnView='ride',editingTripId=null,editingLocationId=null,editingLocationSeed=null,startDraft=null,arrivalDraft=null;
 const app=document.getElementById('app'),modal=document.getElementById('modal'),modalPanel=document.getElementById('modalPanel'),toastEl=document.getElementById('toast'),topAction=document.getElementById('topAction'),printReportEl=document.getElementById('printReport'),appModeToggle=document.getElementById('appModeToggle'),appModeLabel=document.getElementById('appModeLabel'),appModeMeta=document.getElementById('appModeMeta'),timeAppFrame=document.getElementById('timeAppFrame');
@@ -1119,7 +1119,7 @@ async function deliverFile(blob,name,title){if(typeof File==='function'&&navigat
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
 })();
 </script>
-<script src="./shell-ui.js?v=0.31.7"></script>
-<script src="./shell-ui-stable.js?v=0.31.7"></script>
+<script src="./shell-ui.js?v=0.31.8"></script>
+<script src="./shell-ui-stable.js?v=0.31.8"></script>
 </body>
 </html>
