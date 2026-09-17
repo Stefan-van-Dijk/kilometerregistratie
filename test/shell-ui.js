@@ -85,6 +85,10 @@
       .km-shell-settings{position:fixed;z-index:120;inset:0;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.38);opacity:0;pointer-events:none;transition:opacity .22s ease}.km-shell-settings.open{opacity:1;pointer-events:auto}
       .km-shell-settings-surface{width:100%;height:min(94dvh,900px);display:flex;flex-direction:column;border-radius:24px 24px 0 0;border:1px solid var(--line);border-bottom:0;background:var(--bg);box-shadow:0 -18px 52px rgba(0,0,0,.34);transform:translateY(102%);transition:transform .28s cubic-bezier(.2,.8,.2,1);overflow:hidden}.km-shell-settings.open .km-shell-settings-surface{transform:translateY(0)}
       .km-shell-settings-head{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:8px;flex:0 0 auto;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line);background:rgba(13,17,23,.92);-webkit-backdrop-filter:blur(22px) saturate(165%);backdrop-filter:blur(22px) saturate(165%)}.km-shell-settings-title{text-align:center;font-size:16px;font-weight:850}.km-shell-settings-close{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:0;border-radius:50%;background:var(--card2);color:var(--text);font-size:25px;cursor:pointer}.km-shell-settings-content{flex:1;min-height:0;overflow:auto;padding:8px 16px calc(24px + env(safe-area-inset-bottom))}.km-shell-settings-content>#app{display:block!important;max-width:760px;margin:0 auto}.km-shell-settings-content .time-app-frame{display:block!important;width:100%;height:100%!important;min-height:0!important;opacity:1!important}
+      .km-shell-settings-back{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:0;border-radius:50%;background:transparent;color:var(--accent);font-size:27px;cursor:pointer}.km-shell-settings-back[hidden]{display:none!important}.km-shell-settings-back:active{background:var(--card2)}
+      .km-shell-general-settings{max-width:760px;margin:0 auto;padding:8px 0 24px}.km-shell-general-intro{padding:8px 1px 16px;border-bottom:1px solid var(--line)}.km-shell-general-intro h2{margin:3px 0 5px;font-size:28px;letter-spacing:-.035em}.km-shell-general-intro p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+      .km-shell-general-card{padding:17px 1px;border-bottom:1px solid var(--line)}.km-shell-general-card>strong,.km-shell-general-card>small{display:block}.km-shell-general-card>strong{font-size:17px}.km-shell-general-card>small{margin-top:4px;color:var(--muted);font-size:11px;line-height:1.4}.km-shell-general-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:13px}.km-shell-general-actions .btn{width:100%;margin:0;text-align:center}.km-shell-general-nav{display:grid;gap:2px;margin-top:10px}.km-shell-general-nav button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px;padding:10px 1px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font-weight:760;text-align:left}.km-shell-general-nav button span:last-child{color:var(--muted);font-size:21px}.km-shell-general-advanced{margin-top:12px}.km-shell-general-advanced summary{color:var(--muted);font-size:12px;font-weight:750;cursor:pointer}.km-shell-general-status{margin-top:8px;color:var(--muted);font-size:11px;line-height:1.4}
+      @media(max-width:480px){.km-shell-general-actions{grid-template-columns:1fr}}
       .shell>#timeAppFrame{position:relative;z-index:0}.km-shell-drawer-open .shell>#timeAppFrame{visibility:hidden!important;pointer-events:none!important}.editor-view>.km-shell-menu-button{display:none!important}
       .km-shell-locations{padding:2px 0 28px}.km-shell-locations-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:8px 1px 10px}.km-shell-locations-head h2{margin:2px 0 0;font-size:28px;letter-spacing:-.035em}.km-shell-location-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:5px 0 16px}.km-shell-location-actions button{min-height:44px}
       .km-shell-location-sort{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px;margin-bottom:8px;border:1px solid var(--line);border-radius:12px;background:var(--card)}.km-shell-location-sort button{min-height:34px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-size:11px;font-weight:800}.km-shell-location-sort button.active{background:var(--card2);color:var(--text)}
@@ -187,10 +191,15 @@
     settings.className = 'km-shell-settings';
     settings.innerHTML = `
       <section class="km-shell-settings-surface" role="dialog" aria-modal="true" aria-labelledby="kmShellSettingsTitle">
-        <header class="km-shell-settings-head"><span></span><div id="kmShellSettingsTitle" class="km-shell-settings-title">Instellingen</div><button id="kmShellSettingsClose" class="km-shell-settings-close" type="button" aria-label="Instellingen sluiten">×</button></header>
+        <header class="km-shell-settings-head"><button id="kmShellSettingsBack" class="km-shell-settings-back" type="button" aria-label="Terug naar algemene instellingen" hidden>‹</button><div id="kmShellSettingsTitle" class="km-shell-settings-title">Algemene instellingen</div><button id="kmShellSettingsClose" class="km-shell-settings-close" type="button" aria-label="Instellingen sluiten">×</button></header>
         <div id="kmShellSettingsContent" class="km-shell-settings-content"></div>
       </section>`;
     $('#kmShellSettingsClose', settings).addEventListener('click', closeSettingsSheet);
+    $('#kmShellSettingsBack', settings).addEventListener('click', () => {
+      if ($('#kmShellSettingsContent > #timeAppFrame')) restoreTimeFrame();
+      if (kmSettingsMounted) restoreKmApp();
+      renderGeneralSettings();
+    });
 
     const locationsView = document.createElement('main');
     locationsView.id = 'kmShellLocationsView';
@@ -537,6 +546,93 @@
     setTimeout(() => { pendingParentSave = null; }, 2500);
   }
 
+  function generalBackupStatus() {
+    const last = readData().settings.lastBackupAt;
+    if (!last) return 'Nog geen complete back-up gemaakt.';
+    const date = new Date(last);
+    if (Number.isNaN(date.getTime())) return 'Laatste complete back-up is vastgelegd.';
+    return 'Laatste complete back-up: ' + new Intl.DateTimeFormat('nl-NL', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+  }
+
+  function setSettingsBackVisible(visible) {
+    const back = $('#kmShellSettingsBack');
+    if (back) back.hidden = !visible;
+  }
+
+  function renderGeneralSettings() {
+    const content = $('#kmShellSettingsContent');
+    if (!content) return false;
+    content.dataset.mode = 'general';
+    const title = $('#kmShellSettingsTitle');
+    if (title) title.textContent = 'Algemene instellingen';
+    setSettingsBackVisible(false);
+    content.innerHTML = `
+      <section class="km-shell-general-settings">
+        <div class="km-shell-general-intro"><div class="kicker">Log</div><h2>Algemene instellingen</h2><p>Deze instellingen gelden voor de volledige app: ritten, tijd, taken en locaties.</p></div>
+        <div class="km-shell-general-card">
+          <strong>Data & back-up</strong>
+          <small>Maak of herstel één complete back-up van de volledige Log-app.</small>
+          <div class="km-shell-general-status" id="kmShellBackupStatus">${esc(generalBackupStatus())}</div>
+          <div class="km-shell-general-actions">
+            <button type="button" class="btn" data-general-action="backup-export">Complete back-up maken</button>
+            <label class="btn" style="text-align:center">Back-up herstellen<input id="kmShellBackupImport" type="file" accept="application/json,.json" hidden></label>
+          </div>
+          <details class="km-shell-general-advanced">
+            <summary>Geavanceerd gegevensbeheer</summary>
+            <div class="km-shell-general-actions">
+              <label class="btn secondary" style="text-align:center">Kilometergegevens toevoegen<input id="kmShellMergeImport" type="file" accept="application/json,.json" hidden></label>
+              <button type="button" class="btn secondary" data-general-action="id-converter">ID-converter</button>
+            </div>
+          </details>
+        </div>
+        <div class="km-shell-general-card">
+          <strong>Instellingen per onderdeel</strong>
+          <small>Open alleen de instellingen die bij dat onderdeel horen.</small>
+          <div class="km-shell-general-nav">
+            <button type="button" data-settings-target="rides"><span>Ritten</span><span>›</span></button>
+            <button type="button" data-settings-target="locations"><span>Locaties</span><span>›</span></button>
+            <button type="button" data-settings-target="time"><span>Tijd / taken</span><span>›</span></button>
+          </div>
+        </div>
+      </section>`;
+    content.querySelector('[data-general-action="backup-export"]')?.addEventListener('click', () => {
+      const status = $('#kmShellBackupStatus');
+      if (status) status.textContent = 'Back-up wordt voorbereid…';
+      window.dispatchEvent(new CustomEvent('log-general-backup-export'));
+    });
+    content.querySelector('#kmShellBackupImport')?.addEventListener('change', event => {
+      const file = event.target.files?.[0];
+      event.target.value = '';
+      if (file) window.dispatchEvent(new CustomEvent('log-general-backup-import', { detail: { file } }));
+    });
+    content.querySelector('#kmShellMergeImport')?.addEventListener('change', event => {
+      const file = event.target.files?.[0];
+      event.target.value = '';
+      if (file) window.dispatchEvent(new CustomEvent('log-general-merge-import', { detail: { file } }));
+    });
+    content.querySelector('[data-general-action="id-converter"]')?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('log-general-id-converter'));
+    });
+    content.querySelectorAll('[data-settings-target]').forEach(button => button.addEventListener('click', () => openSubSettings(button.dataset.settingsTarget)));
+    return true;
+  }
+
+  function openSubSettings(target) {
+    if (!ROOT_SECTIONS.has(target)) return;
+    selectSection(target);
+    const content = $('#kmShellSettingsContent');
+    if (content) {
+      content.innerHTML = '';
+      content.dataset.mode = 'sub';
+    }
+    const mounted = target === 'time' ? mountTimeSettings() : mountKmSettings();
+    if (!mounted) {
+      renderGeneralSettings();
+      return;
+    }
+    setSettingsBackVisible(true);
+  }
+
   function mountKmSettings() {
     const content = $('#kmShellSettingsContent');
     const app = $('#app');
@@ -551,6 +647,7 @@
       return false;
     }
     content.innerHTML = '';
+    content.dataset.mode = 'sub';
     content.appendChild(app);
     app.hidden = false;
     kmSettingsMounted = true;
@@ -566,7 +663,7 @@
     for (const detail of details) {
       const label = detail.querySelector('summary strong')?.textContent?.trim() || '';
       if (label === 'Locaties') detail.style.display = 'none';
-      if (section === 'locations' && !['Algemeen', 'Data & back-up'].includes(label)) detail.style.display = 'none';
+      if (section === 'locations' && label !== 'Algemeen') detail.style.display = 'none';
     }
     const title = $('#kmShellSettingsTitle');
     if (title) title.textContent = section === 'locations' ? 'Instellingen locaties' : 'Instellingen ritten';
@@ -581,6 +678,7 @@
     timeFramePlaceholder = document.createComment('time-frame-placeholder');
     timeFrameOriginalParent?.insertBefore(timeFramePlaceholder, frame);
     content.innerHTML = '';
+    content.dataset.mode = 'sub';
     content.appendChild(frame);
     frame.hidden = false;
     const title = $('#kmShellSettingsTitle');
@@ -645,16 +743,10 @@
   }
 
   function openSettingsSheet() {
-    if (section === 'time') {
-      openTimeSettingsPage();
-      return;
-    }
     const settings = $('#kmShellSettings');
     if (!settings || settings.classList.contains('open')) return;
-    const content = $('#kmShellSettingsContent');
-    if (content) content.innerHTML = '';
-    const mounted = section === 'time' ? mountTimeSettings() : mountKmSettings();
-    if (!mounted) return;
+    if (timeSettingsOpen) closeTimeSettingsPage();
+    if (!renderGeneralSettings()) return;
     settings.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -710,6 +802,10 @@
   function bindGlobalEvents() {
     window.addEventListener('kmreg-test-shell-select-section', event => selectSection(event.detail?.section));
     window.addEventListener('kmreg-test-shell-open-settings', () => openSettingsSheet());
+    window.addEventListener('log-backup-updated', () => {
+      const content = $('#kmShellSettingsContent');
+      if (content?.dataset.mode === 'general') renderGeneralSettings();
+    });
     window.addEventListener('message', event => {
       const frame = $('#timeAppFrame');
       if (event.origin !== window.location.origin || event.source !== frame?.contentWindow || event.data?.type !== 'urenregistratie-view') return;
