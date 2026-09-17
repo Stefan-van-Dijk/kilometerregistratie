@@ -190,6 +190,19 @@
       .km-shell-location-buttons button{color:var(--accent)!important;font-size:17px!important}.km-shell-location-chevron{color:color-mix(in srgb,var(--muted) 62%,transparent)!important;font-size:21px!important}
       .section-title h2{letter-spacing:-.02em}
       button,.btn,[role="button"],summary{touch-action:manipulation}
+      /* Correcties voor iPhone-safe-areas, scheidingslijnen en overlay-stapeling. */
+      .shell{padding-top:0!important}
+      .top.km-shell-top{z-index:40!important}
+      .km-shell-menu-button{z-index:42!important}
+      .km-shell-settings-head{padding-top:15px!important}
+      .km-shell-settings-close{top:14px!important}
+      body.km-shell-settings-open .km-shell-drawer{transform:translateX(-102%)!important;pointer-events:none!important}
+      body.km-shell-settings-open .km-shell-backdrop{opacity:0!important;pointer-events:none!important}
+      body.km-shell-settings-open .toast{z-index:140!important}
+      body:not(.time-mode) #app .list{gap:0!important}
+      body:not(.time-mode) #app .list .swipe-row{border-radius:0!important}
+      body:not(.time-mode) #app .trip-entry.expanded .list-item::after{display:none!important}
+      body:not(.time-mode) #app .trip-inline-details{background:var(--card)!important}
       @media(prefers-color-scheme:light){.km-shell-drawer{background:rgba(255,255,255,.97);box-shadow:18px 0 52px rgba(30,45,65,.16)}.km-shell-settings-head{background:rgba(245,245,247,.93)}.km-shell-backdrop{background:rgba(0,0,0,.22)}.km-shell-settings{background:rgba(0,0,0,.22)}}
       @media(max-width:480px){.km-shell-drawer{width:min(86vw,330px)}.km-shell-settings-surface{height:96dvh;border-radius:21px 21px 0 0}.km-shell-settings-content{padding-left:12px;padding-right:12px}.km-shell-location-detail-grid{grid-template-columns:1fr}.km-shell-location-actions{grid-template-columns:1fr 1fr}}
       @media(prefers-reduced-motion:reduce){.km-shell-drawer,.km-shell-backdrop,.km-shell-settings,.km-shell-settings-surface{transition:none!important}.km-shell-settings-content>*,body.km-shell-page-forward .shell,body.km-shell-page-back .shell{animation:none!important}}
@@ -799,10 +812,13 @@
           .period-nav,.summary,.suggestion,.active-card{border-color:color-mix(in srgb,var(--line) 86%,transparent)!important;border-radius:16px!important}
           .period-arrow{color:var(--accent)!important;background:color-mix(in srgb,var(--accent) 10%,var(--surface2))!important}
           .period-tabs{border:0!important;border-radius:9px!important;background:color-mix(in srgb,var(--muted) 13%,transparent)!important}
-          .section>.list{border-color:color-mix(in srgb,var(--line) 86%,transparent)!important;border-radius:16px!important}
+          .section>.list{gap:0!important;border-color:color-mix(in srgb,var(--line) 86%,transparent)!important;border-radius:16px!important}
+          .activity-entry-shell{border-bottom:0!important}
           .activity-swipe-surface.entry{position:relative!important;padding:14px 12px!important;background:var(--surface)!important}
           .activity-swipe-surface.entry::after{content:"";position:absolute;left:70px;right:0;bottom:0;height:.5px;background:var(--line);pointer-events:none}
-          .activity-entry-shell:last-child .activity-swipe-surface.entry::after{display:none}
+          .activity-entry-shell:last-child .activity-swipe-surface.entry::after,
+          .activity-entry-shell.expanded .activity-swipe-surface.entry::after{display:none}
+          .activity-inline-details{background:var(--surface)!important}
           .activity-swipe-edit{background:#0a84ff!important;color:#fff!important}
           .activity-swipe-delete{background:#ff453a!important;color:#fff!important}
           .section-title h2,.section-title h3{font-size:20px!important;letter-spacing:-.02em}
@@ -919,6 +935,7 @@
     if (timeSettingsOpen) closeTimeSettingsPage();
     if (!renderGeneralSettings()) return;
     settings.classList.add('open');
+    document.body.classList.add('km-shell-settings-open');
     document.body.style.overflow = 'hidden';
   }
 
@@ -963,6 +980,7 @@
     if ($('#kmShellSettingsContent #timeAppFrame')) restoreTimeFrame();
     if (kmSettingsMounted) restoreKmApp();
     settings.classList.remove('open');
+    document.body.classList.remove('km-shell-settings-open');
     document.body.style.overflow = '';
     // Het zijpaneel blijft bewust open staan achter de sheet.
     drawerOpen = true;
