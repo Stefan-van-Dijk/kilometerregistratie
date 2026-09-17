@@ -102,8 +102,11 @@
       body.km-shell-page-enter-forward .shell,body.km-shell-page-enter-forward .km-shell-menu-button{animation:kmPageEnterForward .28s cubic-bezier(.22,1,.36,1) both}
       body.km-shell-page-exit-back .shell,body.km-shell-page-exit-back .km-shell-menu-button{animation:kmPageExitBack .135s ease-in both}
       body.km-shell-page-enter-back .shell,body.km-shell-page-enter-back .km-shell-menu-button{animation:kmPageEnterBack .28s cubic-bezier(.22,1,.36,1) both}
-      body.km-shell-page-dragging .shell,body.km-shell-page-dragging .km-shell-menu-button{animation:none!important;transition:none!important;transform:translate3d(var(--km-shell-swipe-x,0px),0,0)!important;will-change:transform}
-      body.km-shell-page-settling .shell,body.km-shell-page-settling .km-shell-menu-button{animation:none!important;transition:transform var(--km-shell-swipe-duration,220ms) cubic-bezier(.22,1,.36,1)!important;transform:translate3d(var(--km-shell-swipe-x,0px),0,0)!important;will-change:transform}
+      body.km-shell-page-dragging{overflow-x:hidden}
+      body.km-shell-page-dragging .shell:not(.km-shell-swipe-preview){animation:none!important;transition:none!important;transform:translate3d(var(--km-shell-swipe-x,0px),0,0)!important;will-change:transform;backface-visibility:hidden}
+      body.km-shell-page-settling .shell:not(.km-shell-swipe-preview){animation:none!important;transition:transform var(--km-shell-swipe-duration,220ms) cubic-bezier(.22,1,.36,1)!important;transform:translate3d(var(--km-shell-swipe-x,0px),0,0)!important;will-change:transform;backface-visibility:hidden}
+      .km-shell-swipe-preview{position:fixed!important;inset:0!important;z-index:30!important;width:100vw!important;max-width:none!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;overflow:hidden!important;pointer-events:none!important;background:var(--bg)!important;transform:translate3d(var(--km-shell-preview-x,100vw),0,0);will-change:transform;backface-visibility:hidden;contain:paint}
+      .km-shell-swipe-preview.km-shell-preview-settling{transition:transform var(--km-shell-swipe-duration,220ms) cubic-bezier(.22,1,.36,1)!important}
       @media(max-width:480px){.km-shell-general-actions{grid-template-columns:1fr}}
       .shell>#timeAppFrame{position:relative;z-index:0}.km-shell-drawer-open .shell>#timeAppFrame{visibility:hidden!important;pointer-events:none!important}.editor-view>.km-shell-menu-button{display:none!important}
       .km-shell-locations{padding:2px 0 28px}.km-shell-locations-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:8px 1px 10px}.km-shell-locations-head h2{margin:2px 0 0;font-size:28px;letter-spacing:-.035em}.km-shell-location-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:5px 0 16px}.km-shell-location-actions button{min-height:44px}
@@ -1195,6 +1198,8 @@
   const SWIPE_SECTIONS = ['rides', 'time', 'locations'];
   const swipeDocuments = new WeakSet();
   let pageSwipe = null;
+  let swipePaintFrame = 0;
+  let swipePaintDx = 0;
 
   function pageSwipeBlocked() {
     return sectionTransitioning || drawerOpen || $('#kmShellSettings')?.classList.contains('open') || !$('#modal')?.hidden || document.body.classList.contains('editor-view');
@@ -1204,35 +1209,80 @@
     return Boolean(target?.closest?.('button,input,select,textarea,a,label,summary,[contenteditable="true"],.swipe-row,.trip-swipe-row,.entry'));
   }
 
-  function swipeTargetIndex(dx) {
+  function carouselTarget(dx) {
     const index = SWIPE_SECTIONS.indexOf(section);
     const direction = dx < 0 ? 1 : -1;
-    const nextIndex = index + direction;
-    return { index, direction, nextIndex, valid: index >= 0 && nextIndex >= 0 && nextIndex < SWIPE_SECTIONS.length };
+    const nextIndex = (index + direction + SWIPE_SECTIONS.length) % SWIPE_SECTIONS.length;
+    return { index, direction, nextIndex, section: SWIPE_SECTIONS[nextIndex] };
   }
 
-  function applySwipeOffset(px, settling = false, duration = 220) {
-    const body = document.body;
-    body.style.setProperty('--km-shell-swipe-x', `${Math.round(px)}px`);
-    body.style.setProperty('--km-shell-swipe-duration', `${duration}ms`);
-    body.classList.toggle('km-shell-page-dragging', !settling);
-    body.classList.toggle('km-shell-page-settling', settling);
+  function removeSwipePreview() {
+    document.querySelector('.km-shell-swipe-preview')?.remove();
+    if (pageSwipe) pageSwipe.preview = null;
   }
 
-  function clearSwipeOffset() {
+  function buildSwipePreview(target) {
+    if (!pageSwipe) return null;
+    if (pageSwipe.preview && pageSwipe.previewSection === target.section) return pageSwipe.preview;
+    removeSwipePreview();
+
+    const currentSection = section;
+    const shell = $('.shell');
+    if (!shell) return null;
+    section = target.section;
+    showSection();
+    const preview = shell.cloneNode(true);
+    section = currentSection;
+    showSection();
+
+    preview.classList.add('km-shell-swipe-preview');
+    preview.setAttribute('aria-hidden', 'true');
+    preview.setAttribute('inert', '');
+    preview.style.setProperty('--km-shell-preview-x', `${target.direction * window.innerWidth}px`);
+    document.body.appendChild(preview);
+    pageSwipe.preview = preview;
+    pageSwipe.previewSection = target.section;
+    pageSwipe.previewDirection = target.direction;
+    return preview;
+  }
+
+  function paintPageSwipe(dx) {
+    swipePaintDx = dx;
+    if (swipePaintFrame) return;
+    swipePaintFrame = requestAnimationFrame(() => {
+      swipePaintFrame = 0;
+      if (!pageSwipe?.horizontal) return;
+      const target = carouselTarget(swipePaintDx);
+      const preview = buildSwipePreview(target);
+      document.body.style.setProperty('--km-shell-swipe-x', `${Math.round(swipePaintDx)}px`);
+      if (preview) preview.style.setProperty('--km-shell-preview-x', `${Math.round(swipePaintDx + target.direction * window.innerWidth)}px`);
+    });
+  }
+
+  function clearSwipeState() {
+    if (swipePaintFrame) cancelAnimationFrame(swipePaintFrame);
+    swipePaintFrame = 0;
+    removeSwipePreview();
     const body = document.body;
     body.classList.remove('km-shell-page-dragging', 'km-shell-page-settling');
     body.style.removeProperty('--km-shell-swipe-x');
     body.style.removeProperty('--km-shell-swipe-duration');
   }
 
-  function cancelPageSwipe() {
-    if (!document.body.classList.contains('km-shell-page-dragging')) {
-      clearSwipeOffset();
-      return;
+  function settleSwipeBack(gesture) {
+    const preview = gesture?.preview;
+    const direction = gesture?.previewDirection || (gesture?.dx < 0 ? 1 : -1);
+    const body = document.body;
+    body.classList.remove('km-shell-page-dragging');
+    body.classList.add('km-shell-page-settling');
+    body.style.setProperty('--km-shell-swipe-duration', '190ms');
+    body.style.setProperty('--km-shell-swipe-x', '0px');
+    if (preview) {
+      preview.classList.add('km-shell-preview-settling');
+      preview.style.setProperty('--km-shell-swipe-duration', '190ms');
+      preview.style.setProperty('--km-shell-preview-x', `${direction * window.innerWidth}px`);
     }
-    applySwipeOffset(0, true, 190);
-    setTimeout(clearSwipeOffset, 210);
+    setTimeout(clearSwipeState, 220);
   }
 
   function pageSwipeStart(event) {
@@ -1249,7 +1299,10 @@
       horizontal: false,
       lastX: touch.clientX,
       lastAt: now,
-      velocityX: 0
+      velocityX: 0,
+      preview: null,
+      previewSection: null,
+      previewDirection: 0
     };
   }
 
@@ -1272,56 +1325,76 @@
       }
       if (Math.abs(pageSwipe.dx) > 8 && Math.abs(pageSwipe.dx) > Math.abs(pageSwipe.dy) * 1.2) {
         pageSwipe.horizontal = true;
+        document.body.classList.add('km-shell-page-dragging');
       }
     }
 
     if (!pageSwipe?.horizontal) return;
-    const target = swipeTargetIndex(pageSwipe.dx);
-    const visibleDx = target.valid ? pageSwipe.dx : pageSwipe.dx * .18;
-    applySwipeOffset(visibleDx);
+    paintPageSwipe(pageSwipe.dx);
     if (event.cancelable) event.preventDefault();
   }
 
   function pageSwipeEnd() {
     const gesture = pageSwipe;
-    pageSwipe = null;
     if (!gesture?.horizontal) {
-      clearSwipeOffset();
+      pageSwipe = null;
+      clearSwipeState();
       return;
     }
 
-    const target = swipeTargetIndex(gesture.dx);
+    if (swipePaintFrame) {
+      cancelAnimationFrame(swipePaintFrame);
+      swipePaintFrame = 0;
+      const target = carouselTarget(gesture.dx);
+      const preview = gesture.preview || buildSwipePreview(target);
+      document.body.style.setProperty('--km-shell-swipe-x', `${Math.round(gesture.dx)}px`);
+      if (preview) preview.style.setProperty('--km-shell-preview-x', `${Math.round(gesture.dx + target.direction * window.innerWidth)}px`);
+    }
+    pageSwipe = null;
+
     const distanceEnough = Math.abs(gesture.dx) >= Math.min(76, window.innerWidth * .18);
     const flickEnough = Math.abs(gesture.velocityX) >= .42 && Math.abs(gesture.dx) >= 24;
     const directionMatchesVelocity = Math.sign(gesture.velocityX || gesture.dx) === Math.sign(gesture.dx);
-    if (!target.valid || (!distanceEnough && !(flickEnough && directionMatchesVelocity))) {
-      cancelPageSwipe();
+    if (!distanceEnough && !(flickEnough && directionMatchesVelocity)) {
+      settleSwipeBack(gesture);
       return;
     }
-    completePageSwipe(target.direction, target.nextIndex, gesture.dx);
+    completeCarouselSwipe(gesture);
   }
 
-  function completePageSwipe(direction, nextIndex, currentOffset = 0) {
+  function completeCarouselSwipe(gesture) {
     if (sectionTransitioning) return;
+    const target = carouselTarget(gesture.dx);
+    const preview = gesture.preview;
+    if (!preview) {
+      settleSwipeBack(gesture);
+      return;
+    }
+
     sectionTransitioning = true;
     const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-    const exitOffset = direction > 0 ? -width : width;
-    const remaining = Math.max(0, width - Math.abs(currentOffset));
-    const exitDuration = Math.max(110, Math.min(190, remaining * .24));
-    applySwipeOffset(exitOffset, true, exitDuration);
+    const exitOffset = target.direction > 0 ? -width : width;
+    const remaining = Math.max(0, width - Math.abs(gesture.dx));
+    const duration = Math.max(120, Math.min(210, remaining * .28));
+    const body = document.body;
+    body.classList.remove('km-shell-page-dragging');
+    body.classList.add('km-shell-page-settling');
+    body.style.setProperty('--km-shell-swipe-duration', `${duration}ms`);
+    body.style.setProperty('--km-shell-swipe-x', `${exitOffset}px`);
+    preview.classList.add('km-shell-preview-settling');
+    preview.style.setProperty('--km-shell-swipe-duration', `${duration}ms`);
+    preview.style.setProperty('--km-shell-preview-x', '0px');
 
     setTimeout(() => {
-      selectSection(SWIPE_SECTIONS[nextIndex]);
-      document.body.classList.remove('km-shell-page-settling');
-      document.body.classList.add('km-shell-page-dragging');
-      document.body.style.setProperty('--km-shell-swipe-x', `${direction > 0 ? width : -width}px`);
-      void document.body.offsetWidth;
-      applySwipeOffset(0, true, 270);
-      setTimeout(() => {
-        clearSwipeOffset();
+      selectSection(target.section);
+      body.classList.remove('km-shell-page-settling');
+      body.style.removeProperty('--km-shell-swipe-x');
+      body.style.removeProperty('--km-shell-swipe-duration');
+      requestAnimationFrame(() => {
+        removeSwipePreview();
         sectionTransitioning = false;
-      }, 290);
-    }, exitDuration + 20);
+      });
+    }, duration + 25);
   }
 
   function bindSwipeDocument(doc) {
@@ -1331,8 +1404,9 @@
     doc.addEventListener('touchmove', pageSwipeMove, { passive: false });
     doc.addEventListener('touchend', pageSwipeEnd, { passive: true });
     doc.addEventListener('touchcancel', () => {
+      const gesture = pageSwipe;
       pageSwipe = null;
-      cancelPageSwipe();
+      settleSwipeBack(gesture);
     }, { passive: true });
   }
 
