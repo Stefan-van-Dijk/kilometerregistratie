@@ -23,6 +23,8 @@
   let timeFrameOriginalNext = null;
   let locationEditorAugmentQueued = false;
   let timeSettingsOpen = false;
+  let activeSettingsTarget = null;
+  let timeFrameSettingsObserver = null;
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -99,6 +101,40 @@
       .km-shell-parent-section select{width:100%;min-height:38px;padding:6px 0 7px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;color:var(--text);font-size:15px;outline:none}.km-shell-parent-hint{margin-top:6px;color:var(--muted);font-size:10px;line-height:1.4}
       body.km-shell-locations-mode #app,body.km-shell-locations-mode #timeAppFrame{display:none!important}body.km-shell-locations-mode #kmShellLocationsView{display:block!important}
       body.editor-view #kmShellLocationsView{display:none!important}
+      /* Eén visuele taal voor Ritten, Tijd/taken en Locaties. */
+      .km-shell-settings-head{display:flex!important;align-items:center!important;justify-content:center!important;min-height:59px}.km-shell-settings-title{padding:0 46px}
+      body:not(.time-mode) #app .hero,body:not(.time-mode) #app .summary,body:not(.time-mode) #app .notice,body:not(.time-mode) #app .empty{border:1px solid var(--line)!important;border-radius:16px!important;background:var(--card)!important;box-shadow:none!important}
+      body:not(.time-mode) #app .list{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+      body:not(.time-mode) #app .list .list-item{margin:0!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;background:var(--card)!important}
+      body:not(.time-mode) #app .list .trip-entry:last-child .list-item{border-bottom:0!important}
+      body:not(.time-mode) #app .btn,.km-shell-locations .btn{border-radius:12px!important;box-shadow:none!important}
+      .km-shell-location-tree{overflow:hidden;border:1px solid var(--line)!important;border-radius:16px;background:var(--card)}
+      .km-shell-location-row{padding-left:12px!important;padding-right:8px!important}
+      .km-shell-location-node:last-child>.km-shell-location-row{border-bottom:0}
+      .km-shell-location-sort{border-radius:12px!important;background:var(--card)!important}
+      .km-shell-general-settings{max-width:760px;margin:0 auto;padding:8px 0 30px}
+      .km-shell-general-intro{padding:8px 1px 16px;border-bottom:0}
+      .km-shell-settings-accordion{width:100%;margin:0 0 9px;overflow:hidden;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+      .km-shell-settings-accordion summary{display:flex;align-items:center;gap:10px;min-height:64px;padding:13px 15px;list-style:none;cursor:pointer;user-select:none}
+      .km-shell-settings-accordion summary::-webkit-details-marker{display:none}
+      .km-shell-settings-accordion-title{flex:1;min-width:0}
+      .km-shell-settings-accordion-title strong,.km-shell-settings-accordion-title small{display:block}
+      .km-shell-settings-accordion-title strong{font-size:15px}
+      .km-shell-settings-accordion-title small{margin-top:3px;color:var(--muted);font-size:11px;font-weight:500;line-height:1.35}
+      .km-shell-settings-accordion-arrow{color:var(--muted);font-size:21px;transition:transform .22s cubic-bezier(.22,1,.36,1)}
+      .km-shell-settings-accordion[open] .km-shell-settings-accordion-arrow{transform:rotate(90deg)}
+      .km-shell-settings-accordion-body{padding:0 15px 15px;border-top:1px solid var(--line)}
+      .km-shell-settings-panel-host{min-height:1px}
+      .km-shell-settings-panel-host.km-settings-panel-in{animation:kmSettingsPanelIn .24s cubic-bezier(.22,1,.36,1) both}
+      .km-shell-settings-panel-host>#app{max-width:none!important;margin:0!important;padding-top:2px}
+      .km-shell-settings-panel-host>#app form{margin:0}
+      .km-shell-settings-panel-host>#app details.accordion{margin:0;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent}
+      .km-shell-settings-panel-host>#app details.accordion:last-child{border-bottom:0}
+      .km-shell-settings-panel-host>#app details.accordion>summary{padding-left:1px;padding-right:1px}
+      .km-shell-settings-panel-host>#app .accordion-body{padding-left:1px;padding-right:1px}
+      .km-shell-settings-panel-host>.time-app-frame{display:block!important;width:100%;min-height:280px!important;border:0}
+      .km-shell-settings-loading{padding:16px 1px;color:var(--muted);font-size:12px}
+      @keyframes kmSettingsPanelIn{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
       @media(prefers-color-scheme:light){.km-shell-drawer{background:rgba(255,255,255,.97);box-shadow:18px 0 52px rgba(30,45,65,.16)}.km-shell-settings-head{background:rgba(245,245,247,.93)}.km-shell-backdrop{background:rgba(0,0,0,.22)}.km-shell-settings{background:rgba(0,0,0,.22)}}
       @media(max-width:480px){.km-shell-drawer{width:min(86vw,330px)}.km-shell-settings-surface{height:96dvh;border-radius:21px 21px 0 0}.km-shell-settings-content{padding-left:12px;padding-right:12px}.km-shell-location-detail-grid{grid-template-columns:1fr}.km-shell-location-actions{grid-template-columns:1fr 1fr}}
       @media(prefers-reduced-motion:reduce){.km-shell-drawer,.km-shell-backdrop,.km-shell-settings,.km-shell-settings-surface{transition:none!important}.km-shell-settings-content>*,body.km-shell-page-forward .shell,body.km-shell-page-back .shell{animation:none!important}}
@@ -194,16 +230,10 @@
     settings.className = 'km-shell-settings';
     settings.innerHTML = `
       <section class="km-shell-settings-surface" role="dialog" aria-modal="true" aria-labelledby="kmShellSettingsTitle">
-        <header class="km-shell-settings-head"><button id="kmShellSettingsBack" class="km-shell-settings-back" type="button" aria-label="Terug naar algemene instellingen" hidden>←</button><div id="kmShellSettingsTitle" class="km-shell-settings-title">Algemene instellingen</div><button id="kmShellSettingsClose" class="km-shell-settings-close" type="button" aria-label="Instellingen sluiten">×</button></header>
+        <header class="km-shell-settings-head"><div id="kmShellSettingsTitle" class="km-shell-settings-title">Algemene instellingen</div><button id="kmShellSettingsClose" class="km-shell-settings-close" type="button" aria-label="Instellingen sluiten">×</button></header>
         <div id="kmShellSettingsContent" class="km-shell-settings-content"></div>
       </section>`;
     $('#kmShellSettingsClose', settings).addEventListener('click', closeSettingsSheet);
-    $('#kmShellSettingsBack', settings).addEventListener('click', () => {
-      if ($('#kmShellSettingsContent > #timeAppFrame')) restoreTimeFrame();
-      if (kmSettingsMounted) restoreKmApp();
-      renderGeneralSettings();
-      animateSettingsContent('back');
-    });
 
     const locationsView = document.createElement('main');
     locationsView.id = 'kmShellLocationsView';
@@ -558,33 +588,29 @@
     return 'Laatste complete back-up: ' + new Intl.DateTimeFormat('nl-NL', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
   }
 
-  function setSettingsBackVisible(visible) {
-    const back = $('#kmShellSettingsBack');
-    if (back) back.hidden = !visible;
+  function teardownSettingsPanel() {
+    const content = $('#kmShellSettingsContent');
+    if (content?.querySelector('#timeAppFrame')) restoreTimeFrame();
+    if (kmSettingsMounted && content?.querySelector('#app')) restoreKmApp();
+    activeSettingsTarget = null;
   }
 
-  function animateSettingsContent(direction) {
-    const content = $('#kmShellSettingsContent');
-    if (!content) return;
-    content.classList.remove('km-settings-forward-in', 'km-settings-back-in');
-    void content.offsetWidth;
-    content.classList.add(direction === 'back' ? 'km-settings-back-in' : 'km-settings-forward-in');
-    setTimeout(() => content.classList.remove('km-settings-forward-in', 'km-settings-back-in'), 280);
+  function generalSettingsAccordion(id, title, subtitle, body, target = '') {
+    const targetAttribute = target ? ` data-settings-target="${target}"` : '';
+    return `<details class="km-shell-settings-accordion" id="${id}"${targetAttribute}><summary><span class="km-shell-settings-accordion-title"><strong>${title}</strong><small>${subtitle}</small></span><span class="km-shell-settings-accordion-arrow">›</span></summary><div class="km-shell-settings-accordion-body">${body}</div></details>`;
   }
 
   function renderGeneralSettings() {
     const content = $('#kmShellSettingsContent');
     if (!content) return false;
+    teardownSettingsPanel();
     content.dataset.mode = 'general';
     const title = $('#kmShellSettingsTitle');
-    if (title) title.textContent = 'Algemene instellingen';
-    setSettingsBackVisible(false);
+    if (title) title.textContent = 'Instellingen';
     content.innerHTML = `
       <section class="km-shell-general-settings">
-        <div class="km-shell-general-intro"><div class="kicker">Log</div><h2>Algemene instellingen</h2><p>Deze instellingen gelden voor de volledige app: ritten, tijd, taken en locaties.</p></div>
-        <div class="km-shell-general-card">
-          <strong>Data & back-up</strong>
-          <small>Maak of herstel één complete back-up van de volledige Log-app.</small>
+        <div class="km-shell-general-intro"><p>Beheer hier de volledige app. Open alleen het onderdeel dat je wilt aanpassen.</p></div>
+        ${generalSettingsAccordion('kmShellDataSettings', 'Data & back-up', 'Complete back-up, herstel en gegevensbeheer', `
           <div class="km-shell-general-status" id="kmShellBackupStatus">${esc(generalBackupStatus())}</div>
           <div class="km-shell-general-actions">
             <button type="button" class="btn" data-general-action="backup-export">Complete back-up maken</button>
@@ -596,18 +622,12 @@
               <label class="btn secondary" style="text-align:center">Kilometergegevens toevoegen<input id="kmShellMergeImport" type="file" accept="application/json,.json" hidden></label>
               <button type="button" class="btn secondary" data-general-action="id-converter">ID-converter</button>
             </div>
-          </details>
-        </div>
-        <div class="km-shell-general-card">
-          <strong>Instellingen per onderdeel</strong>
-          <small>Open alleen de instellingen die bij dat onderdeel horen.</small>
-          <div class="km-shell-general-nav">
-            <button type="button" data-settings-target="rides"><span>Ritten</span><span>›</span></button>
-            <button type="button" data-settings-target="locations"><span>Locaties</span><span>›</span></button>
-            <button type="button" data-settings-target="time"><span>Tijd / taken</span><span>›</span></button>
-          </div>
-        </div>
+          </details>`)}
+        ${generalSettingsAccordion('kmShellRideSettings', 'Ritten', 'Voertuig, herkenning, navigatie en bediening', '<div class="km-shell-settings-panel-host"></div>', 'rides')}
+        ${generalSettingsAccordion('kmShellTimeSettings', 'Tijd / taken', 'Afronding, thema’s, collega’s en tussenstops', '<div class="km-shell-settings-panel-host"></div>', 'time')}
+        ${generalSettingsAccordion('kmShellLocationSettings', 'Locaties', 'Herkenning en algemene locatie-instellingen', '<div class="km-shell-settings-panel-host"></div>', 'locations')}
       </section>`;
+
     content.querySelector('[data-general-action="backup-export"]')?.addEventListener('click', () => {
       const status = $('#kmShellBackupStatus');
       if (status) status.textContent = 'Back-up wordt voorbereid…';
@@ -626,32 +646,48 @@
     content.querySelector('[data-general-action="id-converter"]')?.addEventListener('click', () => {
       window.dispatchEvent(new CustomEvent('log-general-id-converter'));
     });
-    content.querySelectorAll('[data-settings-target]').forEach(button => button.addEventListener('click', () => openSubSettings(button.dataset.settingsTarget)));
+
+    const accordions = [...content.querySelectorAll('.km-shell-settings-accordion')];
+    accordions.forEach(detail => detail.addEventListener('toggle', () => {
+      if (!detail.open) {
+        if (detail.dataset.settingsTarget && activeSettingsTarget === detail.dataset.settingsTarget) teardownSettingsPanel();
+        return;
+      }
+      accordions.forEach(other => {
+        if (other !== detail && other.open) other.open = false;
+      });
+      if (!detail.dataset.settingsTarget) {
+        teardownSettingsPanel();
+        return;
+      }
+      const host = detail.querySelector('.km-shell-settings-panel-host');
+      openAccordionSettings(detail.dataset.settingsTarget, host);
+    }));
     return true;
   }
 
-  function openSubSettings(target) {
-    if (!ROOT_SECTIONS.has(target)) return;
+  function openAccordionSettings(target, host) {
+    if (!ROOT_SECTIONS.has(target) || !host) return;
+    teardownSettingsPanel();
     selectSection(target);
-    const content = $('#kmShellSettingsContent');
-    if (content) {
-      content.innerHTML = '';
-      content.dataset.mode = 'sub';
-    }
-    const mounted = target === 'time' ? mountTimeSettings() : mountKmSettings();
+    host.innerHTML = '<div class="km-shell-settings-loading">Instellingen laden…</div>';
+    const mounted = target === 'time' ? mountTimeSettings(host) : mountKmSettings(host, target);
     if (!mounted) {
-      renderGeneralSettings();
+      host.innerHTML = '<div class="km-shell-settings-loading">Instellingen konden niet worden geladen.</div>';
       return;
     }
-    setSettingsBackVisible(true);
-    animateSettingsContent('forward');
+    activeSettingsTarget = target;
+    requestAnimationFrame(() => {
+      host.classList.remove('km-settings-panel-in');
+      void host.offsetWidth;
+      host.classList.add('km-settings-panel-in');
+    });
   }
 
-  function mountKmSettings() {
-    const content = $('#kmShellSettingsContent');
+  function mountKmSettings(host, target) {
     const app = $('#app');
     const topAction = $('#topAction');
-    if (!content || !app || !topAction) return false;
+    if (!host || !app || !topAction) return false;
 
     kmAppPlaceholder = document.createComment('km-app-placeholder');
     app.parentNode?.insertBefore(kmAppPlaceholder, app);
@@ -660,51 +696,90 @@
       kmAppPlaceholder = null;
       return false;
     }
-    content.innerHTML = '';
-    content.dataset.mode = 'sub';
-    content.appendChild(app);
+    host.innerHTML = '';
+    host.appendChild(app);
     app.hidden = false;
     kmSettingsMounted = true;
-
-    requestAnimationFrame(() => filterKmSettings());
+    requestAnimationFrame(() => filterKmSettings(target));
     return true;
   }
 
-  function filterKmSettings() {
-    const app = $('#kmShellSettingsContent > #app');
+  function filterKmSettings(target) {
+    const app = $('#kmShellSettingsContent #app');
     if (!app) return;
+    app.querySelector('.section-title')?.setAttribute('hidden', '');
+    app.querySelector('.settings-autosave')?.setAttribute('hidden', '');
     const details = [...app.querySelectorAll('details.accordion')];
     for (const detail of details) {
       const label = detail.querySelector('summary strong')?.textContent?.trim() || '';
-      if (label === 'Locaties') detail.style.display = 'none';
-      if (section === 'locations' && label !== 'Algemeen') detail.style.display = 'none';
+      detail.style.display = label === 'Locaties' || (target === 'locations' && label !== 'Algemeen') ? 'none' : '';
     }
-    const title = $('#kmShellSettingsTitle');
-    if (title) title.textContent = section === 'locations' ? 'Instellingen locaties' : 'Instellingen ritten';
   }
 
-  function mountTimeSettings() {
-    const content = $('#kmShellSettingsContent');
+  function applyUnifiedTimeStyles(frame = $('#timeAppFrame')) {
+    try {
+      const doc = frame?.contentDocument;
+      if (!doc?.head) return;
+      let style = doc.getElementById('km-log-unified-style');
+      if (!style) {
+        style = doc.createElement('style');
+        style.id = 'km-log-unified-style';
+        style.textContent = `
+          :root{--km-log-radius:16px}
+          .period-nav,.summary,.suggestion,.active-card{border:1px solid var(--line)!important;border-radius:var(--km-log-radius)!important;background:var(--surface)!important;box-shadow:none!important}
+          .section>.list{overflow:hidden;border:1px solid var(--line);border-radius:var(--km-log-radius);background:var(--surface)}
+          .section>.list .entry{padding-left:12px!important;padding-right:12px!important;background:var(--surface)!important}
+          .section>.list .activity-entry-shell:last-child{border-bottom:0}
+          .btn{border-radius:12px!important;box-shadow:none!important}
+          body.km-accordion-embedded-settings .settings-page-title,
+          body.km-accordion-embedded-settings .settings-autosave{display:none!important}
+          body.km-accordion-embedded-settings .app-shell{padding:0!important}
+          body.km-accordion-embedded-settings .content{padding:0!important}
+          body.km-accordion-embedded-settings .settings-page{padding:0!important}
+          body.km-accordion-embedded-settings .settings-accordion:first-of-type{border-top:0}
+          body.km-accordion-embedded-settings .settings-accordion:last-child{border-bottom:0}
+        `;
+        doc.head.appendChild(style);
+      }
+    } catch (_) {}
+  }
+
+  function syncAccordionTimeFrameHeight(frame) {
+    try {
+      const doc = frame?.contentDocument;
+      if (!doc?.body) return;
+      const update = () => {
+        const height = Math.max(280, doc.documentElement.scrollHeight, doc.body.scrollHeight);
+        frame.style.height = height + 'px';
+      };
+      timeFrameSettingsObserver?.disconnect();
+      timeFrameSettingsObserver = new MutationObserver(() => requestAnimationFrame(update));
+      timeFrameSettingsObserver.observe(doc.body, { childList: true, subtree: true, attributes: true });
+      update();
+    } catch (_) {}
+  }
+
+  function mountTimeSettings(host) {
     const frame = $('#timeAppFrame');
-    if (!content || !frame) return false;
+    if (!host || !frame) return false;
     timeFrameOriginalParent = frame.parentNode;
     timeFrameOriginalNext = frame.nextSibling;
     timeFramePlaceholder = document.createComment('time-frame-placeholder');
     timeFrameOriginalParent?.insertBefore(timeFramePlaceholder, frame);
-    content.innerHTML = '';
-    content.dataset.mode = 'sub';
-    content.appendChild(frame);
+    host.innerHTML = '';
+    host.appendChild(frame);
     frame.hidden = false;
-    const title = $('#kmShellSettingsTitle');
-    if (title) title.textContent = 'Instellingen tijd / taken';
     const open = () => {
       try {
+        applyUnifiedTimeStyles(frame);
+        frame.contentDocument?.body?.classList.add('km-accordion-embedded-settings');
         if (timeFrameView() !== 'settings') {
           const direct = frame.contentWindow?.openSettings;
           if (typeof direct === 'function') direct.call(frame.contentWindow);
           else frame.contentDocument?.getElementById('openSettings')?.click();
         }
         setTimeSettingsOpen(timeFrameView() === 'settings');
+        syncAccordionTimeFrameHeight(frame);
       } catch (error) {
         console.warn('Tijdinstellingen konden niet worden geopend.', error);
       }
@@ -776,7 +851,7 @@
 
   function restoreKmApp() {
     if (!kmSettingsMounted) return;
-    const app = $('#kmShellSettingsContent > #app');
+    const app = $('#kmShellSettingsContent #app');
     if (app && kmAppPlaceholder?.parentNode) {
       kmAppPlaceholder.parentNode.insertBefore(app, kmAppPlaceholder);
       kmAppPlaceholder.remove();
@@ -787,8 +862,12 @@
   }
 
   function restoreTimeFrame() {
-    const frame = $('#kmShellSettingsContent > #timeAppFrame');
+    const frame = $('#kmShellSettingsContent #timeAppFrame');
     if (!frame) return;
+    timeFrameSettingsObserver?.disconnect();
+    timeFrameSettingsObserver = null;
+    frame.style.height = '';
+    try { frame.contentDocument?.body?.classList.remove('km-accordion-embedded-settings'); } catch (_) {}
     if (timeFramePlaceholder?.parentNode) {
       timeFramePlaceholder.parentNode.insertBefore(frame, timeFramePlaceholder);
       timeFramePlaceholder.remove();
@@ -808,7 +887,7 @@
   function closeSettingsSheet() {
     const settings = $('#kmShellSettings');
     if (!settings?.classList.contains('open')) return;
-    if ($('#kmShellSettingsContent > #timeAppFrame')) restoreTimeFrame();
+    if ($('#kmShellSettingsContent #timeAppFrame')) restoreTimeFrame();
     if (kmSettingsMounted) restoreKmApp();
     settings.classList.remove('open');
     document.body.style.overflow = '';
@@ -887,7 +966,10 @@
 
   function bindTimeFrameSwipe() {
     const frame = $('#timeAppFrame');
-    try { bindSwipeDocument(frame?.contentDocument); } catch (_) {}
+    try {
+      bindSwipeDocument(frame?.contentDocument);
+      applyUnifiedTimeStyles(frame);
+    } catch (_) {}
   }
 
   function bindPageSwipes() {
