@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.10-test.39';
+  const BUILD='0.31.10-test.40';
   const HORIZONTAL_RATIO=1.25;
   const SNAP_PROGRESS=0.28;
   const FLING_VELOCITY=0.45;
@@ -107,6 +107,12 @@
     return Boolean(target?.closest?.('input,textarea,select,button,a,[contenteditable="true"],[data-module-drag-handle]'));
   }
 
+  function hasOwnGesture(target){
+    return Boolean(target?.closest?.(
+      '#kmShellTabBar,.swipe-surface,.trip-swipe-surface,.km-shell-location-swipe-surface,.activity-swipe-surface,.period-overview,.period-nav,.odo-digit.swipeable'
+    ));
+  }
+
   function touchPoint(event){
     return event.touches?.[0]||event.changedTouches?.[0]||null;
   }
@@ -150,7 +156,7 @@
       captureStyle(shell,['transition','transform','border-radius','box-shadow','will-change']),
       captureStyle(menu,['transition','transform','will-change']),
       captureStyle(drawer,['transition','opacity','pointer-events','will-change']),
-      captureStyle(backdrop,['transition','opacity','pointer-events','will-change']),
+      captureStyle(backdrop,['transition','left','opacity','pointer-events','will-change']),
       captureStyle(tabbar,['transition','opacity','transform','pointer-events','will-change'])
     ];
     document.body.classList.add('km-shell-gesture-active');
@@ -182,7 +188,10 @@
     }
     if(menu)menu.style.setProperty('transform',`translate3d(${x}px,0,0)`,'important');
     if(drawer)drawer.style.setProperty('opacity',String(progress),'important');
-    if(backdrop)backdrop.style.setProperty('opacity',String(progress),'important');
+    if(backdrop){
+      backdrop.style.setProperty('left',`${x}px`,'important');
+      backdrop.style.setProperty('opacity',String(progress),'important');
+    }
     if(tabbar){
       tabbar.style.setProperty('opacity',String(1-progress),'important');
       tabbar.style.setProperty('transform',`translate(-50%,${18*progress}px) scale(${(1-0.02*progress).toFixed(3)})`,'important');
@@ -242,7 +251,7 @@
     if(!point)return;
     const open=drawerOpen();
     if(!open&&blockedByOverlay())return;
-    if(!open&&isInteractiveTarget(event.target))return;
+    if(!open&&(isInteractiveTarget(event.target)||hasOwnGesture(event.target)))return;
     gesture={
       startX:point.clientX,
       startY:point.clientY,
