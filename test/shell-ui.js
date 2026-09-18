@@ -292,7 +292,7 @@
       .km-shell-tab-button.active::after{content:"";position:absolute;bottom:4px;width:5px;height:5px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
       .km-shell-tab-button.active svg{transform:translateY(-2px) scale(1.08);stroke-width:2.25}
       .km-shell-tab-button:active{transform:scale(.94)}
-      .km-shell-module-settings{display:grid;gap:8px}.km-shell-module-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:8px;min-height:58px;padding:8px 10px;border:.5px solid var(--line);border-radius:14px;background:var(--card);transition:background .16s ease,box-shadow .16s ease,transform .16s ease}.km-shell-module-handle{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;border:0;border-radius:10px;background:transparent;color:var(--muted);touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}.km-shell-module-handle:active,.km-shell-module-row.is-dragging .km-shell-module-handle{cursor:grabbing;background:var(--card2);color:var(--accent)}.km-shell-module-handle svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}.km-shell-module-row.is-dragging{position:relative;z-index:3;background:color-mix(in srgb,var(--accent) 9%,var(--card));box-shadow:0 10px 28px rgba(0,0,0,.18);transform:scale(1.01)}.km-shell-module-copy strong,.km-shell-module-copy small{display:block}.km-shell-module-copy strong{font-size:13px}.km-shell-module-copy small{margin-top:3px;color:var(--muted);font-size:10px}.km-shell-module-controls{display:flex;align-items:center;gap:5px}.km-shell-module-toggle{display:inline-flex;align-items:center;margin-left:3px}.km-shell-module-toggle input{width:38px;height:22px;accent-color:var(--accent)}
+      .km-shell-module-settings{display:grid;gap:8px}.km-shell-module-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:8px;min-height:58px;padding:8px 10px;border:.5px solid var(--line);border-radius:14px;background:var(--card);transition:background .16s ease,box-shadow .16s ease,transform .16s ease}.km-shell-module-handle{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;border:0;border-radius:10px;background:transparent;color:var(--muted);touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.km-shell-module-handle:active,.km-shell-module-row.is-dragging .km-shell-module-handle{cursor:grabbing;background:var(--card2);color:var(--accent)}.km-shell-module-handle svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}.km-shell-module-row.is-dragging{position:fixed;z-index:140;background:color-mix(in srgb,var(--accent) 12%,var(--card));box-shadow:0 16px 38px rgba(0,0,0,.28);transform:scale(1.015);pointer-events:none}.km-shell-module-placeholder{min-height:58px;border:1px dashed color-mix(in srgb,var(--accent) 55%,var(--line));border-radius:12px;background:color-mix(in srgb,var(--accent) 8%,transparent)}.km-shell-module-copy strong,.km-shell-module-copy small{display:block}.km-shell-module-copy strong{font-size:13px}.km-shell-module-copy small{margin-top:3px;color:var(--muted);font-size:10px}.km-shell-module-controls{display:flex;align-items:center;gap:5px}.km-shell-module-toggle{display:inline-flex;align-items:center;margin-left:3px}.km-shell-module-toggle input{width:38px;height:22px;accent-color:var(--accent)}
       .km-shell-placeholder{padding:4px 0 28px}.km-shell-placeholder-hero{padding:22px 18px;border:.5px solid color-mix(in srgb,var(--accent) 24%,var(--line));border-radius:20px;background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 12%,var(--card)),var(--card));box-shadow:0 10px 28px rgba(0,0,0,.08)}.km-shell-placeholder-hero svg{width:34px;height:34px;color:var(--accent);fill:none;stroke:currentColor;stroke-width:1.7}.km-shell-placeholder-hero h2{margin:14px 0 6px;font-size:25px}.km-shell-placeholder-hero p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}.km-shell-placeholder-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.km-shell-placeholder-card{min-height:92px;padding:14px;border:.5px solid var(--line);border-radius:16px;background:var(--card)}.km-shell-placeholder-card strong,.km-shell-placeholder-card small{display:block}.km-shell-placeholder-card small{margin-top:6px;color:var(--muted);font-size:11px;line-height:1.4}.km-shell-placeholder-mode #app,.km-shell-placeholder-mode #timeAppFrame,.km-shell-placeholder-mode .km-shell-locations{display:none!important}.km-shell-placeholder-mode .km-shell-search{display:none!important}
       body.km-shell-drawer-open .km-shell-tabbar,body.km-shell-settings-open .km-shell-tabbar,body.km-shell-time-settings-open .km-shell-tabbar,body.editor-view .km-shell-tabbar{opacity:0;transform:translate(-50%,18px) scale(.98);pointer-events:none}
       .shell{padding-bottom:calc(108px + env(safe-area-inset-bottom))!important}
@@ -1437,16 +1437,26 @@
       }
     };
 
-    const finishDrag = (event, commit) => {
-      if (!drag || event.pointerId !== drag.pointerId) return;
+    const removeDocumentListeners = () => {
+      document.removeEventListener('pointermove', handlePointerMove, true);
+      document.removeEventListener('pointerup', handlePointerUp, true);
+      document.removeEventListener('pointercancel', handlePointerCancel, true);
+    };
+
+    const finishDrag = commit => {
+      if (!drag) return;
       const active = drag;
       drag = null;
+      removeDocumentListeners();
+      if (active.placeholder.parentNode === host) host.insertBefore(active.row, active.placeholder);
+      else host.appendChild(active.row);
+      active.placeholder.remove();
       active.row.classList.remove('is-dragging');
       active.row.setAttribute('aria-grabbed', 'false');
+      if (active.originalStyle === null) active.row.removeAttribute('style');
+      else active.row.setAttribute('style', active.originalStyle);
       host.classList.remove('is-reordering');
-      try {
-        if (active.handle.hasPointerCapture(active.pointerId)) active.handle.releasePointerCapture(active.pointerId);
-      } catch (_) {}
+
       if (!commit) {
         restoreOrder(active.initialOrder);
         focusModuleHandle(active.id);
@@ -1460,48 +1470,90 @@
       }
     };
 
+    const updateDrag = (clientY, event) => {
+      if (!drag) return;
+      event.preventDefault();
+      drag.row.style.top = Math.round(clientY - drag.offsetY) + 'px';
+      const scroller = host.closest('.km-shell-settings-content');
+      if (scroller) {
+        const bounds = scroller.getBoundingClientRect();
+        const edge = Math.min(72, bounds.height * .18);
+        if (clientY < bounds.top + edge) scroller.scrollTop -= 14;
+        else if (clientY > bounds.bottom - edge) scroller.scrollTop += 14;
+      }
+      const candidates = $$('.km-shell-module-row[data-module-id]', host);
+      const before = candidates.find(row => {
+        const rect = row.getBoundingClientRect();
+        return clientY < rect.top + rect.height / 2;
+      });
+      if (before) host.insertBefore(drag.placeholder, before);
+      else host.appendChild(drag.placeholder);
+    };
+
+    function handlePointerMove(event) {
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      updateDrag(event.clientY, event);
+    }
+
+    function handlePointerUp(event) {
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      event.preventDefault();
+      finishDrag(true);
+    }
+
+    function handlePointerCancel(event) {
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      finishDrag(false);
+    }
+
     host.addEventListener('pointerdown', event => {
       const target = event.target instanceof Element ? event.target : event.target?.parentElement;
       const handle = target?.closest('[data-module-drag-handle]');
-      if (!handle || event.button !== 0 || event.isPrimary === false) return;
+      if (!handle || event.button !== 0 || event.isPrimary === false || drag) return;
       const row = handle.closest('.km-shell-module-row[data-module-id]');
       if (!row) return;
       event.preventDefault();
+      event.stopPropagation();
+
+      const rect = row.getBoundingClientRect();
+      const placeholder = document.createElement('div');
+      placeholder.className = 'km-shell-module-placeholder';
+      placeholder.style.height = Math.round(rect.height) + 'px';
+      placeholder.setAttribute('aria-hidden', 'true');
+      host.insertBefore(placeholder, row.nextElementSibling);
+
       drag = {
         pointerId: event.pointerId,
         id: row.dataset.moduleId,
         row,
         handle,
-        initialOrder: moduleRowIds(host)
+        placeholder,
+        initialOrder: moduleRowIds(host),
+        offsetY: event.clientY - rect.top,
+        originalStyle: row.getAttribute('style')
       };
+
       row.classList.add('is-dragging');
       row.setAttribute('aria-grabbed', 'true');
-      host.classList.add('is-reordering');
-      try { handle.setPointerCapture(event.pointerId); } catch (_) {}
-    });
-
-    host.addEventListener('pointermove', event => {
-      if (!drag || event.pointerId !== drag.pointerId) return;
-      event.preventDefault();
-      const scroller = host.closest('.km-shell-settings-content');
-      if (scroller) {
-        const bounds = scroller.getBoundingClientRect();
-        const edge = Math.min(72, bounds.height * .18);
-        if (event.clientY < bounds.top + edge) scroller.scrollTop -= 14;
-        else if (event.clientY > bounds.bottom - edge) scroller.scrollTop += 14;
-      }
-      const candidates = $$('.km-shell-module-row[data-module-id]', host).filter(row => row !== drag.row);
-      const before = candidates.find(row => {
-        const rect = row.getBoundingClientRect();
-        return event.clientY < rect.top + rect.height / 2;
+      Object.assign(row.style, {
+        position: 'fixed',
+        left: Math.round(rect.left) + 'px',
+        top: Math.round(rect.top) + 'px',
+        width: Math.round(rect.width) + 'px',
+        height: Math.round(rect.height) + 'px',
+        margin: '0',
+        zIndex: '140',
+        pointerEvents: 'none',
+        transition: 'none',
+        boxSizing: 'border-box'
       });
-      if (before) host.insertBefore(drag.row, before);
-      else host.appendChild(drag.row);
-    });
+      host.classList.add('is-reordering');
+      document.body.appendChild(row);
 
-    host.addEventListener('pointerup', event => finishDrag(event, true));
-    host.addEventListener('pointercancel', event => finishDrag(event, false));
-    host.addEventListener('lostpointercapture', event => finishDrag(event, true));
+      document.addEventListener('pointermove', handlePointerMove, { capture: true, passive: false });
+      document.addEventListener('pointerup', handlePointerUp, { capture: true, passive: false });
+      document.addEventListener('pointercancel', handlePointerCancel, { capture: true, passive: true });
+    });
 
     host.addEventListener('keydown', event => {
       if (!['ArrowUp', 'ArrowDown'].includes(event.key)) return;
