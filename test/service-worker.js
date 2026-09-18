@@ -1,5 +1,5 @@
-const CACHE='kmreg-test-shell-0.31.10-unified-log-settings';
-const SHELL=['./','./index.html','./log-json-v2.js?v=2.0.0','./shell-ui.js?v=0.31.10-test.24','./shell-ui-stable.js?v=0.31.10-test.1','./id-converter.html','./manifest.webmanifest','./app-icon.svg','./time/index.html','./time/app.js','./time/styles.css','./time/home-layout.css','./time/home-layout.js','./time/home-top.css','./time/home-top.js'];
+const CACHE='kmreg-test-shell-0.31.10-unified-settings-behavior';
+const SHELL=['./','./index.html','./log-json-v2.js?v=2.0.0','./shell-ui.js?v=0.31.10-test.25','./shell-ui-stable.js?v=0.31.10-test.1','./id-converter.html','./manifest.webmanifest','./app-icon.svg','./time/index.html','./time/app.js','./time/styles.css','./time/home-layout.css','./time/home-layout.js','./time/home-top.css','./time/home-top.js'];
 
 function injectShellScript(response){
   if(!response)return response;
