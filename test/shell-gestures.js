@@ -1,8 +1,7 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.10-test.37';
-  const EDGE_START=44;
+  const BUILD='0.31.10-test.38';
   const SWIPE_TRIGGER=54;
   const HORIZONTAL_RATIO=1.25;
   const TIME_FRAME_ID='timeAppFrame';
@@ -103,7 +102,7 @@
     const point=touchPoint(event);
     if(!point)return;
     const open=drawerOpen();
-    if(!open&&(blockedByOverlay()||point.clientX>EDGE_START))return;
+    if(!open&&blockedByOverlay())return;
     if(!open&&isInteractiveTarget(event.target))return;
     gesture={
       startX:point.clientX,
