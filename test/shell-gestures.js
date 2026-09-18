@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.10-test.45';
+  const BUILD='0.31.10-test.46';
   const HORIZONTAL_RATIO=1.25;
   const SNAP_PROGRESS=0.28;
   const FLING_VELOCITY=0.45;
@@ -55,6 +55,11 @@
       body.km-shell-drawer-open #kmShellBackdrop{touch-action:none}
     `;
     document.head.appendChild(style);
+  }
+
+  function promoteSharedStyles(){
+    const shared=[...document.querySelectorAll('link[rel="stylesheet"]')].find(link=>link.href.includes('log-ui.css'));
+    if(shared&&shared.parentNode===document.head)document.head.appendChild(shared);
   }
 
   function lockMainScroll(){
@@ -362,6 +367,7 @@
 
   function init(){
     installGestureStyles();
+    promoteSharedStyles();
     bindGestureDocument(document);
     bindTimeFrame();
     updateVersion();
@@ -376,6 +382,7 @@
 
     document.addEventListener('click',()=>setTimeout(updateVersion,0),{passive:true});
     window.addEventListener('pageshow',()=>{
+      promoteSharedStyles();
       updateVersion();
       syncDrawerScrollLock();
       bindTimeFrame();
