@@ -1,5 +1,5 @@
-const CACHE='kmreg-test-shell-0.31.10-clean-location-settings';
-const SHELL=['./','./index.html','./log-json-v2.js?v=2.0.0','./shell-ui.js?v=0.31.10-test.27','./shell-ui-stable.js?v=0.31.10-test.1','./id-converter.html','./manifest.webmanifest','./app-icon.svg','./time/index.html','./time/app.js','./time/styles.css','./time/home-layout.css','./time/home-layout.js','./time/home-top.css','./time/home-top.js'];
+const CACHE='kmreg-test-shell-0.31.10-document-menu';
+const SHELL=['./','./index.html','./log-json-v2.js?v=2.0.0','./shell-ui.js?v=0.31.10-test.28','./shell-ui-stable.js?v=0.31.10-test.1','./id-converter.html','./manifest.webmanifest','./app-icon.svg','./config/modules.json','./time/index.html','./time/app.js','./time/styles.css','./time/home-layout.css','./time/home-layout.js','./time/home-top.css','./time/home-top.js'];
 
 function injectShellScript(response){
   if(!response)return response;
@@ -36,6 +36,19 @@ self.addEventListener('fetch',event=>{
   if(url.pathname.endsWith('/import.html'))return;
   if(url.pathname.endsWith('/id-converter.html')){
     event.respondWith(caches.match('./id-converter.html').then(cached=>cached||fetch(req)));
+    return;
+  }
+  if(url.pathname.endsWith('/config/modules.json')){
+    event.respondWith(
+      fetch(req)
+        .then(resp=>{
+          if(!resp.ok)throw new Error('Menuconfiguratie niet beschikbaar');
+          const copy=resp.clone();
+          caches.open(CACHE).then(cache=>cache.put('./config/modules.json',copy));
+          return resp;
+        })
+        .catch(()=>caches.match('./config/modules.json'))
+    );
     return;
   }
   if(req.mode==='navigate'&&url.pathname.startsWith(new URL('./time/',self.registration.scope).pathname)){
