@@ -546,7 +546,10 @@ const app=document.getElementById('app'),modal=document.getElementById('modal'),
 document.getElementById('today').textContent=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date())+' · '+APP_BUILD;
 timeAppFrame.addEventListener('load',prepareEmbeddedTimeApp);
 window.addEventListener('message',event=>{if(event.origin!==window.location.origin||event.source!==timeAppFrame.contentWindow||event.data?.type!=='urenregistratie-view')return;timeAppView=event.data.view==='settings'?'settings':'home';if(appMode==='time')syncTimeAppChrome()});
-window.addEventListener('storage',event=>{if(event.key===TIME_STORAGE_KEY)updateTimeAppMeta()});
+window.addEventListener('storage',event=>{if(event.key===TIME_STORAGE_KEY)updateTimeAppMeta();if(event.key===KEY){data=load();if(appMode==='kilometers'&&!document.body.classList.contains('editor-view'))render()}});
+window.addEventListener('pageshow',()=>{data=load();if(appMode==='kilometers'&&!document.body.classList.contains('editor-view'))render()});
+window.addEventListener('log-navigation-modules-change',event=>{const modules=event.detail?.modules;if(!Array.isArray(modules))return;data.settings.navigationModules=modules.map((item,order)=>({id:String(item.id||''),enabled:item.enabled!==false,order})).filter(item=>item.id);try{save()}catch(error){console.warn('De menuvolgorde kon niet met de hoofdgegevens worden gesynchroniseerd.',error)}});
+window.addEventListener('log-shell-view-refresh',event=>{if(event.detail?.section==='rides'&&appMode==='kilometers'&&!document.body.classList.contains('editor-view'))render()});
 window.addEventListener('log-general-backup-export',async()=>{await exportRegistrationModel();window.dispatchEvent(new Event('log-backup-updated'))});
 window.addEventListener('log-general-backup-import',async event=>{if(event.detail?.file)await importJson(event.detail.file);window.dispatchEvent(new Event('log-backup-updated'))});
 window.addEventListener('log-general-merge-import',async event=>{if(event.detail?.file)await mergeImportJson(event.detail.file);window.dispatchEvent(new Event('log-backup-updated'))});
@@ -1139,7 +1142,7 @@ async function deliverFile(blob,name,title){if(typeof File==='function'&&navigat
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
 })();
 </script>
-<script src="./shell-ui.js?v=0.31.10-test.29"></script>
+<script src="./shell-ui.js?v=0.31.10-test.30"></script>
 <script src="./shell-ui-stable.js?v=0.31.10-test.1"></script>
 </body>
 </html>
