@@ -1,11 +1,12 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.10-test.44';
+  const BUILD='0.31.10-test.45';
   const HORIZONTAL_RATIO=1.25;
   const SNAP_PROGRESS=0.28;
   const FLING_VELOCITY=0.45;
   const TIME_FRAME_ID='timeAppFrame';
+  const LEGACY_TIME_EDGE=40;
 
   let scrollLocked=false;
   let lockedScrollY=0;
@@ -14,6 +15,7 @@
   let gesture=null;
   let animating=false;
   const boundDocuments=new WeakSet();
+  const legacyTimeGuardDocuments=new WeakSet();
 
   const $=(selector,root=document)=>root.querySelector(selector);
   const clamp=(value,min=0,max=1)=>Math.min(max,Math.max(min,value));
@@ -321,9 +323,24 @@
     settleGesture(gesture.mode==='open'?0:1);
   }
 
+  function installLegacyTimeGestureGuard(doc){
+    if(!doc||doc===document||legacyTimeGuardDocuments.has(doc))return;
+    let embedded=false;
+    try{embedded=new URL(doc.defaultView.location.href).searchParams.get('embedded')==='1';}catch(_){}
+    if(!embedded)return;
+    legacyTimeGuardDocuments.add(doc);
+    doc.addEventListener('pointerdown',event=>{
+      if(event.button!=null&&event.button!==0)return;
+      if(isInteractiveTarget(event.target))return;
+      const width=Math.max(doc.documentElement?.clientWidth||0,doc.defaultView?.innerWidth||0);
+      if(width&&event.clientX>=width-LEGACY_TIME_EDGE)event.stopImmediatePropagation();
+    },true);
+  }
+
   function bindGestureDocument(doc){
     if(!doc||boundDocuments.has(doc))return;
     boundDocuments.add(doc);
+    installLegacyTimeGestureGuard(doc);
     doc.addEventListener('touchstart',beginGesture,{passive:true});
     doc.addEventListener('touchmove',moveGesture,{passive:false});
     doc.addEventListener('touchend',endGesture,{passive:true});
