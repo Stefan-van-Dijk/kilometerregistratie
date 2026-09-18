@@ -344,7 +344,7 @@
       .km-shell-settings-panel-host>#app details.accordion:last-child{border-bottom:0}
       .km-shell-settings-panel-host>#app details.accordion>summary{padding-left:1px;padding-right:1px}
       .km-shell-settings-panel-host>#app .accordion-body{padding-left:1px;padding-right:1px}
-      .km-shell-settings-panel-host>.time-app-frame{display:block!important;width:100%;min-height:280px!important;border:0}
+      .km-shell-settings-panel-host>.time-app-frame{display:block!important;width:100%;min-height:280px!important;border:0}.km-shell-settings-panel-host>.km-shell-time-settings-frame{opacity:0!important;visibility:hidden!important}.km-shell-settings-panel-host>.km-shell-time-settings-frame[data-ready="1"]{opacity:1!important;visibility:visible!important}
       .km-shell-settings-loading,.km-shell-settings-panel-status{padding:16px 1px;color:var(--muted);font-size:12px}.km-shell-settings-panel-status{display:flex;align-items:center;justify-content:space-between;gap:12px}.km-shell-settings-panel-status[data-state="error"]{color:var(--bad)}.km-shell-settings-panel-status button{flex:0 0 auto;min-height:34px;padding:7px 11px;border:0;border-radius:10px;background:var(--card2);color:var(--accent);font:inherit;font-weight:800}.km-shell-settings-panel-host>#app details.accordion.km-shell-settings-single{border-bottom:0}.km-shell-settings-panel-host>#app details.accordion.km-shell-settings-single>.accordion-body{padding-top:14px}
       @keyframes kmSettingsPanelIn{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
       /* iPhone Mail-achtige navigatie en gegroepeerde lijsten. */
@@ -1902,6 +1902,9 @@
           const first = doc.querySelector('.settings-accordion');
           if (first && !doc.querySelector('.settings-accordion[open]')) first.open = true;
           frame.classList.remove('km-settings-frame-loading');
+          frame.dataset.ready = '1';
+          frame.hidden = false;
+          frame.removeAttribute('aria-hidden');
           host.querySelector('.km-shell-settings-panel-status')?.remove();
           host.removeAttribute('aria-busy');
           syncAccordionTimeFrameHeight(frame);
@@ -1914,6 +1917,9 @@
 
     if (attempt >= 30) {
       frame.classList.remove('km-settings-frame-loading');
+      frame.dataset.ready = '0';
+      frame.hidden = true;
+      frame.setAttribute('aria-hidden', 'true');
       host.removeAttribute('aria-busy');
       setSettingsPanelStatus(
         host,
@@ -1921,6 +1927,10 @@
         'error',
         () => {
           host.setAttribute('aria-busy', 'true');
+          frame.hidden = false;
+          frame.removeAttribute('aria-hidden');
+          frame.dataset.ready = '0';
+          frame.classList.add('km-settings-frame-loading');
           setSettingsPanelStatus(host, 'Tijdinstellingen opnieuw laden…');
           openTimeSettingsInFrame(frame, host, token, 0);
         }
@@ -1947,6 +1957,7 @@
     frame.title = 'Instellingen tijd en taken';
     frame.setAttribute('scrolling', 'no');
     frame.setAttribute('aria-label', 'Instellingen tijd en taken');
+    frame.dataset.ready = '0';
     frame.style.setProperty('height', '300px', 'important');
     timeSettingsFrame = frame;
 
