@@ -685,6 +685,7 @@
     if (!ROOT_SECTIONS.has(next)) return;
     if (next === section) {
       closeDrawer();
+      showSection();
       scrollActiveSectionToTop();
       return;
     }
@@ -862,11 +863,12 @@
     const gps = effective.lat != null && effective.lng != null ? `${Number(effective.lat).toFixed(5)}, ${Number(effective.lng).toFixed(5)}` : 'Niet vastgelegd';
     const inherited = depth && (!location.address || location.lat == null || location.lng == null) && effective.parent;
     const count = locationTripCount(location, snapshot);
+    const canDelete = snapshot.settings.locationDeleteEnabled !== false;
     return `
       <div class="km-shell-location-node" data-shell-location-node="${esc(location.id)}" data-depth="${depth}" style="--depth:${depth}">
         <div class="km-shell-location-swipe-row" data-shell-location-swipe="${esc(location.id)}">
           <div class="km-shell-location-swipe-actions">
-            <button type="button" class="km-shell-location-swipe-action km-shell-location-swipe-delete" data-shell-location-swipe-action="delete" data-location-id="${esc(location.id)}">Verwijder</button>
+            ${canDelete ? `<button type="button" class="km-shell-location-swipe-action km-shell-location-swipe-delete" data-shell-location-swipe-action="delete" data-location-id="${esc(location.id)}">Verwijder</button>` : ''}
             <button type="button" class="km-shell-location-swipe-action km-shell-location-swipe-edit" data-shell-location-swipe-action="edit" data-location-id="${esc(location.id)}">Bewerk</button>
           </div>
           <div class="km-shell-location-row km-shell-location-swipe-surface" data-shell-location-toggle="${esc(location.id)}" role="button" tabindex="0" aria-expanded="${expanded}">
@@ -901,6 +903,7 @@
   }
 
   function deleteLocationFromShell(id) {
+    if (readData().settings.locationDeleteEnabled === false) return;
     const finish = () => {
       renderLocations();
       syncChrome();
@@ -1109,13 +1112,13 @@
     document.body.classList.remove('km-shell-locations-mode');
     $('#kmShellLocationsView').hidden = true;
     if (typeof window.openLocation === 'function') {
-      Promise.resolve(window.openLocation(id, current))
+      Promise.resolve(window.openLocation(id, current, 'locations'))
         .then(queueLocationEditorAugment)
         .catch(error => console.error('Locatie-editor kon niet worden geopend.', error));
       return;
     }
     if (current) {
-      dispatchOriginalAction('current-location');
+      dispatchOriginalAction('current-location', { returnSection: 'locations' });
     } else if (id) {
       const wrapper = document.createElement('div');
       wrapper.dataset.id = id;
@@ -1123,12 +1126,13 @@
       const button = document.createElement('button');
       button.type = 'button';
       button.dataset.action = 'edit-location';
+      button.dataset.returnSection = 'locations';
       wrapper.appendChild(button);
       document.body.appendChild(wrapper);
       button.click();
       wrapper.remove();
     } else {
-      dispatchOriginalAction('add-location');
+      dispatchOriginalAction('add-location', { returnSection: 'locations' });
     }
     queueLocationEditorAugment();
   }
@@ -1392,6 +1396,7 @@
       const label = detail.querySelector('summary strong')?.textContent?.trim() || '';
       detail.style.display = label === 'Locaties' || (target === 'locations' && label !== 'Algemeen') ? 'none' : '';
     }
+    app.querySelectorAll('[data-location-setting]').forEach(row => { row.hidden = target !== 'locations'; });
   }
 
   function applyUnifiedTimeStyles(frame = $('#timeAppFrame')) {
