@@ -7,8 +7,9 @@ Het bestand `modules.json` is de centrale bron voor het zijmenu, de iOS-onderbal
 1. Log leest bij het starten `modules.json`.
 2. Alleen geldige en beschikbare modules worden opgenomen.
 3. Persoonlijke keuzes voor zichtbaarheid en volgorde worden lokaal per apparaat toegepast.
-4. Bij een onbereikbare bron gebruikt Log de laatst geldige opgeslagen versie.
-5. Als ook die ontbreekt, gebruikt Log de ingebouwde veilige standaardconfiguratie.
+4. Tot en met vijf zichtbare onderdelen staan rechtstreeks in de onderbalk; bij meer onderdelen toont de balk vier onderdelen en **Meer**. Het zijmenu blijft altijd volledig.
+5. Bij een onbereikbare bron gebruikt Log de laatst geldige opgeslagen versie.
+6. Als ook die ontbreekt, gebruikt Log de ingebouwde veilige standaardconfiguratie.
 
 ## Velden per module
 
