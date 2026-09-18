@@ -14,14 +14,73 @@
   const MODE_KEY = 'kmreg-test-active-app-v1';
   const SECTION_KEY = 'kmreg-test-shell-section-v1';
   const DRAWER_KEY = 'kmreg-test-shell-drawer-v1';
-  const MODULE_CATALOG = [
-    { id: 'rides', label: 'Ritten', shortLabel: 'Ritten', subtitle: 'Ritten registreren en terugvinden', enabled: true },
-    { id: 'time', label: 'Tijd / taken', shortLabel: 'Tijd/taken', subtitle: 'Tijd en werkzaamheden registreren', enabled: true },
-    { id: 'locations', label: 'Locaties', shortLabel: 'Locaties', subtitle: 'Adressen en herkenning beheren', enabled: true },
-    { id: 'themes', label: 'Thema’s', shortLabel: 'Thema’s', subtitle: 'Thema’s en categorieën beheren', enabled: false, placeholder: true },
-    { id: 'barcodes', label: 'Barcodekaarten', shortLabel: 'Kaarten', subtitle: 'Barcodekaarten scannen en beheren', enabled: false, placeholder: true }
-  ];
-  const ROOT_SECTIONS = new Set(MODULE_CATALOG.map(module => module.id));
+  const MENU_DOCUMENT_URL = './config/modules.json';
+  const MENU_DOCUMENT_CACHE_KEY = 'log-menu-document-v1';
+  const MENU_SCHEMA_VERSION = 1;
+  const FALLBACK_MENU_DOCUMENT = {
+    schemaVersion: MENU_SCHEMA_VERSION,
+    modules: [
+      { id: 'rides', label: 'Ritten', shortLabel: 'Ritten', subtitle: 'Ritten registreren en terugvinden', icon: 'rides', available: true, defaultEnabled: true, order: 10, view: 'rides', settingsTarget: 'rides' },
+      { id: 'time', label: 'Tijd en taken', shortLabel: 'Tijd/taken', subtitle: 'Tijd en werkzaamheden registreren', icon: 'time', available: true, defaultEnabled: true, order: 20, view: 'time', settingsTarget: 'time' },
+      { id: 'locations', label: 'Locaties', shortLabel: 'Locaties', subtitle: 'Adressen en herkenning beheren', icon: 'locations', available: true, defaultEnabled: true, order: 30, view: 'locations', settingsTarget: 'locations' },
+      { id: 'themes', label: 'Thema’s', shortLabel: 'Thema’s', subtitle: 'Thema’s en categorieën beheren', icon: 'themes', available: true, defaultEnabled: false, order: 40, view: 'placeholder', settingsTarget: null },
+      { id: 'barcodes', label: 'Barcodekaarten', shortLabel: 'Kaarten', subtitle: 'Barcodekaarten scannen en beheren', icon: 'barcodes', available: true, defaultEnabled: false, order: 50, view: 'placeholder', settingsTarget: null }
+    ]
+  };
+  const ROOT_SECTIONS = new Set();
+  let MODULE_CATALOG = [];
+
+  function normalizeMenuDocument(value) {
+    if (!value || value.schemaVersion !== MENU_SCHEMA_VERSION || !Array.isArray(value.modules)) return null;
+    const icons = new Set(['rides', 'time', 'locations', 'themes', 'barcodes']);
+    const views = new Set(['rides', 'time', 'locations', 'placeholder']);
+    const settingsTargets = new Set(['rides', 'time', 'locations']);
+    const seen = new Set();
+    const modules = [];
+    for (const source of value.modules) {
+      if (!source || source.available === false) continue;
+      const id = String(source.id || '').trim();
+      const label = String(source.label || '').trim();
+      const shortLabel = String(source.shortLabel || label).trim();
+      const subtitle = String(source.subtitle || '').trim();
+      const view = String(source.view || '').trim();
+      if (!/^[a-z][a-z0-9_-]{1,31}$/.test(id) || seen.has(id) || !label || !shortLabel || !views.has(view)) continue;
+      if (view !== 'placeholder' && id !== view) continue;
+      seen.add(id);
+      modules.push({
+        id,
+        label: label.slice(0, 40),
+        shortLabel: shortLabel.slice(0, 16),
+        subtitle: subtitle.slice(0, 120),
+        icon: icons.has(source.icon) ? source.icon : 'themes',
+        enabled: source.defaultEnabled !== false,
+        order: Number.isFinite(Number(source.order)) ? Number(source.order) : modules.length * 10,
+        view,
+        settingsTarget: settingsTargets.has(source.settingsTarget) ? source.settingsTarget : null,
+        placeholder: view === 'placeholder'
+      });
+    }
+    return modules.length ? modules.sort((a, b) => a.order - b.order || a.label.localeCompare(b.label, 'nl')) : null;
+  }
+
+  function applyModuleCatalog(modules) {
+    MODULE_CATALOG = modules.map(module => ({ ...module }));
+    ROOT_SECTIONS.clear();
+    MODULE_CATALOG.forEach(module => ROOT_SECTIONS.add(module.id));
+  }
+
+  function cachedMenuDocument() {
+    try {
+      return JSON.parse(localStorage.getItem(MENU_DOCUMENT_CACHE_KEY) || 'null');
+    } catch (_) {
+      return null;
+    }
+  }
+
+  applyModuleCatalog(
+    normalizeMenuDocument(cachedMenuDocument()) ||
+    normalizeMenuDocument(FALLBACK_MENU_DOCUMENT)
+  );
 
   let section = localStorage.getItem(SECTION_KEY);
   if (!ROOT_SECTIONS.has(section)) section = localStorage.getItem(MODE_KEY) === 'time' ? 'time' : 'rides';
@@ -54,6 +113,28 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 
+  async function refreshMenuDocument() {
+    try {
+      const response = await fetch(MENU_DOCUMENT_URL, { cache: 'no-store', headers: { Accept: 'application/json' } });
+      if (!response.ok) throw new Error('Menuconfiguratie niet beschikbaar (' + response.status + ').');
+      const documentValue = await response.json();
+      const modules = normalizeMenuDocument(documentValue);
+      if (!modules) throw new Error('Menuconfiguratie heeft geen geldige modules.');
+      try { localStorage.setItem(MENU_DOCUMENT_CACHE_KEY, JSON.stringify(documentValue)); } catch (_) {}
+      applyModuleCatalog(modules);
+      const visible = enabledModules();
+      if (!visible.some(module => module.id === section)) {
+        section = visible[0]?.id || MODULE_CATALOG[0]?.id || 'rides';
+        localStorage.setItem(SECTION_KEY, section);
+      }
+      renderNavigation();
+      renderModuleSettings();
+      showSection();
+    } catch (error) {
+      console.warn('De laatst geldige menuconfiguratie blijft actief.', error);
+    }
+  }
+
   function readData() {
     try {
       const parsed = JSON.parse(localStorage.getItem(DATA_KEY) || '{}');
@@ -84,10 +165,7 @@
       const stored = savedById.get(id);
       return { id, enabled: stored ? stored.enabled !== false : module.enabled, order };
     });
-    if (!config.some(item => item.enabled)) {
-      const rides = config.find(item => item.id === 'rides');
-      if (rides) rides.enabled = true;
-    }
+    if (!config.some(item => item.enabled) && config[0]) config[0].enabled = true;
     return config;
   }
 
@@ -116,7 +194,8 @@
       themes: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><circle cx="8" cy="16" r="3"/><circle cx="16" cy="16" r="3"/></svg>',
       barcodes: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5v14M7 5v14M11 5v14M14 5v14M19 5v14M17 5v14"/></svg>'
     };
-    return icons[id] || icons.rides;
+    const icon = moduleById(id)?.icon || id;
+    return icons[icon] || icons.themes;
   }
 
   function renderNavigation() {
@@ -1871,6 +1950,7 @@
     bindEmbeddedTimeApp();
     bindHeaderCollapse();
     showSection();
+    refreshMenuDocument();
     filterTripLocationSelects();
     // Na sluiten van Instellingen moet het paneel zichtbaar blijven; normale herlaad start rustig gesloten.
     closeDrawer();
