@@ -91,11 +91,9 @@
   let pendingParentSave = null;
   let pendingHierarchyReload = false;
   let kmSettingsMounted = false;
-  let timeFramePlaceholder = null;
+  let timeSettingsFrame = null;
   let kmAppPlaceholder = null;
   let lastEditorState = document.body.classList.contains('editor-view');
-  let timeFrameOriginalParent = null;
-  let timeFrameOriginalNext = null;
   let locationEditorAugmentQueued = false;
   let timeSettingsOpen = false;
   let activeSettingsTarget = null;
@@ -1395,7 +1393,7 @@
   function teardownSettingsPanel() {
     settingsMountToken += 1;
     const content = $('#kmShellSettingsContent');
-    if (content?.querySelector('#timeAppFrame')) restoreTimeFrame();
+    if (timeSettingsFrame || content?.querySelector('#kmShellTimeSettingsFrame')) destroyTimeSettingsFrame();
     if (kmSettingsMounted && content?.querySelector('#app')) restoreKmApp();
     activeSettingsTarget = null;
   }
@@ -1710,8 +1708,7 @@
     host.dataset.settingsTarget = target;
     host.setAttribute('aria-busy', 'true');
     host.innerHTML = '';
-    const timeReady = target === 'time' && $('#timeAppFrame')?.contentDocument?.readyState === 'complete' && Boolean($('#timeAppFrame')?.contentDocument?.getElementById('main'));
-    if (!timeReady) setSettingsPanelStatus(host, 'Instellingen laden…');
+    if (target === 'time') setSettingsPanelStatus(host, 'Tijdinstellingen laden…');
     const mounted = target === 'time' ? mountTimeSettings(host, token) : mountKmSettings(host, target);
     if (!mounted) {
       activeSettingsTarget = null;
@@ -1871,15 +1868,19 @@
           frame.style.setProperty('height', Math.ceil(height) + 'px', 'important');
         });
       };
+      const bindAndUpdate = () => {
+        bindExclusiveAccordions(doc, '.settings-accordion');
+        update();
+      };
       timeFrameSettingsObserver?.disconnect();
       timeFrameSettingsResizeObserver?.disconnect();
-      timeFrameSettingsObserver = new MutationObserver(update);
+      timeFrameSettingsObserver = new MutationObserver(bindAndUpdate);
       timeFrameSettingsObserver.observe(doc.body, { childList: true, subtree: true, attributes: true });
       if (typeof ResizeObserver === 'function') {
         timeFrameSettingsResizeObserver = new ResizeObserver(update);
         timeFrameSettingsResizeObserver.observe(doc.documentElement);
       }
-      update();
+      bindAndUpdate();
     } catch (_) {}
   }
 
@@ -1890,12 +1891,12 @@
       if (doc?.body) {
         applyUnifiedTimeStyles(frame);
         doc.body.classList.add('km-accordion-embedded-settings');
-        if (timeFrameView() !== 'settings') {
+        if (timeFrameView(frame) !== 'settings') {
           const direct = frame.contentWindow?.openSettings;
           if (typeof direct === 'function') direct.call(frame.contentWindow);
           else doc.getElementById('openSettings')?.click();
         }
-        const ready = timeFrameView() === 'settings' && Boolean(doc.querySelector('.settings-page'));
+        const ready = timeFrameView(frame) === 'settings' && Boolean(doc.querySelector('.settings-page'));
         if (ready) {
           bindExclusiveAccordions(doc, '.settings-accordion');
           const first = doc.querySelector('.settings-accordion');
@@ -1929,26 +1930,34 @@
     setTimeout(() => openTimeSettingsInFrame(frame, host, token, attempt + 1), Math.min(320, 70 + attempt * 12));
   }
 
+  function timeSettingsUrl() {
+    const mainFrame = $('#timeAppFrame');
+    const url = new URL(mainFrame?.src || './time/', window.location.href);
+    url.searchParams.set('embedded', '1');
+    url.searchParams.set('settings', '1');
+    url.searchParams.set('instance', 'settings');
+    return url.href;
+  }
+
   function mountTimeSettings(host, token) {
-    const frame = $('#timeAppFrame');
-    if (!host || !frame) return false;
-    timeFrameOriginalParent = frame.parentNode;
-    timeFrameOriginalNext = frame.nextSibling;
-    timeFramePlaceholder = document.createComment('time-frame-placeholder');
-    timeFrameOriginalParent?.insertBefore(timeFramePlaceholder, frame);
-    host.appendChild(frame);
-    frame.hidden = false;
-    frame.classList.add('km-settings-frame-loading');
+    if (!host) return false;
+    const frame = document.createElement('iframe');
+    frame.id = 'kmShellTimeSettingsFrame';
+    frame.className = 'time-app-frame km-shell-time-settings-frame km-settings-frame-loading';
+    frame.title = 'Instellingen tijd en taken';
+    frame.setAttribute('scrolling', 'no');
+    frame.setAttribute('aria-label', 'Instellingen tijd en taken');
     frame.style.setProperty('height', '300px', 'important');
+    timeSettingsFrame = frame;
 
     const open = () => openTimeSettingsInFrame(frame, host, token, 0);
-    if (frame.contentDocument?.readyState === 'complete') open();
-    else frame.addEventListener('load', open, { once: true });
+    frame.addEventListener('load', open, { once: true });
+    frame.src = timeSettingsUrl();
+    host.appendChild(frame);
     return true;
   }
 
-  function timeFrameView() {
-    const frame = $('#timeAppFrame');
+  function timeFrameView(frame = $('#timeAppFrame')) {
     try {
       return frame?.contentDocument?.getElementById('appTaskCount')?.dataset.navigationView === 'settings' ? 'settings' : 'home';
     } catch (_) {
@@ -2020,32 +2029,14 @@
     ensureKmView('ride');
   }
 
-  function restoreTimeFrame() {
-    const frame = $('#kmShellSettingsContent #timeAppFrame');
-    if (!frame) return;
+  function destroyTimeSettingsFrame() {
+    const frame = timeSettingsFrame || $('#kmShellTimeSettingsFrame');
     timeFrameSettingsObserver?.disconnect();
     timeFrameSettingsObserver = null;
     timeFrameSettingsResizeObserver?.disconnect();
     timeFrameSettingsResizeObserver = null;
-    frame.classList.remove('km-settings-frame-loading');
-    frame.style.removeProperty('height');
-    try { frame.contentDocument?.body?.classList.remove('km-accordion-embedded-settings'); } catch (_) {}
-    setTimeSettingsOpen(false);
-    if (timeFramePlaceholder?.parentNode) {
-      timeFramePlaceholder.parentNode.insertBefore(frame, timeFramePlaceholder);
-      timeFramePlaceholder.remove();
-    } else if (timeFrameOriginalParent) {
-      timeFrameOriginalParent.insertBefore(frame, timeFrameOriginalNext || null);
-    }
-    timeFramePlaceholder = null;
-    timeFrameOriginalParent = null;
-    timeFrameOriginalNext = null;
-    // Houd de geïntegreerde module geladen; zet alleen de interne weergave terug.
-    try {
-      const close = frame.contentWindow?.closeSettings;
-      if (typeof close === 'function') close.call(frame.contentWindow);
-      else if (timeFrameView() === 'settings') frame.contentDocument?.getElementById('openSettings')?.click();
-    } catch (_) {}
+    frame?.remove();
+    timeSettingsFrame = null;
   }
 
   function closeSettingsSheet() {
@@ -2101,7 +2092,6 @@
     window.addEventListener('message', event => {
       const frame = $('#timeAppFrame');
       if (event.origin !== window.location.origin || event.source !== frame?.contentWindow || event.data?.type !== 'urenregistratie-view') return;
-      if ($('#kmShellSettingsContent #timeAppFrame')) return;
       setTimeSettingsOpen(event.data.view === 'settings');
     });
 

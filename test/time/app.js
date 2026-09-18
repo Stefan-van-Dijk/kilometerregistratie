@@ -47,7 +47,7 @@ const defaultState = () => ({
 
 let state = loadState();
 let timerTick = null;
-let currentView = 'home';
+let currentView = new URLSearchParams(window.location.search).get('settings') === '1' ? 'settings' : 'home';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -711,5 +711,11 @@ function registerServiceWorker() {
 function init() {
   $('#openSettings').addEventListener('click',()=>currentView==='settings'?closeSettings():openSettings()); $('#modalBackdrop').addEventListener('click',event=>{if(event.target===$('#modalBackdrop'))closeModal();}); render();registerServiceWorker();
 }
+
+window.addEventListener('storage', event => {
+  if (event.key !== STORAGE_KEY) return;
+  state = loadState();
+  render();
+});
 
 document.addEventListener('DOMContentLoaded',init);
