@@ -875,6 +875,48 @@
       ${children.map(child => locationNodeHtml(child, Math.min(depth + 1, 1), snapshot)).join('')}`;
   }
 
+  function bindLocationInteractions(root) {
+    root.onclick = event => {
+      const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+      if (!target) return;
+      const edit = target.closest('[data-shell-edit-location]');
+      if (edit) {
+        event.preventDefault();
+        event.stopPropagation();
+        openLocationEditor(edit.dataset.shellEditLocation);
+        return;
+      }
+      const add = target.closest('[data-shell-add-location]');
+      if (add) {
+        event.preventDefault();
+        event.stopPropagation();
+        openLocationEditor(null, null, false);
+        return;
+      }
+      const current = target.closest('[data-shell-current-location]');
+      if (current) {
+        event.preventDefault();
+        event.stopPropagation();
+        openLocationEditor(null, null, true);
+        return;
+      }
+      const child = target.closest('[data-shell-add-child]');
+      if (child) {
+        event.preventDefault();
+        event.stopPropagation();
+        openLocationEditor(null, child.dataset.shellAddChild, false);
+        return;
+      }
+      const toggle = target.closest('[data-shell-location-toggle]');
+      if (toggle && !target.closest('button')) {
+        event.preventDefault();
+        event.stopPropagation();
+        expandedLocationId = expandedLocationId === toggle.dataset.shellLocationToggle ? null : toggle.dataset.shellLocationToggle;
+        renderLocations();
+      }
+    };
+  }
+
   function renderLocations() {
     const root = $('#kmShellLocationsView');
     if (!root || section !== 'locations' || document.body.classList.contains('editor-view')) return;
@@ -885,6 +927,7 @@
       <div class="km-shell-location-actions"><button type="button" class="btn secondary" data-shell-current-location>Huidige locatie</button><button type="button" class="btn" data-shell-add-location>Nieuwe locatie</button></div>
       <div class="km-shell-location-sort" aria-label="Locaties sorteren"><button type="button" class="${sortMode === 'smart' ? 'active' : ''}" data-action="location-sort" data-mode="smart">◎ Logisch</button><button type="button" class="${sortMode === 'alpha' ? 'active' : ''}" data-action="location-sort" data-mode="alpha">A–Z Naam</button></div>
       ${roots.length ? `<div class="km-shell-location-tree">${roots.map(location => locationNodeHtml(location, 0, snapshot)).join('')}</div>` : '<div class="km-shell-empty">Nog geen locaties opgeslagen.</div>'}`;
+    bindLocationInteractions(root);
   }
 
   function dispatchOriginalAction(action, extra = {}) {
@@ -904,6 +947,12 @@
     ensureKmView('ride');
     document.body.classList.remove('km-shell-locations-mode');
     $('#kmShellLocationsView').hidden = true;
+    if (typeof window.openLocation === 'function') {
+      Promise.resolve(window.openLocation(id, current))
+        .then(queueLocationEditorAugment)
+        .catch(error => console.error('Locatie-editor kon niet worden geopend.', error));
+      return;
+    }
     if (current) {
       dispatchOriginalAction('current-location');
     } else if (id) {
@@ -1437,40 +1486,42 @@
     });
 
     document.addEventListener('click', event => {
-      const edit = event.target.closest('[data-shell-edit-location]');
+      const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+      if (!target) return;
+      const edit = target.closest('[data-shell-edit-location]');
       if (edit) {
         event.preventDefault();
         event.stopPropagation();
         openLocationEditor(edit.dataset.shellEditLocation);
         return;
       }
-      const add = event.target.closest('[data-shell-add-location]');
+      const add = target.closest('[data-shell-add-location]');
       if (add) {
         event.preventDefault();
         openLocationEditor(null, null, false);
         return;
       }
-      const current = event.target.closest('[data-shell-current-location]');
+      const current = target.closest('[data-shell-current-location]');
       if (current) {
         event.preventDefault();
         openLocationEditor(null, null, true);
         return;
       }
-      const child = event.target.closest('[data-shell-add-child]');
+      const child = target.closest('[data-shell-add-child]');
       if (child) {
         event.preventDefault();
         event.stopPropagation();
         openLocationEditor(null, child.dataset.shellAddChild, false);
         return;
       }
-      const toggle = event.target.closest('[data-shell-location-toggle]');
-      if (toggle && !event.target.closest('button')) {
+      const toggle = target.closest('[data-shell-location-toggle]');
+      if (toggle && !target.closest('button')) {
         expandedLocationId = expandedLocationId === toggle.dataset.shellLocationToggle ? null : toggle.dataset.shellLocationToggle;
         renderLocations();
         return;
       }
-      if (event.target.closest('[data-action="save-location"]')) captureParentBeforeSave();
-      if (event.target.closest('[data-action="location-sort"]') && section === 'locations') setTimeout(renderLocations, 0);
+      if (target.closest('[data-action="save-location"]')) captureParentBeforeSave();
+      if (target.closest('[data-action="location-sort"]') && section === 'locations') setTimeout(renderLocations, 0);
     }, false);
 
     const observer = new MutationObserver(() => {
