@@ -206,8 +206,13 @@
     }
     const tabbar = $('#kmShellTabBar');
     if (tabbar) {
-      tabbar.style.setProperty('--km-tab-count', String(Math.max(1, modules.length)));
-      tabbar.innerHTML = modules.map(module => `<button class="km-shell-tab-button" type="button" data-shell-tab="${module.id}" aria-label="${esc(module.label)}">${moduleIcon(module.id)}<span>${esc(module.shortLabel)}</span></button>`).join('');
+      const hasMore = modules.length > 5;
+      const primary = hasMore ? modules.slice(0, 4) : modules;
+      const moreButton = hasMore
+        ? '<button class="km-shell-tab-button km-shell-tab-more" type="button" data-shell-more aria-label="Meer onderdelen"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span>Meer</span></button>'
+        : '';
+      tabbar.style.setProperty('--km-tab-count', String(Math.max(1, primary.length + (hasMore ? 1 : 0))));
+      tabbar.innerHTML = primary.map(module => `<button class="km-shell-tab-button" type="button" data-shell-tab="${module.id}" aria-label="${esc(module.label)}">${moduleIcon(module.id)}<span>${esc(module.shortLabel)}</span></button>`).join('') + moreButton;
       tabbar.hidden = modules.length === 0;
     }
     syncDrawerSelection();
@@ -423,6 +428,32 @@
       }
       @media(prefers-color-scheme:light){.km-shell-drawer{background:rgba(255,255,255,.97);box-shadow:18px 0 52px rgba(30,45,65,.16)}.km-shell-settings-head{background:rgba(245,245,247,.93)}.km-shell-backdrop{background:rgba(0,0,0,.22)}.km-shell-settings{background:rgba(0,0,0,.22)}}
       @media(max-width:480px){.km-shell-drawer{width:min(86vw,330px)}.km-shell-settings-surface{height:96dvh;border-radius:21px 21px 0 0}.km-shell-settings-content{padding-left:12px;padding-right:12px}.km-shell-location-detail-grid{grid-template-columns:1fr}.km-shell-location-actions{grid-template-columns:1fr 1fr}}
+      /* UX-review: schaalbare navigatie, rustiger instellingen en grotere aanraakvlakken. */
+      .km-shell-tabbar{height:70px;border-radius:26px}
+      .km-shell-tab-button.active::after{display:none}
+      .km-shell-tab-button.active{border-color:color-mix(in srgb,var(--accent) 38%,transparent);background:color-mix(in srgb,var(--accent) 18%,var(--card));box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 18%,transparent),inset 0 1px 0 rgba(255,255,255,.5)}
+      .km-shell-tab-more svg circle{fill:currentColor;stroke:none}
+      .km-shell-menu-button{width:44px!important;height:44px!important}
+      .km-shell-settings-close{width:40px!important;height:40px!important}
+      .km-shell-search button{width:32px;height:32px}
+      .km-shell-location-buttons button,.km-shell-location-chevron{width:44px!important;height:44px!important}
+      .km-shell-settings-content{scroll-padding-top:12px;overscroll-behavior:contain}
+      .km-shell-settings-group{margin-bottom:20px}
+      .km-shell-settings-group-head{padding:0 5px 8px}
+      .km-shell-settings-group-head h2{font-size:13px!important;font-weight:720!important;letter-spacing:.055em!important;text-transform:uppercase;color:var(--muted)!important}
+      .km-shell-settings-group-head p{margin-top:4px!important;font-size:12px!important}
+      .km-shell-settings-accordion summary:focus-visible,.km-shell-nav-button:focus-visible,.km-shell-tab-button:focus-visible,.km-shell-menu-button:focus-visible,.km-shell-settings-close:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+      .km-shell-settings-panel-host>#app details.accordion>summary{min-height:58px}
+      .km-shell-module-settings{gap:0;overflow:hidden;border:.5px solid var(--line);border-radius:14px;background:var(--card)}
+      .km-shell-module-row{grid-template-columns:minmax(0,1fr) auto;min-height:64px;padding:9px 10px 9px 14px;border:0;border-radius:0;background:transparent}
+      .km-shell-module-row:not(:last-child){border-bottom:.5px solid var(--line)}
+      .km-shell-module-handle{display:none}
+      .km-shell-module-copy strong{font-size:15px;font-weight:620}
+      .km-shell-module-copy small{font-size:11px;line-height:1.35}
+      .km-shell-module-controls button{width:38px;height:38px;border:0;background:transparent;color:var(--accent);font-size:18px}
+      .km-shell-module-controls button:disabled{opacity:.22;color:var(--muted)}
+      .km-shell-module-toggle input{width:42px;height:24px}
+      @media(max-width:390px){.km-shell-tab-button{font-size:9px}.km-shell-tab-button svg{width:21px;height:21px}.km-shell-title{font-size:29px!important}}
       @media(prefers-reduced-motion:reduce){.shell,.km-shell-menu-button,.km-shell-drawer,.km-shell-backdrop,.km-shell-settings,.km-shell-settings-surface,.km-shell-tabbar,.km-shell-tab-button{transition:none!important}.km-shell-settings-content>*,body.km-shell-tab-transition .shell{animation:none!important}}
     `;
     document.head.appendChild(style);
@@ -553,6 +584,11 @@
     tabbar.setAttribute('aria-label', 'Hoofdnavigatie');
     tabbar.innerHTML = '';
     tabbar.addEventListener('click', event => {
+      const more = event.target.closest('[data-shell-more]');
+      if (more) {
+        openDrawer();
+        return;
+      }
       const button = event.target.closest('[data-shell-tab]');
       if (button) selectSection(button.dataset.shellTab);
     });
@@ -582,13 +618,26 @@
   }
 
   function syncDrawerSelection() {
-    $$('.km-shell-nav-button').forEach(button => button.classList.toggle('active', button.dataset.shellSection === section));
-    $$('.km-shell-tab-button').forEach(button => {
+    $('.km-shell-nav-button').forEach(button => {
+      const active = button.dataset.shellSection === section;
+      button.classList.toggle('active', active);
+      if (active) button.setAttribute('aria-current', 'page');
+      else button.removeAttribute('aria-current');
+    });
+    const directTabs = $('.km-shell-tab-button[data-shell-tab]');
+    directTabs.forEach(button => {
       const active = button.dataset.shellTab === section;
       button.classList.toggle('active', active);
       if (active) button.setAttribute('aria-current', 'page');
       else button.removeAttribute('aria-current');
     });
+    const more = $('.km-shell-tab-more');
+    if (more) {
+      const active = !directTabs.some(button => button.dataset.shellTab === section);
+      more.classList.toggle('active', active);
+      if (active) more.setAttribute('aria-current', 'page');
+      else more.removeAttribute('aria-current');
+    }
   }
 
   function originalIsTimeMode() {
@@ -1332,7 +1381,7 @@
     const config = moduleConfiguration();
     host.innerHTML = config.map((item, index) => {
       const module = moduleById(item.id);
-      return `<div class="km-shell-module-row"><div class="km-shell-module-handle">≡</div><div class="km-shell-module-copy"><strong>${esc(module?.label || item.id)}</strong><small>${esc(module?.subtitle || '')}${module?.placeholder ? ' · dummy' : ''}</small></div><div class="km-shell-module-controls"><button type="button" data-module-move="up" data-module-id="${item.id}" aria-label="${esc(module?.label || item.id)} omhoog" ${index === 0 ? 'disabled' : ''}>↑</button><button type="button" data-module-move="down" data-module-id="${item.id}" aria-label="${esc(module?.label || item.id)} omlaag" ${index === config.length - 1 ? 'disabled' : ''}>↓</button><label class="km-shell-module-toggle" aria-label="${esc(module?.label || item.id)} tonen"><input type="checkbox" data-module-toggle="${item.id}" ${item.enabled ? 'checked' : ''}></label></div></div>`;
+      return `<div class="km-shell-module-row"><div class="km-shell-module-copy"><strong>${esc(module?.label || item.id)}</strong><small>${esc(module?.subtitle || '')}${module?.placeholder ? ' · in voorbereiding' : ''}</small></div><div class="km-shell-module-controls"><button type="button" data-module-move="up" data-module-id="${item.id}" aria-label="${esc(module?.label || item.id)} omhoog" ${index === 0 ? 'disabled' : ''}>↑</button><button type="button" data-module-move="down" data-module-id="${item.id}" aria-label="${esc(module?.label || item.id)} omlaag" ${index === config.length - 1 ? 'disabled' : ''}>↓</button><label class="km-shell-module-toggle" aria-label="${esc(module?.label || item.id)} tonen"><input type="checkbox" data-module-toggle="${item.id}" ${item.enabled ? 'checked' : ''}></label></div></div>`;
     }).join('');
   }
 
@@ -1341,6 +1390,7 @@
     if (!content) return false;
     teardownSettingsPanel();
     content.dataset.mode = 'general';
+    content.scrollTop = 0;
     const title = $('#kmShellSettingsTitle');
     if (title) title.textContent = 'Instellingen';
     content.innerHTML = `
@@ -1435,6 +1485,10 @@
       }
       const host = detail.querySelector('.km-shell-settings-panel-host');
       openAccordionSettings(detail.dataset.settingsTarget, host);
+      requestAnimationFrame(() => detail.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'nearest'
+      }));
     }));
     return true;
   }
@@ -1601,7 +1655,7 @@
           .btn:active,.period-arrow:active,.entry:active{opacity:.68}
           .chev{color:color-mix(in srgb,var(--muted) 62%,transparent)!important;font-size:20px!important}
           body.km-accordion-embedded-settings .settings-accordion{border-color:var(--line)}
-          body.km-accordion-embedded-settings .settings-accordion summary{min-height:54px;padding-left:0;padding-right:0}
+          body.km-accordion-embedded-settings .settings-accordion summary{min-height:58px;padding-left:0;padding-right:0}
           body.km-accordion-embedded-settings .settings-accordion-body{padding-left:0;padding-right:0}
           .modal-backdrop{align-items:flex-end!important;padding:0!important;background:rgba(0,0,0,.38)!important}
           .modal{position:relative!important;width:100%!important;max-width:none!important;max-height:92dvh!important;margin:0!important;padding:18px 16px calc(18px + env(safe-area-inset-bottom))!important;border-radius:26px 26px 0 0!important;border:.5px solid var(--line)!important;border-bottom:0!important;overflow:auto!important}
