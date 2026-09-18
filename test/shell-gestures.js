@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.10-test.41';
+  const BUILD='0.31.10-test.44';
   const HORIZONTAL_RATIO=1.25;
   const SNAP_PROGRESS=0.28;
   const FLING_VELOCITY=0.45;
@@ -10,7 +10,7 @@
   let scrollLocked=false;
   let lockedScrollY=0;
   let savedBodyStyle=null;
-  let savedHtmlOverflow='';
+  let savedHtmlStyle=null;
   let gesture=null;
   let animating=false;
   const boundDocuments=new WeakSet();
@@ -47,7 +47,10 @@
     style.id='kmShellGestureStyles';
     style.textContent=`
       body.km-shell-gesture-active{overscroll-behavior:none}
-      body.km-shell-gesture-active .shell>#timeAppFrame{visibility:visible!important;pointer-events:none!important}
+      body.km-shell-gesture-active .shell>#timeAppFrame,
+      body.km-shell-drawer-open .shell>#timeAppFrame{visibility:visible!important;pointer-events:none!important;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:translateZ(0)!important}
+      body.km-shell-drawer-open #kmShellDrawer{overscroll-behavior:contain}
+      body.km-shell-drawer-open #kmShellBackdrop{touch-action:none}
     `;
     document.head.appendChild(style);
   }
@@ -56,32 +59,33 @@
     if(scrollLocked)return;
     scrollLocked=true;
     lockedScrollY=Math.max(0,window.scrollY||window.pageYOffset||0);
-    savedHtmlOverflow=document.documentElement.style.overflow;
+    savedHtmlStyle={
+      overflow:document.documentElement.style.overflow,
+      overscrollBehavior:document.documentElement.style.overscrollBehavior
+    };
     savedBodyStyle={
-      position:document.body.style.position,
-      top:document.body.style.top,
-      left:document.body.style.left,
-      right:document.body.style.right,
-      width:document.body.style.width,
-      overflow:document.body.style.overflow
+      overflow:document.body.style.overflow,
+      overscrollBehavior:document.body.style.overscrollBehavior
     };
     document.documentElement.style.overflow='hidden';
-    Object.assign(document.body.style,{
-      position:'fixed',
-      top:`-${lockedScrollY}px`,
-      left:'0',
-      right:'0',
-      width:'100%',
-      overflow:'hidden'
-    });
+    document.documentElement.style.overscrollBehavior='none';
+    document.body.style.overflow='hidden';
+    document.body.style.overscrollBehavior='none';
   }
 
   function unlockMainScroll(){
     if(!scrollLocked)return;
     scrollLocked=false;
-    document.documentElement.style.overflow=savedHtmlOverflow;
-    if(savedBodyStyle)Object.assign(document.body.style,savedBodyStyle);
+    if(savedHtmlStyle){
+      document.documentElement.style.overflow=savedHtmlStyle.overflow;
+      document.documentElement.style.overscrollBehavior=savedHtmlStyle.overscrollBehavior;
+    }
+    if(savedBodyStyle){
+      document.body.style.overflow=savedBodyStyle.overflow;
+      document.body.style.overscrollBehavior=savedBodyStyle.overscrollBehavior;
+    }
     const y=lockedScrollY;
+    savedHtmlStyle=null;
     savedBodyStyle=null;
     requestAnimationFrame(()=>window.scrollTo(0,y));
   }
