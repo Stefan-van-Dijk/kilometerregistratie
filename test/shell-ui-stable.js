@@ -1,13 +1,14 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.10-test.35';
+  const BUILD='0.31.10-test.36';
   const DATA_KEY='kmreg-test-v4-data';
   const SECTION_KEY='kmreg-test-shell-section-v1';
   let gps={status:'idle',lat:null,lng:null,accuracy:null,matchedId:null,matchedRootId:null,distance:null,nearestId:null,nearestDistance:null,updatedAt:0,error:''};
   let gpsPending=false;
   let frameBound=false;
   let moduleNavObserver=null;
+  let sectionRecoveryPending=false;
 
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -32,6 +33,19 @@
     return new Set(['rides','time','locations']);
   }
 
+  function ensureEnabledSection(){
+    if(sectionRecoveryPending)return;
+    const enabled=enabledModuleIds();
+    const current=localStorage.getItem(SECTION_KEY);
+    if(!current||enabled.has(current)||!enabled.size)return;
+    const fallback=enabled.values().next().value;
+    if(!fallback)return;
+    sectionRecoveryPending=true;
+    localStorage.setItem(SECTION_KEY,fallback);
+    window.dispatchEvent(new CustomEvent('kmreg-test-shell-select-section',{detail:{section:fallback}}));
+    setTimeout(()=>{sectionRecoveryPending=false;},0);
+  }
+
   function syncModuleDependentSettings(){
     const content=$('#kmShellSettingsContent');
     if(!content||content.dataset.mode!=='general')return;
@@ -53,9 +67,13 @@
   function bindModuleSettingsSync(){
     const nav=$('#kmShellDrawerNav');
     if(nav&&!moduleNavObserver){
-      moduleNavObserver=new MutationObserver(()=>syncModuleDependentSettings());
+      moduleNavObserver=new MutationObserver(()=>{
+        ensureEnabledSection();
+        syncModuleDependentSettings();
+      });
       moduleNavObserver.observe(nav,{childList:true});
     }
+    ensureEnabledSection();
     syncModuleDependentSettings();
   }
 
@@ -283,12 +301,12 @@
     },{passive:true});
 
     document.addEventListener('change',event=>{
-      if(event.target.closest?.('[data-module-toggle]'))setTimeout(syncModuleDependentSettings,0);
+      if(event.target.closest?.('[data-module-toggle]'))setTimeout(()=>{ensureEnabledSection();syncModuleDependentSettings();},0);
     },{passive:true});
 
-    window.addEventListener('log-navigation-modules-change',()=>setTimeout(syncModuleDependentSettings,0));
+    window.addEventListener('log-navigation-modules-change',()=>setTimeout(()=>{ensureEnabledSection();syncModuleDependentSettings();},0));
     window.addEventListener('storage',event=>{
-      if(event.key===DATA_KEY){decorateLocations();syncModuleDependentSettings();}
+      if(event.key===DATA_KEY){decorateLocations();ensureEnabledSection();syncModuleDependentSettings();}
     });
     document.addEventListener('visibilitychange',()=>{if(!document.hidden&&section()==='locations')requestGps(true);});
 
@@ -296,6 +314,7 @@
       updateVersion();
       fixTimeHeader();
       bindModuleSettingsSync();
+      ensureEnabledSection();
       syncModuleDependentSettings();
       if(section()==='locations'&&document.body.classList.contains('km-shell-locations-mode')){
         requestGps(false);
