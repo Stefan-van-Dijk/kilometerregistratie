@@ -557,7 +557,7 @@ function clone(v){return JSON.parse(JSON.stringify(v))}
 function normalize(x){return{settings:{...DEFAULT.settings,...(x.settings||{})},locations:Array.isArray(x.locations)?x.locations:[],trips:Array.isArray(x.trips)?x.trips:[],events:Array.isArray(x.events)?x.events:[],trackPoints:Array.isArray(x.trackPoints)?x.trackPoints:[],activeTrip:x.activeTrip||null,lastEndpoint:x.lastEndpoint||null,lastCompletion:x.lastCompletion||null}}
 function load(){try{const raw=localStorage.getItem(KEY);return raw?normalize(JSON.parse(raw)):clone(DEFAULT)}catch(e){console.error(e);return clone(DEFAULT)}}
 function save(){const local=trackStoreReady?{...data,trackPoints:[]}:data;localStorage.setItem(KEY,JSON.stringify(local));const raw=localStorage.getItem(KEY);if(!raw)throw new Error('Lokale opslag is mislukt.');JSON.parse(raw)}
-function timeAppUrl(){const url=new URL('/urenregistratie/test/',window.location.origin);url.searchParams.set('embedded','1');url.searchParams.set('build',APP_BUILD);return url.href}
+function timeAppUrl(){const url=new URL('./time/',window.location.href);url.searchParams.set('embedded','1');url.searchParams.set('build',APP_BUILD);return url.href}
 function timeTaskState(){try{const x=JSON.parse(localStorage.getItem(TIME_STORAGE_KEY)||'{}'),entries=Array.isArray(x.entries)?x.entries:[],count=entries.filter(entry=>entry.activityType!=='interruption').length,active=x.timer?.status==='active';return{count,active}}catch(e){return{count:0,active:false}}}
 function updateTimeAppMeta(){if(timeAppView==='settings'){appModeMeta.textContent='Instellingen';return}const x=timeTaskState();appModeMeta.textContent=`${x.count} ${x.count===1?'taak':'taken'} geregistreerd${x.active?' · timer actief':''}`}
 function ensureTimeApp(){if(timeAppFrame.dataset.started==='1')return;timeAppFrame.dataset.started='1';timeAppFrame.src=timeAppUrl()}
@@ -1138,7 +1138,7 @@ async function deliverFile(blob,name,title){if(typeof File==='function'&&navigat
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
 })();
 </script>
-<script src="./shell-ui.js?v=0.31.10-test.23"></script>
+<script src="./shell-ui.js?v=0.31.10-test.24"></script>
 <script src="./shell-ui-stable.js?v=0.31.10-test.1"></script>
 </body>
 </html>
