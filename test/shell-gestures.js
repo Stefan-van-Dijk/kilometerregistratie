@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.10-test.41';
+  const BUILD='0.31.10-test.42';
   const HORIZONTAL_RATIO=1.25;
   const SNAP_PROGRESS=0.28;
   const FLING_VELOCITY=0.45;
@@ -108,9 +108,18 @@
   }
 
   function hasOwnGesture(target){
-    return Boolean(target?.closest?.(
-      '#kmShellTabBar,#periodNavigator,.period-navigator,.swipe-surface,.trip-swipe-surface,.km-shell-location-swipe-surface,.activity-swipe-surface,.period-overview,.period-nav,.odo-digit.swipeable'
-    ));
+    if(target?.closest?.('#kmShellTabBar,#periodNavigator,.period-navigator,.period-overview,.period-nav,.odo-digit.swipeable'))return true;
+
+    const rideRow=target?.closest?.('.swipe-row,.trip-swipe-row');
+    if(rideRow?.querySelector?.('.swipe-actions-left .swipe-action'))return true;
+
+    const activityRow=target?.closest?.('.activity-swipe-row');
+    if(activityRow?.querySelector?.('.activity-swipe-actions-left .activity-swipe-action'))return true;
+
+    const locationRow=target?.closest?.('.km-shell-location-swipe-row');
+    if(locationRow?.querySelector?.('.km-shell-location-swipe-actions-left .km-shell-location-swipe-action'))return true;
+
+    return false;
   }
 
   function touchPoint(event){
