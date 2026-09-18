@@ -41,6 +41,8 @@
   let timeSettingsOpen = false;
   let activeSettingsTarget = null;
   let timeFrameSettingsObserver = null;
+  let timeFrameSettingsResizeObserver = null;
+  let settingsMountToken = 0;
   let shellSearchObserver = null;
   let shellUndoTimer = null;
   let sectionTransitioning = false;
@@ -189,7 +191,7 @@
       body.km-shell-tab-transition .shell{animation:kmTabPageIn .22s cubic-bezier(.22,1,.36,1) both}
       .km-shell-settings{position:fixed;z-index:120;inset:0;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.38);opacity:0;pointer-events:none;transition:opacity .22s ease}.km-shell-settings.open{opacity:1;pointer-events:auto}
       .km-shell-settings-surface{width:100%;height:min(94dvh,900px);display:flex;flex-direction:column;border-radius:24px 24px 0 0;border:1px solid var(--line);border-bottom:0;background:var(--bg);box-shadow:0 -18px 52px rgba(0,0,0,.34);transform:translateY(104%);transition:transform .46s cubic-bezier(.22,1,.36,1);overflow:hidden;will-change:transform}.km-shell-settings.open .km-shell-settings-surface{transform:translateY(0)}
-      .km-shell-settings-head{position:relative;display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:8px;flex:0 0 auto;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line);background:rgba(13,17,23,.92);-webkit-backdrop-filter:blur(22px) saturate(165%);backdrop-filter:blur(22px) saturate(165%)}.km-shell-settings-title{text-align:center;font-size:16px;font-weight:850}.km-shell-settings-close{position:absolute;right:14px;top:calc(10px + env(safe-area-inset-top));display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:0;border-radius:50%;background:var(--card2);color:var(--text);font-size:25px;cursor:pointer}.km-shell-settings-content{position:relative;flex:1;min-height:0;overflow:auto;padding:8px 16px calc(24px + env(safe-area-inset-bottom))}.km-shell-settings-content>#app{display:block!important;max-width:760px;margin:0 auto}.km-shell-settings-content .time-app-frame{display:block!important;width:100%;height:100%!important;min-height:0!important;opacity:1!important}
+      .km-shell-settings-head{position:relative;display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:8px;flex:0 0 auto;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line);background:rgba(13,17,23,.92);-webkit-backdrop-filter:blur(22px) saturate(165%);backdrop-filter:blur(22px) saturate(165%)}.km-shell-settings-title{text-align:center;font-size:16px;font-weight:850}.km-shell-settings-close{position:absolute;right:14px;top:calc(10px + env(safe-area-inset-top));display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:0;border-radius:50%;background:var(--card2);color:var(--text);font-size:25px;cursor:pointer}.km-shell-settings-content{position:relative;flex:1;min-height:0;overflow:auto;padding:8px 16px calc(24px + env(safe-area-inset-bottom))}.km-shell-settings-content #app{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:100%;max-width:760px;margin:0 auto}.km-shell-settings-content #timeAppFrame{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:100%;min-height:280px!important}.km-shell-settings-content #timeAppFrame.km-settings-frame-loading{opacity:.2!important}body.time-mode #kmShellSettingsContent #app,body.km-shell-locations-mode #kmShellSettingsContent #app,body.km-shell-placeholder-mode #kmShellSettingsContent #app{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}body:not(.time-mode) #kmShellSettingsContent #timeAppFrame,body.km-shell-locations-mode #kmShellSettingsContent #timeAppFrame,body.km-shell-placeholder-mode #kmShellSettingsContent #timeAppFrame{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
       .km-shell-settings-back{position:absolute;left:14px;top:calc(10px + env(safe-area-inset-top));display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:0;border-radius:50%;background:transparent;color:var(--accent);font-size:22px;font-weight:800;cursor:pointer}.km-shell-settings-back[hidden]{display:none!important}.km-shell-settings-back:active{background:var(--card2)}
       .km-shell-general-settings{max-width:760px;margin:0 auto;padding:8px 0 24px}.km-shell-general-intro{padding:8px 1px 16px;border-bottom:1px solid var(--line)}.km-shell-general-intro h2{margin:3px 0 5px;font-size:28px;letter-spacing:-.035em}.km-shell-general-intro p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
       .km-shell-general-card{padding:17px 1px;border-bottom:1px solid var(--line)}.km-shell-general-card>strong,.km-shell-general-card>small{display:block}.km-shell-general-card>strong{font-size:17px}.km-shell-general-card>small{margin-top:4px;color:var(--muted);font-size:11px;line-height:1.4}.km-shell-general-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:13px}.km-shell-general-actions .btn{width:100%;margin:0;text-align:center}.km-shell-general-nav{display:grid;gap:2px;margin-top:10px}.km-shell-general-nav button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px;padding:10px 1px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font-weight:760;text-align:left}.km-shell-general-nav button span:last-child{color:var(--muted);font-size:21px}.km-shell-general-advanced{margin-top:12px}.km-shell-general-advanced summary{color:var(--muted);font-size:12px;font-weight:750;cursor:pointer}.km-shell-general-status{margin-top:8px;color:var(--muted);font-size:11px;line-height:1.4}
@@ -227,7 +229,7 @@
       .km-shell-settings-accordion-arrow{color:var(--muted);font-size:21px;transition:transform .22s cubic-bezier(.22,1,.36,1)}
       .km-shell-settings-accordion[open] .km-shell-settings-accordion-arrow{transform:rotate(90deg)}
       .km-shell-settings-accordion-body{padding:0 15px 15px;border-top:1px solid var(--line)}
-      .km-shell-settings-panel-host{min-height:1px}
+      .km-shell-settings-panel-host{position:relative;min-height:1px}
       .km-shell-settings-panel-host.km-settings-panel-in{animation:kmSettingsPanelIn .24s cubic-bezier(.22,1,.36,1) both}
       .km-shell-settings-panel-host>#app{max-width:none!important;margin:0!important;padding-top:2px}
       .km-shell-settings-panel-host>#app form{margin:0}
@@ -236,7 +238,7 @@
       .km-shell-settings-panel-host>#app details.accordion>summary{padding-left:1px;padding-right:1px}
       .km-shell-settings-panel-host>#app .accordion-body{padding-left:1px;padding-right:1px}
       .km-shell-settings-panel-host>.time-app-frame{display:block!important;width:100%;min-height:280px!important;border:0}
-      .km-shell-settings-loading{padding:16px 1px;color:var(--muted);font-size:12px}
+      .km-shell-settings-loading,.km-shell-settings-panel-status{padding:16px 1px;color:var(--muted);font-size:12px}.km-shell-settings-panel-status{display:flex;align-items:center;justify-content:space-between;gap:12px}.km-shell-settings-panel-status[data-state="error"]{color:var(--bad)}.km-shell-settings-panel-status button{flex:0 0 auto;min-height:34px;padding:7px 11px;border:0;border-radius:10px;background:var(--card2);color:var(--accent);font:inherit;font-weight:800}.km-shell-settings-panel-host>#app details.accordion.km-shell-settings-single{border-bottom:0}.km-shell-settings-panel-host>#app details.accordion.km-shell-settings-single>.accordion-body{padding-top:14px}
       @keyframes kmSettingsPanelIn{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
       /* iPhone Mail-achtige navigatie en gegroepeerde lijsten. */
       html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
@@ -1233,6 +1235,7 @@
   }
 
   function teardownSettingsPanel() {
+    settingsMountToken += 1;
     const content = $('#kmShellSettingsContent');
     if (content?.querySelector('#timeAppFrame')) restoreTimeFrame();
     if (kmSettingsMounted && content?.querySelector('#app')) restoreKmApp();
@@ -1348,18 +1351,48 @@
     return true;
   }
 
+  function setSettingsPanelStatus(host, message, state = 'loading', retry = null) {
+    if (!host) return null;
+    let status = [...host.children].find(child => child.classList?.contains('km-shell-settings-panel-status'));
+    if (!status) {
+      status = document.createElement('div');
+      status.className = 'km-shell-settings-panel-status';
+      status.setAttribute('role', 'status');
+      host.prepend(status);
+    }
+    status.dataset.state = state;
+    status.replaceChildren();
+    const copy = document.createElement('span');
+    copy.textContent = message;
+    status.appendChild(copy);
+    if (typeof retry === 'function') {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = 'Opnieuw proberen';
+      button.addEventListener('click', retry);
+      status.appendChild(button);
+    }
+    return status;
+  }
+
   function openAccordionSettings(target, host) {
     if (!ROOT_SECTIONS.has(target) || !host) return;
     teardownSettingsPanel();
-    selectSection(target);
-    host.innerHTML = '<div class="km-shell-settings-loading">Instellingen laden…</div>';
-    const mounted = target === 'time' ? mountTimeSettings(host) : mountKmSettings(host, target);
+    const token = ++settingsMountToken;
+    activeSettingsTarget = target;
+    host.dataset.settingsTarget = target;
+    host.setAttribute('aria-busy', 'true');
+    host.innerHTML = '';
+    setSettingsPanelStatus(host, 'Instellingen laden…');
+    const mounted = target === 'time' ? mountTimeSettings(host, token) : mountKmSettings(host, target);
     if (!mounted) {
-      host.innerHTML = '<div class="km-shell-settings-loading">Instellingen konden niet worden geladen.</div>';
+      activeSettingsTarget = null;
+      host.removeAttribute('aria-busy');
+      setSettingsPanelStatus(host, 'Instellingen konden niet worden geladen.', 'error', () => openAccordionSettings(target, host));
       return;
     }
-    activeSettingsTarget = target;
     requestAnimationFrame(() => {
+      if (token !== settingsMountToken) return;
       host.classList.remove('km-settings-panel-in');
       void host.offsetWidth;
       host.classList.add('km-settings-panel-in');
@@ -1367,6 +1400,7 @@
   }
 
   function mountKmSettings(host, target) {
+    ensureOriginalMode('kilometers');
     const app = $('#app');
     const topAction = $('#topAction');
     if (!host || !app || !topAction) return false;
@@ -1378,25 +1412,54 @@
       kmAppPlaceholder = null;
       return false;
     }
-    host.innerHTML = '';
     host.appendChild(app);
     app.hidden = false;
     kmSettingsMounted = true;
-    requestAnimationFrame(() => filterKmSettings(target));
+    if (!filterKmSettings(target)) {
+      restoreKmApp();
+      return false;
+    }
+    host.querySelector('.km-shell-settings-panel-status')?.remove();
+    host.removeAttribute('aria-busy');
     return true;
   }
 
   function filterKmSettings(target) {
     const app = $('#kmShellSettingsContent #app');
-    if (!app) return;
+    const form = app?.querySelector('#settingsForm');
+    if (!app || !form) return false;
+    app.dataset.shellSettingsScope = target;
     app.querySelector('.section-title')?.setAttribute('hidden', '');
     app.querySelector('.settings-autosave')?.setAttribute('hidden', '');
+
     const details = [...app.querySelectorAll('details.accordion')];
+    let visibleDetails = 0;
     for (const detail of details) {
       const label = detail.querySelector('summary strong')?.textContent?.trim() || '';
-      detail.style.display = label === 'Locaties' || (target === 'locations' && label !== 'Algemeen') ? 'none' : '';
+      const visible = target === 'locations' ? label === 'Algemeen' : label !== 'Locaties';
+      detail.hidden = !visible;
+      detail.style.display = visible ? '' : 'none';
+      detail.classList.toggle('km-shell-settings-single', target === 'locations' && label === 'Algemeen');
+      const summary = detail.querySelector('summary');
+      if (summary) summary.hidden = target === 'locations' && label === 'Algemeen';
+      if (visible) {
+        visibleDetails += 1;
+        detail.open = label === 'Algemeen';
+      }
     }
-    app.querySelectorAll('[data-location-setting]').forEach(row => { row.hidden = target !== 'locations'; });
+
+    const locationRow = app.querySelector('[name="locationDeleteEnabled"]')?.closest('.toggle-row');
+    const navigationRow = app.querySelector('[name="navigationEnabled"]')?.closest('.toggle-row');
+    const swipeRow = app.querySelector('[name="swipeDeleteEnabled"]')?.closest('.toggle-row');
+    const geocoderGroup = app.querySelector('[name="geocoderBaseUrl"]')?.closest('.form-group');
+    const destinationWindow = app.querySelector('[name="destinationTimeWindowHours"]')?.closest('.range-setting');
+    if (locationRow) locationRow.hidden = target !== 'locations';
+    if (navigationRow) navigationRow.hidden = target === 'locations';
+    if (swipeRow) swipeRow.hidden = target === 'locations';
+    if (geocoderGroup) geocoderGroup.hidden = target !== 'locations';
+    if (destinationWindow) destinationWindow.hidden = target === 'locations';
+
+    return visibleDetails > 0;
   }
 
   function applyUnifiedTimeStyles(frame = $('#timeAppFrame')) {
@@ -1414,8 +1477,10 @@
           .section>.list .entry{padding-left:12px!important;padding-right:12px!important;background:var(--surface)!important}
           .section>.list .activity-entry-shell:last-child{border-bottom:0}
           .btn{border-radius:12px!important;box-shadow:none!important}
+          body.km-accordion-embedded-settings .topbar,
           body.km-accordion-embedded-settings .settings-page-title,
           body.km-accordion-embedded-settings .settings-autosave{display:none!important}
+          body.km-accordion-embedded-settings{min-height:0!important}
           body.km-accordion-embedded-settings .app-shell{padding:0!important}
           body.km-accordion-embedded-settings .content{padding:0!important}
           body.km-accordion-embedded-settings .settings-page{padding:0!important}
@@ -1457,49 +1522,93 @@
     try {
       const doc = frame?.contentDocument;
       if (!doc?.body) return;
+      let animationFrame = 0;
       const update = () => {
-        const height = Math.max(280, doc.documentElement.scrollHeight, doc.body.scrollHeight);
-        frame.style.height = height + 'px';
+        cancelAnimationFrame(animationFrame);
+        animationFrame = requestAnimationFrame(() => {
+          const page = doc.querySelector('.settings-page');
+          const height = Math.max(
+            300,
+            page?.scrollHeight || 0,
+            doc.documentElement.scrollHeight,
+            doc.body.scrollHeight
+          );
+          frame.style.setProperty('height', Math.ceil(height) + 'px', 'important');
+        });
       };
       timeFrameSettingsObserver?.disconnect();
-      timeFrameSettingsObserver = new MutationObserver(() => requestAnimationFrame(update));
+      timeFrameSettingsResizeObserver?.disconnect();
+      timeFrameSettingsObserver = new MutationObserver(update);
       timeFrameSettingsObserver.observe(doc.body, { childList: true, subtree: true, attributes: true });
+      if (typeof ResizeObserver === 'function') {
+        timeFrameSettingsResizeObserver = new ResizeObserver(update);
+        timeFrameSettingsResizeObserver.observe(doc.documentElement);
+      }
       update();
     } catch (_) {}
   }
 
-  function mountTimeSettings(host) {
+  function openTimeSettingsInFrame(frame, host, token, attempt = 0) {
+    if (token !== settingsMountToken || activeSettingsTarget !== 'time' || !host.contains(frame)) return;
+    try {
+      const doc = frame.contentDocument;
+      if (doc?.body) {
+        applyUnifiedTimeStyles(frame);
+        doc.body.classList.add('km-accordion-embedded-settings');
+        if (timeFrameView() !== 'settings') {
+          const direct = frame.contentWindow?.openSettings;
+          if (typeof direct === 'function') direct.call(frame.contentWindow);
+          else doc.getElementById('openSettings')?.click();
+        }
+        const ready = timeFrameView() === 'settings' && Boolean(doc.querySelector('.settings-page'));
+        if (ready) {
+          const first = doc.querySelector('.settings-accordion');
+          if (first && !doc.querySelector('.settings-accordion[open]')) first.open = true;
+          frame.classList.remove('km-settings-frame-loading');
+          host.querySelector('.km-shell-settings-panel-status')?.remove();
+          host.removeAttribute('aria-busy');
+          syncAccordionTimeFrameHeight(frame);
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn('Tijdinstellingen konden nog niet worden geopend.', error);
+    }
+
+    if (attempt >= 30) {
+      frame.classList.remove('km-settings-frame-loading');
+      host.removeAttribute('aria-busy');
+      setSettingsPanelStatus(
+        host,
+        'De tijdinstellingen reageren nog niet.',
+        'error',
+        () => {
+          host.setAttribute('aria-busy', 'true');
+          setSettingsPanelStatus(host, 'Tijdinstellingen opnieuw laden…');
+          openTimeSettingsInFrame(frame, host, token, 0);
+        }
+      );
+      return;
+    }
+    setTimeout(() => openTimeSettingsInFrame(frame, host, token, attempt + 1), Math.min(320, 70 + attempt * 12));
+  }
+
+  function mountTimeSettings(host, token) {
+    ensureOriginalMode('time');
     const frame = $('#timeAppFrame');
     if (!host || !frame) return false;
     timeFrameOriginalParent = frame.parentNode;
     timeFrameOriginalNext = frame.nextSibling;
     timeFramePlaceholder = document.createComment('time-frame-placeholder');
     timeFrameOriginalParent?.insertBefore(timeFramePlaceholder, frame);
-    host.innerHTML = '';
     host.appendChild(frame);
     frame.hidden = false;
-    const open = () => {
-      try {
-        applyUnifiedTimeStyles(frame);
-        frame.contentDocument?.body?.classList.add('km-accordion-embedded-settings');
-        if (timeFrameView() !== 'settings') {
-          const direct = frame.contentWindow?.openSettings;
-          if (typeof direct === 'function') direct.call(frame.contentWindow);
-          else frame.contentDocument?.getElementById('openSettings')?.click();
-        }
-        setTimeSettingsOpen(timeFrameView() === 'settings');
-        syncAccordionTimeFrameHeight(frame);
-      } catch (error) {
-        console.warn('Tijdinstellingen konden niet worden geopend.', error);
-      }
-    };
-    const openRepeatedly = () => {
-      open();
-      setTimeout(open, 80);
-      setTimeout(open, 220);
-    };
-    if (frame.contentDocument?.readyState === 'complete') requestAnimationFrame(openRepeatedly);
-    else frame.addEventListener('load', () => requestAnimationFrame(openRepeatedly), { once: true });
+    frame.classList.add('km-settings-frame-loading');
+    frame.style.setProperty('height', '300px', 'important');
+
+    const open = () => openTimeSettingsInFrame(frame, host, token, 0);
+    if (frame.contentDocument?.readyState === 'complete') requestAnimationFrame(open);
+    frame.addEventListener('load', () => requestAnimationFrame(open), { once: true });
     return true;
   }
 
@@ -1565,7 +1674,12 @@
     if (app && kmAppPlaceholder?.parentNode) {
       kmAppPlaceholder.parentNode.insertBefore(app, kmAppPlaceholder);
       kmAppPlaceholder.remove();
+    } else if (app) {
+      const shell = $('.shell');
+      const frame = $('#timeAppFrame');
+      if (shell) shell.insertBefore(app, frame || null);
     }
+    app?.removeAttribute('data-shell-settings-scope');
     kmAppPlaceholder = null;
     kmSettingsMounted = false;
     ensureKmView('ride');
@@ -1576,8 +1690,12 @@
     if (!frame) return;
     timeFrameSettingsObserver?.disconnect();
     timeFrameSettingsObserver = null;
-    frame.style.height = '';
+    timeFrameSettingsResizeObserver?.disconnect();
+    timeFrameSettingsResizeObserver = null;
+    frame.classList.remove('km-settings-frame-loading');
+    frame.style.removeProperty('height');
     try { frame.contentDocument?.body?.classList.remove('km-accordion-embedded-settings'); } catch (_) {}
+    setTimeSettingsOpen(false);
     if (timeFramePlaceholder?.parentNode) {
       timeFramePlaceholder.parentNode.insertBefore(frame, timeFramePlaceholder);
       timeFramePlaceholder.remove();
@@ -1597,8 +1715,7 @@
   function closeSettingsSheet() {
     const settings = $('#kmShellSettings');
     if (!settings?.classList.contains('open')) return;
-    if ($('#kmShellSettingsContent #timeAppFrame')) restoreTimeFrame();
-    if (kmSettingsMounted) restoreKmApp();
+    teardownSettingsPanel();
     settings.classList.remove('open');
     document.body.classList.remove('km-shell-settings-open');
     document.body.style.overflow = '';
@@ -1648,6 +1765,7 @@
     window.addEventListener('message', event => {
       const frame = $('#timeAppFrame');
       if (event.origin !== window.location.origin || event.source !== frame?.contentWindow || event.data?.type !== 'urenregistratie-view') return;
+      if ($('#kmShellSettingsContent #timeAppFrame')) return;
       setTimeSettingsOpen(event.data.view === 'settings');
     });
 
