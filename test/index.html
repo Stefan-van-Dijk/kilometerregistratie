@@ -1138,7 +1138,7 @@ async function deliverFile(blob,name,title){if(typeof File==='function'&&navigat
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
 })();
 </script>
-<script src="./shell-ui.js?v=0.31.10-test.22"></script>
+<script src="./shell-ui.js?v=0.31.10-test.23"></script>
 <script src="./shell-ui-stable.js?v=0.31.10-test.1"></script>
 </body>
 </html>
