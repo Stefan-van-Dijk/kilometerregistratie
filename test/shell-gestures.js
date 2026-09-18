@@ -1,12 +1,11 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.10-test.43';
+  const BUILD='0.31.10-test.41';
   const HORIZONTAL_RATIO=1.25;
   const SNAP_PROGRESS=0.28;
   const FLING_VELOCITY=0.45;
   const TIME_FRAME_ID='timeAppFrame';
-  const RIDE_DATA_KEY='kmreg-test-v4-data';
 
   let scrollLocked=false;
   let lockedScrollY=0;
@@ -15,7 +14,6 @@
   let gesture=null;
   let animating=false;
   const boundDocuments=new WeakSet();
-  const documentObservers=new WeakMap();
 
   const $=(selector,root=document)=>root.querySelector(selector);
   const clamp=(value,min=0,max=1)=>Math.min(max,Math.max(min,value));
@@ -43,10 +41,6 @@
     }
   }
 
-  function drawerShift(){
-    return Math.min(window.innerWidth*0.9,360);
-  }
-
   function installGestureStyles(){
     if($('#kmShellGestureStyles'))return;
     const style=document.createElement('style');
@@ -54,26 +48,8 @@
     style.textContent=`
       body.km-shell-gesture-active{overscroll-behavior:none}
       body.km-shell-gesture-active .shell>#timeAppFrame{visibility:visible!important;pointer-events:none!important}
-      body.km-shell-drawer-open .km-shell-tabbar{opacity:1!important;transform:translate(calc(-50% + min(90vw,360px)),0) scale(1)!important;pointer-events:none!important}
-      .swipe-actions,.activity-swipe-actions,.km-shell-location-swipe-actions{display:none!important}
-      .swipe-surface,.trip-swipe-surface,.activity-swipe-surface,.km-shell-location-swipe-surface{transform:none!important;transition:none!important}
-      .km-shell-undo-last-action{display:block;width:100%;margin:7px 0 0;padding:8px 10px;border:0;background:transparent;color:var(--accent);font:inherit;font-size:12px;font-weight:760;text-align:center;cursor:pointer}
-      .km-shell-undo-last-action:active{opacity:.58}
     `;
     document.head.appendChild(style);
-  }
-
-  function installDocumentStyles(doc){
-    if(!doc?.head||doc.getElementById('logNoItemSwipeStyles'))return;
-    const style=doc.createElement('style');
-    style.id='logNoItemSwipeStyles';
-    style.textContent=`
-      .swipe-actions,.activity-swipe-actions,.km-shell-location-swipe-actions{display:none!important}
-      .swipe-surface,.trip-swipe-surface,.activity-swipe-surface,.km-shell-location-swipe-surface{transform:none!important;transition:none!important}
-      .km-shell-undo-last-action{display:block;width:100%;margin:7px 0 0;padding:8px 10px;border:0;background:transparent;color:var(--accent,#0a84ff);font:inherit;font-size:12px;font-weight:760;text-align:center;cursor:pointer}
-      .km-shell-undo-last-action:active{opacity:.58}
-    `;
-    doc.head.appendChild(style);
   }
 
   function lockMainScroll(){
@@ -133,80 +109,16 @@
 
   function hasOwnGesture(target){
     return Boolean(target?.closest?.(
-      '#kmShellTabBar,#periodNavigator,.period-navigator,.period-overview,.period-nav,.odo-digit.swipeable'
+      '#kmShellTabBar,#periodNavigator,.period-navigator,.swipe-surface,.trip-swipe-surface,.km-shell-location-swipe-surface,.activity-swipe-surface,.period-overview,.period-nav,.odo-digit.swipeable'
     ));
-  }
-
-  function itemSwipeTarget(target){
-    return target?.closest?.(
-      '.swipe-surface,.trip-swipe-surface,.activity-swipe-surface,.km-shell-location-swipe-surface'
-    )||null;
-  }
-
-  function blockItemSwipePointer(event){
-    if(itemSwipeTarget(event.target))event.stopPropagation();
-  }
-
-  function readRideData(){
-    try{return JSON.parse(localStorage.getItem(RIDE_DATA_KEY)||'{}')||{};}catch(_){return{};}
-  }
-
-  function augmentRideUndo(){
-    const hero=document.querySelector('#app .hero');
-    const existing=hero?.querySelector('.km-shell-undo-last-action[data-log-undo="ride"]');
-    const state=readRideData();
-    const completion=state.lastCompletion;
-    const startButton=hero?.querySelector('[data-action="start"]');
-    const canRestore=!state.activeTrip&&completion?.type==='trip'&&completion.tripId&&startButton;
-    if(!canRestore){existing?.remove();return;}
-    if(existing){
-      existing.dataset.id=completion.tripId;
-      return;
-    }
-    const button=document.createElement('button');
-    button.type='button';
-    button.className='km-shell-undo-last-action';
-    button.dataset.logUndo='ride';
-    button.dataset.action='reopen-trip';
-    button.dataset.id=completion.tripId;
-    button.textContent='Herstel laatste rit';
-    startButton.insertAdjacentElement('afterend',button);
-  }
-
-  function augmentTimeUndo(doc){
-    if(!doc)return;
-    const existing=doc.querySelector('.km-shell-undo-last-action[data-log-undo="time"]');
-    const startButton=doc.querySelector('#registerTaskInline');
-    const reopen=doc.querySelector('.activity-swipe-reopen[data-swipe-action="reopen"]');
-    if(!startButton||!reopen){existing?.remove();return;}
-    if(existing)return;
-    const button=doc.createElement('button');
-    button.type='button';
-    button.className='km-shell-undo-last-action';
-    button.dataset.logUndo='time';
-    button.textContent='Herstel laatste taak';
-    button.addEventListener('click',event=>{
-      event.stopPropagation();
-      doc.querySelector('.activity-swipe-reopen[data-swipe-action="reopen"]')?.click();
-    });
-    startButton.insertAdjacentElement('afterend',button);
-  }
-
-  function augmentDocument(doc){
-    installDocumentStyles(doc);
-    if(doc===document)augmentRideUndo();
-    else augmentTimeUndo(doc);
-  }
-
-  function observeDocument(doc){
-    if(!doc?.documentElement||documentObservers.has(doc))return;
-    const observer=new MutationObserver(()=>requestAnimationFrame(()=>augmentDocument(doc)));
-    observer.observe(doc.documentElement,{childList:true,subtree:true});
-    documentObservers.set(doc,observer);
   }
 
   function touchPoint(event){
     return event.touches?.[0]||event.changedTouches?.[0]||null;
+  }
+
+  function drawerShift(){
+    return Math.min(window.innerWidth*0.9,360);
   }
 
   function captureStyle(element,properties){
@@ -252,9 +164,8 @@
       snapshot?.element.style.setProperty('transition','none','important');
       snapshot?.element.style.setProperty('will-change','transform, opacity');
     }
-    drawer.style.setProperty('pointer-events','none','important');
+    if(drawer)drawer.style.setProperty('pointer-events','none','important');
     if(backdrop)backdrop.style.setProperty('pointer-events','none','important');
-    if(tabbar)tabbar.style.setProperty('pointer-events','none','important');
     applyGestureProgress(gesture.progress);
   }
 
@@ -282,8 +193,9 @@
       backdrop.style.setProperty('opacity',String(progress),'important');
     }
     if(tabbar){
-      tabbar.style.setProperty('opacity','1','important');
-      tabbar.style.setProperty('transform',`translate(calc(-50% + ${x}px),0) scale(1)`,'important');
+      tabbar.style.setProperty('opacity',String(1-progress),'important');
+      tabbar.style.setProperty('transform',`translate(-50%,${18*progress}px) scale(${(1-0.02*progress).toFixed(3)})`,'important');
+      tabbar.style.setProperty('pointer-events','none','important');
     }
   }
 
@@ -408,14 +320,10 @@
   function bindGestureDocument(doc){
     if(!doc||boundDocuments.has(doc))return;
     boundDocuments.add(doc);
-    installDocumentStyles(doc);
-    observeDocument(doc);
-    doc.addEventListener('pointerdown',blockItemSwipePointer,true);
     doc.addEventListener('touchstart',beginGesture,{passive:true});
     doc.addEventListener('touchmove',moveGesture,{passive:false});
     doc.addEventListener('touchend',endGesture,{passive:true});
     doc.addEventListener('touchcancel',cancelGesture,{passive:true});
-    augmentDocument(doc);
   }
 
   function bindTimeFrame(){
@@ -436,28 +344,18 @@
     bindGestureDocument(document);
     bindTimeFrame();
     updateVersion();
-    augmentRideUndo();
     syncDrawerScrollLock();
 
     const observer=new MutationObserver(()=>{
       updateVersion();
-      augmentRideUndo();
       if(!gesture?.visualActive)syncDrawerScrollLock();
       bindTimeFrame();
     });
     observer.observe(document.body,{attributes:true,attributeFilter:['class'],childList:true,subtree:false});
 
-    document.addEventListener('click',()=>setTimeout(()=>{
-      updateVersion();
-      augmentRideUndo();
-      bindTimeFrame();
-    },0),{passive:true});
-    window.addEventListener('storage',event=>{
-      if(event.key===RIDE_DATA_KEY)requestAnimationFrame(augmentRideUndo);
-    });
+    document.addEventListener('click',()=>setTimeout(updateVersion,0),{passive:true});
     window.addEventListener('pageshow',()=>{
       updateVersion();
-      augmentRideUndo();
       syncDrawerScrollLock();
       bindTimeFrame();
     });
