@@ -27,6 +27,7 @@
   if (!ROOT_SECTIONS.has(section)) section = localStorage.getItem(MODE_KEY) === 'time' ? 'time' : 'rides';
   let drawerOpen = false;
   let expandedLocationId = null;
+  let locationSwipe = null;
   let pendingParentForNew = null;
   let pendingParentSave = null;
   let pendingHierarchyReload = false;
@@ -198,7 +199,7 @@
       .shell>#timeAppFrame{position:relative;z-index:0}.km-shell-drawer-open .shell>#timeAppFrame{visibility:hidden!important;pointer-events:none!important}.editor-view>.km-shell-menu-button{display:none!important}
       .km-shell-locations{padding:2px 0 28px}.km-shell-locations-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:8px 1px 10px}.km-shell-locations-head h2{margin:2px 0 0;font-size:28px;letter-spacing:-.035em}.km-shell-location-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:5px 0 16px}.km-shell-location-actions button{min-height:44px}
       .km-shell-location-sort{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px;margin-bottom:8px;border:1px solid var(--line);border-radius:12px;background:var(--card)}.km-shell-location-sort button{min-height:34px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-size:11px;font-weight:800}.km-shell-location-sort button.active{background:var(--card2);color:var(--text)}
-      .km-shell-location-tree{border-top:1px solid var(--line)}.km-shell-location-node{--depth:0;margin-left:calc(var(--depth) * 20px)}.km-shell-location-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:9px;min-height:58px;padding:10px 2px;border-bottom:1px solid var(--line)}.km-shell-location-node[data-depth="1"] .km-shell-location-row{position:relative}.km-shell-location-node[data-depth="1"] .km-shell-location-row::before{content:"";position:absolute;left:-12px;top:0;bottom:50%;width:9px;border-left:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0 0 0 6px}.km-shell-location-icon{display:flex;align-items:center;justify-content:center;width:27px;height:27px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:15px}.km-shell-location-copy{min-width:0}.km-shell-location-copy strong,.km-shell-location-copy small{display:block}.km-shell-location-copy strong{font-size:14px}.km-shell-location-copy small{margin-top:3px;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.km-shell-location-buttons{display:flex;align-items:center;gap:3px}.km-shell-location-buttons button{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border:0;border-radius:9px;background:transparent;color:var(--muted);font-size:19px}.km-shell-location-buttons button:active{background:var(--card2);color:var(--text)}.km-shell-location-chevron{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;color:var(--muted);font-size:19px}.km-shell-location-details{padding:10px 2px 12px 37px;border-bottom:1px solid var(--line);color:var(--muted);font-size:11px;line-height:1.5}.km-shell-location-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.km-shell-location-detail{padding:8px 0}.km-shell-location-detail span,.km-shell-location-detail strong{display:block}.km-shell-location-detail span{font-size:9px;text-transform:uppercase;letter-spacing:.06em}.km-shell-location-detail strong{margin-top:2px;color:var(--text);font-size:11px}.km-shell-child-add{margin-top:7px;padding:4px 0;border:0;background:transparent;color:var(--accent);font-size:11px;font-weight:800}.km-shell-empty{padding:24px 2px;color:var(--muted);font-size:13px}
+      .km-shell-location-tree{border-top:1px solid var(--line)}.km-shell-location-node{--depth:0;margin-left:calc(var(--depth) * 20px)}.km-shell-location-swipe-row{position:relative;overflow:hidden;background:var(--card)}.km-shell-location-swipe-actions{position:absolute;z-index:0;inset:0 0 0 auto;display:flex;justify-content:flex-end}.km-shell-location-swipe-action{width:84px;padding:0;border:0;border-radius:0;color:#fff;font-size:11px;font-weight:800}.km-shell-location-swipe-delete{background:#9b3037}.km-shell-location-swipe-edit{background:#2869b6}.km-shell-location-swipe-surface{position:relative;z-index:1;background:var(--card);touch-action:pan-y;transition:transform .18s ease;user-select:none;-webkit-user-select:none;cursor:pointer}.km-shell-location-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:9px;min-height:58px;padding:10px 2px;border-bottom:1px solid var(--line)}.km-shell-location-node[data-depth="1"] .km-shell-location-row{position:relative}.km-shell-location-node[data-depth="1"] .km-shell-location-row::before{content:"";position:absolute;left:-12px;top:0;bottom:50%;width:9px;border-left:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0 0 0 6px}.km-shell-location-icon{display:flex;align-items:center;justify-content:center;width:27px;height:27px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:15px}.km-shell-location-copy{min-width:0}.km-shell-location-copy strong,.km-shell-location-copy small{display:block}.km-shell-location-copy strong{font-size:14px}.km-shell-location-copy small{margin-top:3px;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.km-shell-location-buttons{display:flex;align-items:center;gap:3px}.km-shell-location-buttons button{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border:0;border-radius:9px;background:transparent;color:var(--muted);font-size:19px}.km-shell-location-buttons button:active{background:var(--card2);color:var(--text)}.km-shell-location-chevron{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;color:var(--muted);font-size:19px}.km-shell-location-details{padding:10px 2px 12px 37px;border-bottom:1px solid var(--line);color:var(--muted);font-size:11px;line-height:1.5}.km-shell-location-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.km-shell-location-detail{padding:8px 0}.km-shell-location-detail span,.km-shell-location-detail strong{display:block}.km-shell-location-detail span{font-size:9px;text-transform:uppercase;letter-spacing:.06em}.km-shell-location-detail strong{margin-top:2px;color:var(--text);font-size:11px}.km-shell-child-add{margin-top:7px;padding:4px 0;border:0;background:transparent;color:var(--accent);font-size:11px;font-weight:800}.km-shell-empty{padding:24px 2px;color:var(--muted);font-size:13px}
       .km-shell-parent-section select{width:100%;min-height:38px;padding:6px 0 7px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;color:var(--text);font-size:15px;outline:none}.km-shell-parent-hint{margin-top:6px;color:var(--muted);font-size:10px;line-height:1.4}
       body.km-shell-locations-mode #app,body.km-shell-locations-mode #timeAppFrame{display:none!important}body.km-shell-locations-mode #kmShellLocationsView{display:block!important}
       body.editor-view #kmShellLocationsView{display:none!important}
@@ -211,6 +212,7 @@
       body:not(.time-mode) #app .btn,.km-shell-locations .btn{border-radius:12px!important;box-shadow:none!important}
       .km-shell-location-tree{overflow:hidden;border:1px solid var(--line)!important;border-radius:16px;background:var(--card)}
       .km-shell-location-row{padding-left:12px!important;padding-right:8px!important}
+      @media(max-width:520px){.km-shell-location-swipe-action{width:78px}}
       .km-shell-location-node:last-child>.km-shell-location-row{border-bottom:0}
       .km-shell-location-sort{border-radius:12px!important;background:var(--card)!important}
       .km-shell-general-settings{max-width:760px;margin:0 auto;padding:8px 0 30px}
@@ -862,12 +864,18 @@
     const count = locationTripCount(location, snapshot);
     return `
       <div class="km-shell-location-node" data-shell-location-node="${esc(location.id)}" data-depth="${depth}" style="--depth:${depth}">
-        <div class="km-shell-location-row" data-shell-location-toggle="${esc(location.id)}">
-          <span class="km-shell-location-icon">${locationGlyph(location.type)}</span>
-          <div class="km-shell-location-copy"><strong>${esc(location.name || 'Locatie')}</strong><small>${esc(subtitle)}</small></div>
-          <div class="km-shell-location-buttons">
-            <button type="button" data-shell-edit-location="${esc(location.id)}" aria-label="${esc(location.name)} bewerken">•••</button>
-            <span class="km-shell-location-chevron" aria-hidden="true">${expanded ? '⌄' : '›'}</span>
+        <div class="km-shell-location-swipe-row" data-shell-location-swipe="${esc(location.id)}">
+          <div class="km-shell-location-swipe-actions">
+            <button type="button" class="km-shell-location-swipe-action km-shell-location-swipe-delete" data-shell-location-swipe-action="delete" data-location-id="${esc(location.id)}">Verwijder</button>
+            <button type="button" class="km-shell-location-swipe-action km-shell-location-swipe-edit" data-shell-location-swipe-action="edit" data-location-id="${esc(location.id)}">Bewerk</button>
+          </div>
+          <div class="km-shell-location-row km-shell-location-swipe-surface" data-shell-location-toggle="${esc(location.id)}" role="button" tabindex="0" aria-expanded="${expanded}">
+            <span class="km-shell-location-icon">${locationGlyph(location.type)}</span>
+            <div class="km-shell-location-copy"><strong>${esc(location.name || 'Locatie')}</strong><small>${esc(subtitle)}</small></div>
+            <div class="km-shell-location-buttons">
+              <button type="button" data-shell-edit-location="${esc(location.id)}" aria-label="${esc(location.name)} bewerken">•••</button>
+              <span class="km-shell-location-chevron" aria-hidden="true">${expanded ? '⌄' : '›'}</span>
+            </div>
           </div>
         </div>
         ${expanded ? `<div class="km-shell-location-details"><div class="km-shell-location-detail-grid"><div class="km-shell-location-detail"><span>Type</span><strong>${esc(typeLabel(location.type))}</strong></div><div class="km-shell-location-detail"><span>Ritten</span><strong>${count}</strong></div><div class="km-shell-location-detail"><span>GPS</span><strong>${esc(gps)}${inherited ? ' · geërfd' : ''}</strong></div><div class="km-shell-location-detail"><span>Niveau</span><strong>${depth ? 'Sublocatie' : 'Hoofdlocatie'}</strong></div></div>${depth === 0 ? `<button type="button" class="km-shell-child-add" data-shell-add-child="${esc(location.id)}">+ Sublocatie toevoegen</button>` : ''}</div>` : ''}
@@ -875,10 +883,66 @@
       ${children.map(child => locationNodeHtml(child, Math.min(depth + 1, 1), snapshot)).join('')}`;
   }
 
+  function resetLocationSwipeRow(row) {
+    if (!row) return;
+    const surface = row.querySelector('.km-shell-location-swipe-surface');
+    if (surface) {
+      surface.style.transition = 'transform .18s ease';
+      surface.style.transform = 'translateX(0)';
+      delete surface.dataset.swipeOpen;
+    }
+    row.classList.remove('swipe-open');
+  }
+
+  function closeLocationSwipes(except = null) {
+    $$('.km-shell-location-swipe-row').forEach(row => {
+      if (row !== except) resetLocationSwipeRow(row);
+    });
+  }
+
+  function deleteLocationFromShell(id) {
+    const finish = () => {
+      renderLocations();
+      syncChrome();
+      const undo = $('#toast button');
+      undo?.addEventListener('click', () => setTimeout(() => {
+        renderLocations();
+        syncChrome();
+      }, 0), { once: true });
+    };
+    if (typeof window.deleteLocation === 'function') {
+      window.deleteLocation(id);
+      finish();
+      return;
+    }
+    const wrapper = document.createElement('div');
+    wrapper.dataset.id = id;
+    wrapper.className = 'km-shell-legacy';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.action = 'delete-location';
+    wrapper.appendChild(button);
+    document.body.appendChild(wrapper);
+    button.click();
+    wrapper.remove();
+    setTimeout(finish, 0);
+  }
+
   function bindLocationInteractions(root) {
     root.onclick = event => {
       const target = event.target instanceof Element ? event.target : event.target?.parentElement;
       if (!target) return;
+      const swipeAction = target.closest('[data-shell-location-swipe-action]');
+      if (swipeAction) {
+        event.preventDefault();
+        event.stopPropagation();
+        const row = swipeAction.closest('.km-shell-location-swipe-row');
+        const id = swipeAction.dataset.locationId;
+        resetLocationSwipeRow(row);
+        if (swipeAction.dataset.shellLocationSwipeAction === 'edit') openLocationEditor(id);
+        else if (swipeAction.dataset.shellLocationSwipeAction === 'delete') deleteLocationFromShell(id);
+        return;
+      }
       const edit = target.closest('[data-shell-edit-location]');
       if (edit) {
         event.preventDefault();
@@ -907,6 +971,20 @@
         openLocationEditor(null, child.dataset.shellAddChild, false);
         return;
       }
+      const surface = target.closest('.km-shell-location-swipe-surface');
+      if (surface?.dataset.suppressClick === '1') {
+        event.preventDefault();
+        event.stopPropagation();
+        delete surface.dataset.suppressClick;
+        return;
+      }
+      const swipeRow = target.closest('.km-shell-location-swipe-row');
+      if (surface && swipeRow?.classList.contains('swipe-open')) {
+        event.preventDefault();
+        event.stopPropagation();
+        resetLocationSwipeRow(swipeRow);
+        return;
+      }
       const toggle = target.closest('[data-shell-location-toggle]');
       if (toggle && !target.closest('button')) {
         event.preventDefault();
@@ -914,6 +992,89 @@
         expandedLocationId = expandedLocationId === toggle.dataset.shellLocationToggle ? null : toggle.dataset.shellLocationToggle;
         renderLocations();
       }
+    };
+
+    root.onkeydown = event => {
+      if (!['Enter', ' '].includes(event.key)) return;
+      const target = event.target instanceof Element ? event.target : null;
+      const toggle = target?.closest('[data-shell-location-toggle]');
+      if (!toggle || target.closest('button')) return;
+      event.preventDefault();
+      expandedLocationId = expandedLocationId === toggle.dataset.shellLocationToggle ? null : toggle.dataset.shellLocationToggle;
+      renderLocations();
+    };
+
+    root.onpointerdown = event => {
+      if (event.button != null && event.button !== 0) return;
+      const target = event.target instanceof Element ? event.target : null;
+      if (!target || target.closest('button,input,select,textarea')) return;
+      const surface = target.closest('.km-shell-location-swipe-surface');
+      const row = surface?.closest('.km-shell-location-swipe-row');
+      if (!surface || !row) return;
+      closeLocationSwipes(row);
+      locationSwipe = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        dx: 0,
+        row,
+        surface,
+        horizontal: false,
+        cancelled: false,
+        maxDistance: 0
+      };
+      try { surface.setPointerCapture(event.pointerId); } catch (_) {}
+    };
+
+    root.onpointermove = event => {
+      const gesture = locationSwipe;
+      if (!gesture || gesture.pointerId !== event.pointerId || gesture.cancelled) return;
+      const rawX = event.clientX - gesture.startX;
+      const rawY = event.clientY - gesture.startY;
+      if (!gesture.horizontal) {
+        if (Math.abs(rawY) > 10 && Math.abs(rawY) > Math.abs(rawX)) {
+          gesture.cancelled = true;
+          return;
+        }
+        if (Math.abs(rawX) > 8 && Math.abs(rawX) > Math.abs(rawY)) gesture.horizontal = true;
+        else return;
+      }
+      if (event.cancelable) event.preventDefault();
+      const actionWidth = innerWidth <= 520 ? 78 : 84;
+      const actionCount = gesture.row.querySelectorAll('.km-shell-location-swipe-action').length || 1;
+      const maxDistance = actionCount * actionWidth;
+      const dx = Math.max(-maxDistance, Math.min(0, rawX));
+      gesture.maxDistance = maxDistance;
+      gesture.dx = dx;
+      gesture.surface.style.transition = 'none';
+      gesture.surface.style.transform = `translateX(${dx}px)`;
+    };
+
+    root.onpointerup = event => {
+      const gesture = locationSwipe;
+      if (!gesture || gesture.pointerId !== event.pointerId) return;
+      locationSwipe = null;
+      if (gesture.cancelled || !gesture.horizontal) {
+        resetLocationSwipeRow(gesture.row);
+        return;
+      }
+      gesture.surface.dataset.suppressClick = '1';
+      setTimeout(() => {
+        if (gesture.surface) delete gesture.surface.dataset.suppressClick;
+      }, 450);
+      if (gesture.dx <= -36) {
+        gesture.surface.style.transition = 'transform .18s cubic-bezier(.2,.8,.2,1)';
+        gesture.surface.style.transform = `translateX(-${gesture.maxDistance}px)`;
+        gesture.surface.dataset.swipeOpen = '1';
+        gesture.row.classList.add('swipe-open');
+        return;
+      }
+      resetLocationSwipeRow(gesture.row);
+    };
+
+    root.onpointercancel = () => {
+      if (locationSwipe) resetLocationSwipeRow(locationSwipe.row);
+      locationSwipe = null;
     };
   }
 
