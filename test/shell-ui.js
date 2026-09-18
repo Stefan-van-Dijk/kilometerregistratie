@@ -1271,7 +1271,7 @@
           <header class="km-shell-settings-group-head"><h2 id="kmShellRegistrationSettingsTitle">Registratie</h2><p>Instellingen voor de gegevens die je in Log vastlegt.</p></header>
           ${generalSettingsAccordion('kmShellRideSettings', 'Ritten', 'Voertuig, herkenning, navigatie en bediening', '<div class="km-shell-settings-panel-host"></div>', 'rides')}
           ${generalSettingsAccordion('kmShellTimeSettings', 'Tijd en taken', 'Afronding, thema’s, collega’s en tussenstops', '<div class="km-shell-settings-panel-host"></div>', 'time')}
-          ${generalSettingsAccordion('kmShellLocationSettings', 'Locaties', 'Herkenning, sortering en verwijderen', '<div class="km-shell-settings-panel-host"></div>', 'locations')}
+          ${generalSettingsAccordion('kmShellLocationSettings', 'Locaties', 'Herkenning en verwijderen', '<div class="km-shell-settings-panel-host"></div>', 'locations')}
         </section>
         <section class="km-shell-settings-group" aria-labelledby="kmShellAppSettingsTitle">
           <header class="km-shell-settings-group-head"><h2 id="kmShellAppSettingsTitle">App</h2><p>Bepaal welke onderdelen zichtbaar zijn en in welke volgorde.</p></header>
@@ -1464,8 +1464,10 @@
       const visible = target === 'locations' ? label === 'Locaties' : label !== 'Locaties';
       detail.hidden = !visible;
       detail.style.display = visible ? '' : 'none';
-      detail.classList.remove('km-shell-settings-single');
-      detail.querySelector('summary')?.removeAttribute('hidden');
+      const singleLocationPanel = target === 'locations' && label === 'Locaties';
+      detail.classList.toggle('km-shell-settings-single', singleLocationPanel);
+      const summary = detail.querySelector('summary');
+      if (summary) summary.hidden = singleLocationPanel;
       detail.open = false;
       if (visible) {
         visibleDetails += 1;
