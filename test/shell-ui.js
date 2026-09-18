@@ -1433,6 +1433,20 @@
     return true;
   }
 
+  function bindExclusiveAccordions(root, selector) {
+    const details = [...root.querySelectorAll(selector)];
+    for (const detail of details) {
+      if (detail.dataset.logExclusiveBound === '1') continue;
+      detail.dataset.logExclusiveBound = '1';
+      detail.addEventListener('toggle', () => {
+        if (!detail.open) return;
+        details.forEach(other => {
+          if (other !== detail && other.open) other.open = false;
+        });
+      });
+    }
+  }
+
   function filterKmSettings(target) {
     const app = $('#kmShellSettingsContent #app');
     const form = app?.querySelector('#settingsForm');
@@ -1443,31 +1457,22 @@
 
     const details = [...app.querySelectorAll('details.accordion')];
     let visibleDetails = 0;
+    let firstVisible = null;
     for (const detail of details) {
       const label = detail.querySelector('summary strong')?.textContent?.trim() || '';
-      const visible = target === 'locations' ? label === 'Algemeen' : label !== 'Locaties';
+      const visible = target === 'locations' ? label === 'Locaties' : label !== 'Locaties';
       detail.hidden = !visible;
       detail.style.display = visible ? '' : 'none';
-      detail.classList.toggle('km-shell-settings-single', target === 'locations' && label === 'Algemeen');
-      const summary = detail.querySelector('summary');
-      if (summary) summary.hidden = target === 'locations' && label === 'Algemeen';
+      detail.classList.remove('km-shell-settings-single');
+      detail.querySelector('summary')?.removeAttribute('hidden');
+      detail.open = false;
       if (visible) {
         visibleDetails += 1;
-        detail.open = label === 'Algemeen';
+        firstVisible ||= detail;
       }
     }
-
-    const locationRow = app.querySelector('[name="locationDeleteEnabled"]')?.closest('.toggle-row');
-    const navigationRow = app.querySelector('[name="navigationEnabled"]')?.closest('.toggle-row');
-    const swipeRow = app.querySelector('[name="swipeDeleteEnabled"]')?.closest('.toggle-row');
-    const geocoderGroup = app.querySelector('[name="geocoderBaseUrl"]')?.closest('.form-group');
-    const destinationWindow = app.querySelector('[name="destinationTimeWindowHours"]')?.closest('.range-setting');
-    if (locationRow) locationRow.hidden = target !== 'locations';
-    if (navigationRow) navigationRow.hidden = target === 'locations';
-    if (swipeRow) swipeRow.hidden = target === 'locations';
-    if (geocoderGroup) geocoderGroup.hidden = target !== 'locations';
-    if (destinationWindow) destinationWindow.hidden = target === 'locations';
-
+    bindExclusiveAccordions(form, 'details.accordion:not([hidden])');
+    if (firstVisible) firstVisible.open = true;
     return visibleDetails > 0;
   }
 
@@ -1571,6 +1576,7 @@
         }
         const ready = timeFrameView() === 'settings' && Boolean(doc.querySelector('.settings-page'));
         if (ready) {
+          bindExclusiveAccordions(doc, '.settings-accordion');
           const first = doc.querySelector('.settings-accordion');
           if (first && !doc.querySelector('.settings-accordion[open]')) first.open = true;
           frame.classList.remove('km-settings-frame-loading');
