@@ -1392,7 +1392,8 @@
     host.dataset.settingsTarget = target;
     host.setAttribute('aria-busy', 'true');
     host.innerHTML = '';
-    setSettingsPanelStatus(host, 'Instellingen laden…');
+    const timeReady = target === 'time' && $('#timeAppFrame')?.contentDocument?.readyState === 'complete' && Boolean($('#timeAppFrame')?.contentDocument?.getElementById('main'));
+    if (!timeReady) setSettingsPanelStatus(host, 'Instellingen laden…');
     const mounted = target === 'time' ? mountTimeSettings(host, token) : mountKmSettings(host, target);
     if (!mounted) {
       activeSettingsTarget = null;
@@ -1609,7 +1610,6 @@
   }
 
   function mountTimeSettings(host, token) {
-    ensureOriginalMode('time');
     const frame = $('#timeAppFrame');
     if (!host || !frame) return false;
     timeFrameOriginalParent = frame.parentNode;
@@ -1622,8 +1622,8 @@
     frame.style.setProperty('height', '300px', 'important');
 
     const open = () => openTimeSettingsInFrame(frame, host, token, 0);
-    if (frame.contentDocument?.readyState === 'complete') requestAnimationFrame(open);
-    frame.addEventListener('load', () => requestAnimationFrame(open), { once: true });
+    if (frame.contentDocument?.readyState === 'complete') open();
+    else frame.addEventListener('load', open, { once: true });
     return true;
   }
 
@@ -1720,10 +1720,11 @@
     timeFramePlaceholder = null;
     timeFrameOriginalParent = null;
     timeFrameOriginalNext = null;
-    // Settings autosave in de tijd-app. Reload returns the embedded app to its home screen.
+    // Houd de geïntegreerde module geladen; zet alleen de interne weergave terug.
     try {
-      const src = frame.src;
-      if (src) frame.src = src;
+      const close = frame.contentWindow?.closeSettings;
+      if (typeof close === 'function') close.call(frame.contentWindow);
+      else if (timeFrameView() === 'settings') frame.contentDocument?.getElementById('openSettings')?.click();
     } catch (_) {}
   }
 
