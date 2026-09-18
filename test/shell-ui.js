@@ -265,7 +265,7 @@
       .km-shell-settings-head{padding-top:calc(15px + env(safe-area-inset-top))!important;border-bottom:.5px solid var(--line)!important}
       .km-shell-settings-close{right:13px!important;top:calc(14px + env(safe-area-inset-top))!important;width:34px!important;height:34px!important;background:color-mix(in srgb,var(--muted) 16%,var(--card2))!important;color:var(--muted)!important;font-size:23px!important;font-weight:650}
       .km-shell-settings-title{font-size:17px!important;font-weight:650!important}
-      .km-shell-general-intro{padding:10px 3px 12px!important}.km-shell-general-intro p{font-size:12px!important}
+      .km-shell-general-intro{padding:10px 3px 14px!important}.km-shell-general-intro p{font-size:12px!important}.km-shell-settings-group{margin:0 0 22px}.km-shell-settings-group:last-child{margin-bottom:0}.km-shell-settings-group-head{padding:0 3px 7px}.km-shell-settings-group-head h2{margin:0;color:var(--text);font-size:20px;font-weight:720;letter-spacing:-.025em}.km-shell-settings-group-head p{margin:3px 0 0;color:var(--muted);font-size:11px;line-height:1.4}
       .km-shell-settings-accordion{margin:0!important;border-radius:0!important;border-width:0 .5px .5px!important}
       .km-shell-settings-accordion:first-of-type{border-top:.5px solid var(--line)!important;border-radius:16px 16px 0 0!important}
       .km-shell-settings-accordion:last-of-type{border-radius:0 0 16px 16px!important}
@@ -1266,24 +1266,33 @@
     if (title) title.textContent = 'Instellingen';
     content.innerHTML = `
       <section class="km-shell-general-settings">
-        <div class="km-shell-general-intro"><p>Beheer hier de volledige app. Open alleen het onderdeel dat je wilt aanpassen.</p></div>
-        ${generalSettingsAccordion('kmShellModuleSettingsAccordion', 'Navigatie & onderdelen', 'Volgorde en zichtbaarheid van de app', '<div id="kmShellModuleSettings" class="km-shell-module-settings"></div>')}
-        ${generalSettingsAccordion('kmShellDataSettings', 'Data & back-up', 'Complete back-up, herstel en gegevensbeheer', `
-          <div class="km-shell-general-status" id="kmShellBackupStatus">${esc(generalBackupStatus())}</div>
-          <div class="km-shell-general-actions">
-            <button type="button" class="btn" data-general-action="backup-export">Complete back-up maken</button>
-            <label class="btn" style="text-align:center">Back-up herstellen<input id="kmShellBackupImport" type="file" accept="application/json,.json" hidden></label>
-          </div>
-          <details class="km-shell-general-advanced">
-            <summary>Geavanceerd gegevensbeheer</summary>
+        <div class="km-shell-general-intro"><p>Alle instellingen van Log staan hier bij elkaar. De onderdelen zijn gegroepeerd op wat je wilt aanpassen.</p></div>
+        <section class="km-shell-settings-group" aria-labelledby="kmShellRegistrationSettingsTitle">
+          <header class="km-shell-settings-group-head"><h2 id="kmShellRegistrationSettingsTitle">Registratie</h2><p>Instellingen voor de gegevens die je in Log vastlegt.</p></header>
+          ${generalSettingsAccordion('kmShellRideSettings', 'Ritten', 'Voertuig, herkenning, navigatie en bediening', '<div class="km-shell-settings-panel-host"></div>', 'rides')}
+          ${generalSettingsAccordion('kmShellTimeSettings', 'Tijd en taken', 'Afronding, thema’s, collega’s en tussenstops', '<div class="km-shell-settings-panel-host"></div>', 'time')}
+          ${generalSettingsAccordion('kmShellLocationSettings', 'Locaties', 'Herkenning, sortering en verwijderen', '<div class="km-shell-settings-panel-host"></div>', 'locations')}
+        </section>
+        <section class="km-shell-settings-group" aria-labelledby="kmShellAppSettingsTitle">
+          <header class="km-shell-settings-group-head"><h2 id="kmShellAppSettingsTitle">App</h2><p>Bepaal welke onderdelen zichtbaar zijn en in welke volgorde.</p></header>
+          ${generalSettingsAccordion('kmShellModuleSettingsAccordion', 'Onderdelen en volgorde', 'Navigatie, zichtbaarheid en volgorde van Log', '<div id="kmShellModuleSettings" class="km-shell-module-settings"></div>')}
+        </section>
+        <section class="km-shell-settings-group" aria-labelledby="kmShellDataSettingsTitle">
+          <header class="km-shell-settings-group-head"><h2 id="kmShellDataSettingsTitle">Gegevens</h2><p>Back-up en herstel gelden voor de volledige Log-app.</p></header>
+          ${generalSettingsAccordion('kmShellDataSettings', 'Back-up en herstel', 'Alle ritten, tijdregistraties, taken en instellingen', `
+            <div class="km-shell-general-status" id="kmShellBackupStatus">${esc(generalBackupStatus())}</div>
             <div class="km-shell-general-actions">
-              <label class="btn secondary" style="text-align:center">Kilometergegevens toevoegen<input id="kmShellMergeImport" type="file" accept="application/json,.json" hidden></label>
-              <button type="button" class="btn secondary" data-general-action="id-converter">ID-converter</button>
+              <button type="button" class="btn" data-general-action="backup-export">Complete back-up maken</button>
+              <label class="btn" style="text-align:center">Back-up herstellen<input id="kmShellBackupImport" type="file" accept="application/json,.json" hidden></label>
             </div>
-          </details>`)}
-        ${generalSettingsAccordion('kmShellRideSettings', 'Ritten', 'Voertuig, herkenning, navigatie en bediening', '<div class="km-shell-settings-panel-host"></div>', 'rides')}
-        ${generalSettingsAccordion('kmShellTimeSettings', 'Tijd / taken', 'Afronding, thema’s, collega’s en tussenstops', '<div class="km-shell-settings-panel-host"></div>', 'time')}
-        ${generalSettingsAccordion('kmShellLocationSettings', 'Locaties', 'Herkenning en algemene locatie-instellingen', '<div class="km-shell-settings-panel-host"></div>', 'locations')}
+            <details class="km-shell-general-advanced">
+              <summary>Geavanceerd gegevensbeheer</summary>
+              <div class="km-shell-general-actions">
+                <label class="btn secondary" style="text-align:center">Kilometergegevens toevoegen<input id="kmShellMergeImport" type="file" accept="application/json,.json" hidden></label>
+                <button type="button" class="btn secondary" data-general-action="id-converter">ID-converter</button>
+              </div>
+            </details>`)}
+        </section>
       </section>`;
 
     renderModuleSettings();
