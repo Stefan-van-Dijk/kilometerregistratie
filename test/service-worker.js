@@ -1,5 +1,5 @@
-const CACHE='kmreg-test-shell-0.31.10-test.43';
-const SHELL=['./','./index.html','./log-json-v2.js?v=2.0.0','./shell-ui.js?v=0.31.10-test.34','./shell-ui-stable.js?v=0.31.10-test.1','./shell-gestures.js?v=0.31.10-test.43','./id-converter.html','./manifest.webmanifest','./app-icon.svg','./config/modules.json','./time/index.html','./time/app.js','./time/styles.css','./time/home-layout.css','./time/home-layout.js','./time/home-top.css','./time/home-top.js'];
+const CACHE='kmreg-test-shell-0.31.10-test.41';
+const SHELL=['./','./index.html','./log-json-v2.js?v=2.0.0','./shell-ui.js?v=0.31.10-test.34','./shell-ui-stable.js?v=0.31.10-test.1','./shell-gestures.js?v=0.31.10-test.41','./id-converter.html','./manifest.webmanifest','./app-icon.svg','./config/modules.json','./time/index.html','./time/app.js','./time/styles.css','./time/home-layout.css','./time/home-layout.js','./time/home-top.css','./time/home-top.js'];
 
 function injectShellScript(response){
   if(!response)return response;
@@ -9,7 +9,7 @@ function injectShellScript(response){
     let injection='';
     if(!html.includes('shell-ui.js'))injection+=`<style id="km-shell-bootstrap-style">#kmShellSettingsContent #app,#kmShellSettingsContent #timeAppFrame{display:block!important;visibility:visible!important;opacity:1!important}</style><script src="./shell-ui.js?v=0.31.10-test.34"></script><script>(()=>{let needs=false,saved=false,wasEditor=false;const setItem=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){const r=setItem.call(this,k,v);if(this===localStorage&&k==='kmreg-test-v4-data'&&needs)saved=true;return r};document.addEventListener('click',e=>{if(!e.target.closest?.('[data-action="save-location"]'))return;const f=document.getElementById('locationForm'),p=document.getElementById('kmShellParentId');if(!f||!p)return;let old='';try{const d=JSON.parse(localStorage.getItem('kmreg-test-v4-data')||'{}');old=(d.locations||[]).find(x=>x.id===f.elements.id?.value)?.parentId||''}catch(_){}needs=!!(old||p.value);saved=false;wasEditor=document.body.classList.contains('editor-view')});new MutationObserver(()=>{const editor=document.body.classList.contains('editor-view');if(needs&&saved&&wasEditor&&!editor){needs=false;localStorage.setItem('kmreg-test-shell-section-v1','locations');setTimeout(()=>location.reload(),100)}wasEditor=editor}).observe(document.body,{attributes:true,attributeFilter:['class']})})()</script>`;
     if(!html.includes('shell-ui-stable.js'))injection+=`<script src="./shell-ui-stable.js?v=0.31.10-test.1"></script>`;
-    if(!html.includes('shell-gestures.js'))injection+=`<script src="./shell-gestures.js?v=0.31.10-test.43"></script>`;
+    if(!html.includes('shell-gestures.js'))injection+=`<script src="./shell-gestures.js?v=0.31.10-test.41"></script>`;
     if(injection)html=html.replace('</body>',`${injection}</body>`);
     const headers=new Headers(response.headers);
     headers.delete('content-length');
