@@ -503,8 +503,8 @@
   }
 
   function syncDrawerSelection() {
-    $('.km-shell-nav-button').forEach(button => button.classList.toggle('active', button.dataset.shellSection === section));
-    $('.km-shell-tab-button').forEach(button => {
+    $$('.km-shell-nav-button').forEach(button => button.classList.toggle('active', button.dataset.shellSection === section));
+    $$('.km-shell-tab-button').forEach(button => {
       const active = button.dataset.shellTab === section;
       button.classList.toggle('active', active);
       if (active) button.setAttribute('aria-current', 'page');
@@ -572,7 +572,7 @@
     if (section === 'rides') {
       const nodes = $$('#app .trip-entry');
       visible = setSearchMatches(nodes, query);
-      $$('#app .trip-group').forEach(group => {
+      $$$('#app .trip-group').forEach(group => {
         const items = [...group.querySelectorAll('.trip-entry')];
         group.hidden = Boolean(query) && items.length > 0 && items.every(item => item.hidden);
       });
@@ -899,7 +899,7 @@
   }
 
   function closeLocationSwipes(except = null) {
-    $$('.km-shell-location-swipe-row').forEach(row => {
+    $$$('.km-shell-location-swipe-row').forEach(row => {
       if (row !== except) resetLocationSwipeRow(row);
     });
   }
