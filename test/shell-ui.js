@@ -179,7 +179,9 @@
     }
     renderNavigation();
     renderModuleSettings();
-    showSection();
+    const settingsTargetOpen = $('#kmShellSettings')?.classList.contains('open') && activeSettingsTarget;
+    if (settingsTargetOpen) syncChrome();
+    else showSection();
     requestAnimationFrame(() => {
       syncChrome();
       applyShellSearch();
@@ -1481,6 +1483,13 @@
     host.addEventListener('pointermove', event => {
       if (!drag || event.pointerId !== drag.pointerId) return;
       event.preventDefault();
+      const scroller = host.closest('.km-shell-settings-content');
+      if (scroller) {
+        const bounds = scroller.getBoundingClientRect();
+        const edge = Math.min(72, bounds.height * .18);
+        if (event.clientY < bounds.top + edge) scroller.scrollTop -= 14;
+        else if (event.clientY > bounds.bottom - edge) scroller.scrollTop += 14;
+      }
       const candidates = $$('.km-shell-module-row[data-module-id]', host).filter(row => row !== drag.row);
       const before = candidates.find(row => {
         const rect = row.getBoundingClientRect();
