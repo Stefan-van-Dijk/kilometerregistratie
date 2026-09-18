@@ -1,4 +1,4 @@
-const CACHE='kmreg-test-shell-0.31.10-time-settings-visible';
+const CACHE='kmreg-test-shell-0.31.10-test.35';
 const SHELL=['./','./index.html','./log-json-v2.js?v=2.0.0','./shell-ui.js?v=0.31.10-test.34','./shell-ui-stable.js?v=0.31.10-test.1','./id-converter.html','./manifest.webmanifest','./app-icon.svg','./config/modules.json','./time/index.html','./time/app.js','./time/styles.css','./time/home-layout.css','./time/home-layout.js','./time/home-top.css','./time/home-top.js'];
 
 function injectShellScript(response){
