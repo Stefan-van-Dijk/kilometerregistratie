@@ -122,14 +122,7 @@
       if (!modules) throw new Error('Menuconfiguratie heeft geen geldige modules.');
       try { localStorage.setItem(MENU_DOCUMENT_CACHE_KEY, JSON.stringify(documentValue)); } catch (_) {}
       applyModuleCatalog(modules);
-      const visible = enabledModules();
-      if (!visible.some(module => module.id === section)) {
-        section = visible[0]?.id || MODULE_CATALOG[0]?.id || 'rides';
-        localStorage.setItem(SECTION_KEY, section);
-      }
-      renderNavigation();
-      renderModuleSettings();
-      showSection();
+      refreshShellUI();
     } catch (error) {
       console.warn('De laatst geldige menuconfiguratie blijft actief.', error);
     }
@@ -173,17 +166,47 @@
     return moduleConfiguration(snapshot).filter(item => item.enabled).map(item => moduleById(item.id)).filter(Boolean);
   }
 
-  function saveModuleConfiguration(config) {
+  function notifyActiveViewRefresh() {
+    window.dispatchEvent(new CustomEvent('log-shell-view-refresh', { detail: { section } }));
+  }
+
+  function refreshShellUI() {
+    const visible = enabledModules();
+    if (!visible.some(module => module.id === section)) {
+      section = visible[0]?.id || MODULE_CATALOG[0]?.id || 'rides';
+      localStorage.setItem(SECTION_KEY, section);
+      localStorage.setItem(MODE_KEY, section === 'time' ? 'time' : 'kilometers');
+    }
+    renderNavigation();
+    renderModuleSettings();
+    showSection();
+    requestAnimationFrame(() => {
+      syncChrome();
+      applyShellSearch();
+    });
+  }
+
+  function focusModuleHandle(id) {
+    if (!id) return;
+    requestAnimationFrame(() => {
+      const host = $('#kmShellModuleSettings');
+      const row = host ? $$('.km-shell-module-row[data-module-id]', host)
+        .find(candidate => candidate.dataset.moduleId === id) : null;
+      row?.querySelector('[data-module-drag-handle]')?.focus({ preventScroll: true });
+    });
+  }
+
+  function saveModuleConfiguration(config, focusId = '') {
+    const normalized = config.map((item, order) => ({ id: item.id, enabled: item.enabled !== false, order }));
     let raw = {};
     try { raw = JSON.parse(localStorage.getItem(DATA_KEY) || '{}'); } catch (_) {}
     if (!raw || typeof raw !== 'object') raw = {};
     if (!raw.settings || typeof raw.settings !== 'object') raw.settings = {};
-    raw.settings.navigationModules = config.map((item, order) => ({ id: item.id, enabled: item.enabled !== false, order }));
+    raw.settings.navigationModules = normalized;
     localStorage.setItem(DATA_KEY, JSON.stringify(raw));
-    renderNavigation();
-    renderModuleSettings();
-    const visible = enabledModules();
-    if (!visible.some(module => module.id === section)) selectSection(visible[0]?.id || 'rides');
+    window.dispatchEvent(new CustomEvent('log-navigation-modules-change', { detail: { modules: normalized } }));
+    refreshShellUI();
+    focusModuleHandle(focusId);
   }
 
   function moduleIcon(id) {
@@ -267,7 +290,7 @@
       .km-shell-tab-button.active::after{content:"";position:absolute;bottom:4px;width:5px;height:5px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
       .km-shell-tab-button.active svg{transform:translateY(-2px) scale(1.08);stroke-width:2.25}
       .km-shell-tab-button:active{transform:scale(.94)}
-      .km-shell-module-settings{display:grid;gap:8px}.km-shell-module-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:10px;min-height:58px;padding:8px 10px;border:.5px solid var(--line);border-radius:14px;background:var(--card)}.km-shell-module-handle{color:var(--muted);font-size:18px;text-align:center}.km-shell-module-copy strong,.km-shell-module-copy small{display:block}.km-shell-module-copy strong{font-size:13px}.km-shell-module-copy small{margin-top:3px;color:var(--muted);font-size:10px}.km-shell-module-controls{display:flex;align-items:center;gap:5px}.km-shell-module-controls button{width:32px;height:32px;padding:0;border:.5px solid var(--line);border-radius:9px;background:var(--card2);color:var(--text);font-size:16px}.km-shell-module-toggle{display:inline-flex;align-items:center;margin-left:3px}.km-shell-module-toggle input{width:38px;height:22px;accent-color:var(--accent)}
+      .km-shell-module-settings{display:grid;gap:8px}.km-shell-module-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:8px;min-height:58px;padding:8px 10px;border:.5px solid var(--line);border-radius:14px;background:var(--card);transition:background .16s ease,box-shadow .16s ease,transform .16s ease}.km-shell-module-handle{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;border:0;border-radius:10px;background:transparent;color:var(--muted);touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}.km-shell-module-handle:active,.km-shell-module-row.is-dragging .km-shell-module-handle{cursor:grabbing;background:var(--card2);color:var(--accent)}.km-shell-module-handle svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}.km-shell-module-row.is-dragging{position:relative;z-index:3;background:color-mix(in srgb,var(--accent) 9%,var(--card));box-shadow:0 10px 28px rgba(0,0,0,.18);transform:scale(1.01)}.km-shell-module-copy strong,.km-shell-module-copy small{display:block}.km-shell-module-copy strong{font-size:13px}.km-shell-module-copy small{margin-top:3px;color:var(--muted);font-size:10px}.km-shell-module-controls{display:flex;align-items:center;gap:5px}.km-shell-module-toggle{display:inline-flex;align-items:center;margin-left:3px}.km-shell-module-toggle input{width:38px;height:22px;accent-color:var(--accent)}
       .km-shell-placeholder{padding:4px 0 28px}.km-shell-placeholder-hero{padding:22px 18px;border:.5px solid color-mix(in srgb,var(--accent) 24%,var(--line));border-radius:20px;background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 12%,var(--card)),var(--card));box-shadow:0 10px 28px rgba(0,0,0,.08)}.km-shell-placeholder-hero svg{width:34px;height:34px;color:var(--accent);fill:none;stroke:currentColor;stroke-width:1.7}.km-shell-placeholder-hero h2{margin:14px 0 6px;font-size:25px}.km-shell-placeholder-hero p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}.km-shell-placeholder-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.km-shell-placeholder-card{min-height:92px;padding:14px;border:.5px solid var(--line);border-radius:16px;background:var(--card)}.km-shell-placeholder-card strong,.km-shell-placeholder-card small{display:block}.km-shell-placeholder-card small{margin-top:6px;color:var(--muted);font-size:11px;line-height:1.4}.km-shell-placeholder-mode #app,.km-shell-placeholder-mode #timeAppFrame,.km-shell-placeholder-mode .km-shell-locations{display:none!important}.km-shell-placeholder-mode .km-shell-search{display:none!important}
       body.km-shell-drawer-open .km-shell-tabbar,body.km-shell-settings-open .km-shell-tabbar,body.km-shell-time-settings-open .km-shell-tabbar,body.editor-view .km-shell-tabbar{opacity:0;transform:translate(-50%,18px) scale(.98);pointer-events:none}
       .shell{padding-bottom:calc(108px + env(safe-area-inset-bottom))!important}
@@ -445,13 +468,12 @@
       .km-shell-settings-accordion summary:focus-visible,.km-shell-nav-button:focus-visible,.km-shell-tab-button:focus-visible,.km-shell-menu-button:focus-visible,.km-shell-settings-close:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
       .km-shell-settings-panel-host>#app details.accordion>summary{min-height:58px}
       .km-shell-module-settings{gap:0;overflow:hidden;border:.5px solid var(--line);border-radius:14px;background:var(--card)}
-      .km-shell-module-row{grid-template-columns:minmax(0,1fr) auto;min-height:64px;padding:9px 10px 9px 14px;border:0;border-radius:0;background:transparent}
+      .km-shell-module-row{grid-template-columns:44px minmax(0,1fr) auto;min-height:64px;padding:9px 10px 9px 7px;border:0;border-radius:0;background:transparent}
       .km-shell-module-row:not(:last-child){border-bottom:.5px solid var(--line)}
-      .km-shell-module-handle{display:none}
+      .km-shell-module-row.is-dragging{border-radius:12px;border-bottom-color:transparent}
+      .km-shell-module-handle{display:inline-flex}
       .km-shell-module-copy strong{font-size:15px;font-weight:620}
       .km-shell-module-copy small{font-size:11px;line-height:1.35}
-      .km-shell-module-controls button{width:38px;height:38px;border:0;background:transparent;color:var(--accent);font-size:18px}
-      .km-shell-module-controls button:disabled{opacity:.22;color:var(--muted)}
       .km-shell-module-toggle input{width:42px;height:24px}
       @media(max-width:390px){.km-shell-tab-button{font-size:9px}.km-shell-tab-button svg{width:21px;height:21px}.km-shell-title{font-size:29px!important}}
       @media(prefers-reduced-motion:reduce){.shell,.km-shell-menu-button,.km-shell-drawer,.km-shell-backdrop,.km-shell-settings,.km-shell-settings-surface,.km-shell-tabbar,.km-shell-tab-button{transition:none!important}.km-shell-settings-content>*,body.km-shell-tab-transition .shell{animation:none!important}}
@@ -483,10 +505,12 @@
     const title = document.createElement('div');
     title.id = 'kmShellTitle';
     title.className = 'km-shell-title';
+    title.textContent = moduleById(section)?.label || 'Ritten';
     copy.appendChild(title);
     const meta = document.createElement('div');
     meta.id = 'kmShellMeta';
     meta.className = 'km-shell-meta';
+    meta.textContent = moduleById(section)?.subtitle || '';
     copy.appendChild(meta);
 
     const spacer = document.createElement('span');
@@ -863,6 +887,7 @@
       if (locations) locations.hidden = true;
       if (placeholder) placeholder.hidden = true;
       syncChrome();
+      notifyActiveViewRefresh();
       return;
     }
 
@@ -888,6 +913,7 @@
       if (section === 'rides') ensureKmView('ride');
     }
     syncChrome();
+    notifyActiveViewRefresh();
   }
 
   function syncChrome() {
@@ -896,6 +922,8 @@
     const menu = $('#kmShellMenuButton');
     const wantedTitle = section === 'time' && timeSettingsOpen ? 'Instellingen' : (moduleById(section)?.label || 'Registratie');
     if (title && title.textContent !== wantedTitle) title.textContent = wantedTitle;
+    const wantedDocumentTitle = wantedTitle + ' · Log';
+    if (document.title !== wantedDocumentTitle) document.title = wantedDocumentTitle;
     if (menu) {
       const isBack = section === 'time' && timeSettingsOpen;
       const wantedIcon = isBack ? '←' : '☰';
@@ -1375,14 +1403,122 @@
     return `<details class="km-shell-settings-accordion" id="${id}"${targetAttribute}><summary><span class="km-shell-settings-accordion-title"><strong>${title}</strong><small>${subtitle}</small></span><span class="km-shell-settings-accordion-arrow">›</span></summary><div class="km-shell-settings-accordion-body">${body}</div></details>`;
   }
 
+  function moduleRowIds(host) {
+    return $$('.km-shell-module-row[data-module-id]', host).map(row => row.dataset.moduleId);
+  }
+
+  function moduleConfigurationFromHost(host) {
+    const current = moduleConfiguration();
+    const remaining = new Map(current.map(item => [item.id, item]));
+    const ordered = [];
+    for (const id of moduleRowIds(host)) {
+      const item = remaining.get(id);
+      if (!item) continue;
+      ordered.push({ ...item, order: ordered.length });
+      remaining.delete(id);
+    }
+    for (const item of current) {
+      if (remaining.has(item.id)) ordered.push({ ...item, order: ordered.length });
+    }
+    return ordered;
+  }
+
+  function bindModuleReordering(host) {
+    if (!host || host.dataset.moduleReorderBound === '1') return;
+    host.dataset.moduleReorderBound = '1';
+    let drag = null;
+
+    const restoreOrder = ids => {
+      for (const id of ids) {
+        const row = $$('.km-shell-module-row[data-module-id]', host).find(candidate => candidate.dataset.moduleId === id);
+        if (row) host.appendChild(row);
+      }
+    };
+
+    const finishDrag = (event, commit) => {
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      const active = drag;
+      drag = null;
+      active.row.classList.remove('is-dragging');
+      active.row.setAttribute('aria-grabbed', 'false');
+      host.classList.remove('is-reordering');
+      try {
+        if (active.handle.hasPointerCapture(active.pointerId)) active.handle.releasePointerCapture(active.pointerId);
+      } catch (_) {}
+      if (!commit) {
+        restoreOrder(active.initialOrder);
+        focusModuleHandle(active.id);
+        return;
+      }
+      const finalOrder = moduleRowIds(host);
+      if (finalOrder.join('|') !== active.initialOrder.join('|')) {
+        saveModuleConfiguration(moduleConfigurationFromHost(host), active.id);
+      } else {
+        focusModuleHandle(active.id);
+      }
+    };
+
+    host.addEventListener('pointerdown', event => {
+      const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+      const handle = target?.closest('[data-module-drag-handle]');
+      if (!handle || event.button !== 0 || event.isPrimary === false) return;
+      const row = handle.closest('.km-shell-module-row[data-module-id]');
+      if (!row) return;
+      event.preventDefault();
+      drag = {
+        pointerId: event.pointerId,
+        id: row.dataset.moduleId,
+        row,
+        handle,
+        initialOrder: moduleRowIds(host)
+      };
+      row.classList.add('is-dragging');
+      row.setAttribute('aria-grabbed', 'true');
+      host.classList.add('is-reordering');
+      try { handle.setPointerCapture(event.pointerId); } catch (_) {}
+    });
+
+    host.addEventListener('pointermove', event => {
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      event.preventDefault();
+      const candidates = $$('.km-shell-module-row[data-module-id]', host).filter(row => row !== drag.row);
+      const before = candidates.find(row => {
+        const rect = row.getBoundingClientRect();
+        return event.clientY < rect.top + rect.height / 2;
+      });
+      if (before) host.insertBefore(drag.row, before);
+      else host.appendChild(drag.row);
+    });
+
+    host.addEventListener('pointerup', event => finishDrag(event, true));
+    host.addEventListener('pointercancel', event => finishDrag(event, false));
+    host.addEventListener('lostpointercapture', event => finishDrag(event, true));
+
+    host.addEventListener('keydown', event => {
+      if (!['ArrowUp', 'ArrowDown'].includes(event.key)) return;
+      const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+      const handle = target?.closest('[data-module-drag-handle]');
+      const row = handle?.closest('.km-shell-module-row[data-module-id]');
+      if (!row) return;
+      const neighbor = event.key === 'ArrowUp' ? row.previousElementSibling : row.nextElementSibling;
+      if (!neighbor?.matches('.km-shell-module-row[data-module-id]')) return;
+      event.preventDefault();
+      if (event.key === 'ArrowUp') host.insertBefore(row, neighbor);
+      else host.insertBefore(row, neighbor.nextElementSibling);
+      saveModuleConfiguration(moduleConfigurationFromHost(host), row.dataset.moduleId);
+    });
+  }
+
   function renderModuleSettings() {
     const host = $('#kmShellModuleSettings');
     if (!host) return;
     const config = moduleConfiguration();
-    host.innerHTML = config.map((item, index) => {
+    host.innerHTML = config.map(item => {
       const module = moduleById(item.id);
-      return `<div class="km-shell-module-row"><div class="km-shell-module-copy"><strong>${esc(module?.label || item.id)}</strong><small>${esc(module?.subtitle || '')}${module?.placeholder ? ' · in voorbereiding' : ''}</small></div><div class="km-shell-module-controls"><button type="button" data-module-move="up" data-module-id="${item.id}" aria-label="${esc(module?.label || item.id)} omhoog" ${index === 0 ? 'disabled' : ''}>↑</button><button type="button" data-module-move="down" data-module-id="${item.id}" aria-label="${esc(module?.label || item.id)} omlaag" ${index === config.length - 1 ? 'disabled' : ''}>↓</button><label class="km-shell-module-toggle" aria-label="${esc(module?.label || item.id)} tonen"><input type="checkbox" data-module-toggle="${item.id}" ${item.enabled ? 'checked' : ''}></label></div></div>`;
+      const label = module?.label || item.id;
+      return `<div class="km-shell-module-row" data-module-id="${esc(item.id)}" aria-grabbed="false"><button class="km-shell-module-handle" type="button" data-module-drag-handle aria-label="${esc(label)} verplaatsen" title="Sleep om te verplaatsen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button><div class="km-shell-module-copy"><strong>${esc(label)}</strong><small>${esc(module?.subtitle || '')}${module?.placeholder ? ' · in voorbereiding' : ''}</small></div><div class="km-shell-module-controls"><label class="km-shell-module-toggle" aria-label="${esc(label)} tonen"><input type="checkbox" data-module-toggle="${esc(item.id)}" ${item.enabled ? 'checked' : ''}></label></div></div>`;
     }).join('');
+    bindModuleReordering(host);
   }
 
   function renderGeneralSettings() {
@@ -1404,7 +1540,7 @@
         </section>
         <section class="km-shell-settings-group" aria-labelledby="kmShellAppSettingsTitle">
           <header class="km-shell-settings-group-head"><h2 id="kmShellAppSettingsTitle">App</h2><p>Bepaal welke onderdelen zichtbaar zijn en in welke volgorde.</p></header>
-          ${generalSettingsAccordion('kmShellModuleSettingsAccordion', 'Onderdelen en volgorde', 'Navigatie, zichtbaarheid en volgorde van Log', '<div id="kmShellModuleSettings" class="km-shell-module-settings"></div>')}
+          ${generalSettingsAccordion('kmShellModuleSettingsAccordion', 'Onderdelen en volgorde', 'Kies wat zichtbaar is en sleep aan het handvat voor de volgorde', '<div id="kmShellModuleSettings" class="km-shell-module-settings"></div>')}
         </section>
         <section class="km-shell-settings-group" aria-labelledby="kmShellDataSettingsTitle">
           <header class="km-shell-settings-group-head"><h2 id="kmShellDataSettingsTitle">Gegevens</h2><p>Back-up en herstel gelden voor de volledige Log-app.</p></header>
@@ -1439,18 +1575,6 @@
       }
       saveModuleConfiguration(config);
     });
-    content.querySelector('#kmShellModuleSettings')?.addEventListener('click', event => {
-      const button = event.target.closest('[data-module-move]');
-      if (!button) return;
-      const config = moduleConfiguration();
-      const index = config.findIndex(entry => entry.id === button.dataset.moduleId);
-      const offset = button.dataset.moduleMove === 'up' ? -1 : 1;
-      const target = index + offset;
-      if (index < 0 || target < 0 || target >= config.length) return;
-      [config[index], config[target]] = [config[target], config[index]];
-      saveModuleConfiguration(config);
-    });
-
     content.querySelector('[data-general-action="backup-export"]')?.addEventListener('click', () => {
       const status = $('#kmShellBackupStatus');
       if (status) status.textContent = 'Back-up wordt voorbereid…';
@@ -1980,11 +2104,18 @@
     observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
 
     window.addEventListener('storage', event => {
-      if ([DATA_KEY, 'urenregistratie.test.pwa.v1'].includes(event.key)) {
+      if (event.key === DATA_KEY) {
         renderLocations();
+        refreshShellUI();
+      } else if (event.key === 'urenregistratie.test.pwa.v1') {
         syncChrome();
       }
     });
+    const refreshOnResume = () => {
+      if (!document.hidden) refreshShellUI();
+    };
+    window.addEventListener('pageshow', refreshOnResume);
+    document.addEventListener('visibilitychange', refreshOnResume);
   }
 
   function init() {
@@ -1994,7 +2125,6 @@
     installShellElements();
     const visibleModules = enabledModules();
     if (!visibleModules.some(module => module.id === section)) section = visibleModules[0]?.id || 'rides';
-    renderNavigation();
     const searchStatus = document.createElement('div');
     searchStatus.id = 'kmShellSearchStatus';
     searchStatus.className = 'km-shell-search-status';
@@ -2003,7 +2133,7 @@
     bindGlobalEvents();
     bindEmbeddedTimeApp();
     bindHeaderCollapse();
-    showSection();
+    refreshShellUI();
     refreshMenuDocument();
     filterTripLocationSelects();
     // Na sluiten van Instellingen moet het paneel zichtbaar blijven; normale herlaad start rustig gesloten.
