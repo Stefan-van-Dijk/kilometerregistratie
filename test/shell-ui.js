@@ -572,7 +572,7 @@
     if (section === 'rides') {
       const nodes = $$('#app .trip-entry');
       visible = setSearchMatches(nodes, query);
-      $$$('#app .trip-group').forEach(group => {
+      $$('#app .trip-group').forEach(group => {
         const items = [...group.querySelectorAll('.trip-entry')];
         group.hidden = Boolean(query) && items.length > 0 && items.every(item => item.hidden);
       });
@@ -693,12 +693,12 @@
     }
 
     const openedFromDrawer = drawerOpen;
+    closeDrawer();
     section = next;
     document.body.classList.remove('km-shell-scrolled', 'km-shell-search-revealed', 'km-shell-tab-transition');
     windowScrollState.top = Math.max(0, window.scrollY || 0);
     windowScrollState.reverse = 0;
     timeScrollState.reverse = 0;
-    resetShellSearch();
     localStorage.setItem(SECTION_KEY, section);
     localStorage.setItem(MODE_KEY, section === 'time' ? 'time' : 'kilometers');
     if (section === 'time') ensureOriginalMode('time');
@@ -706,8 +706,8 @@
       ensureOriginalMode('kilometers');
       if (!document.body.classList.contains('editor-view')) ensureKmView('ride');
     }
-    closeDrawer();
     showSection();
+    resetShellSearch();
 
     if (!openedFromDrawer) {
       void $('.shell')?.offsetWidth;
@@ -899,7 +899,7 @@
   }
 
   function closeLocationSwipes(except = null) {
-    $$$('.km-shell-location-swipe-row').forEach(row => {
+    $$('.km-shell-location-swipe-row').forEach(row => {
       if (row !== except) resetLocationSwipeRow(row);
     });
   }
