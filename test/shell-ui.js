@@ -863,7 +863,7 @@
     const gps = effective.lat != null && effective.lng != null ? `${Number(effective.lat).toFixed(5)}, ${Number(effective.lng).toFixed(5)}` : 'Niet vastgelegd';
     const inherited = depth && (!location.address || location.lat == null || location.lng == null) && effective.parent;
     const count = locationTripCount(location, snapshot);
-    const canDelete = snapshot.settings.locationDeleteEnabled !== false;
+    const canDelete = snapshot.settings.swipeDeleteEnabled !== false && snapshot.settings.locationDeleteEnabled !== false;
     return `
       <div class="km-shell-location-node" data-shell-location-node="${esc(location.id)}" data-depth="${depth}" style="--depth:${depth}">
         <div class="km-shell-location-swipe-row" data-shell-location-swipe="${esc(location.id)}">
