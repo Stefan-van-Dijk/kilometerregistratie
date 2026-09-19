@@ -32,9 +32,7 @@
     const children=raw.entries.filter(item=>String(item.parentActivityId||'')===String(id));
     const label=entry.activityType==='interruption'?'Tussenstop':(entry.themeName||'Registratie');
     return policy.createPlan({
-      entityType:'time-entry',
-      id,
-      label,
+      entityType:'time-entry',id,label,
       owned:[children.length?{key:'children',label:children.length===1?'gekoppelde tussenstop':'gekoppelde tussenstops',count:children.length,ids:children.map(item=>item.id)}:null],
       incoming:[]
     });
@@ -144,11 +142,7 @@
     if(!theme)return false;
     const subIds=new Set(plan.meta?.subthemeIds||[]);
     const subthemes=raw.subthemes.filter(sub=>subIds.has(String(sub.id)));
-    policy.archiveBatch({
-      source:'time',entityType:'theme',rootId:id,
-      items:[{id:theme.id,name:theme.name,theme,subthemes}],
-      reason:policy.archiveCopy(plan).message
-    });
+    policy.archiveBatch({source:'time',entityType:'theme',rootId:id,items:[{id:theme.id,name:theme.name,theme,subthemes}],reason:policy.archiveCopy(plan).message});
     raw.themes=raw.themes.filter(value=>String(value.id)!==String(id));
     raw.subthemes=raw.subthemes.filter(sub=>!subIds.has(String(sub.id)));
     writeState(raw);
@@ -242,21 +236,23 @@
     for(const button of $$('[data-delete-colleague]')){
       const plan=colleaguePlan(button.dataset.deleteColleague,raw);
       if(!plan)continue;
-      button.textContent=lifecycleLabel(plan);
+      const text=lifecycleLabel(plan);
+      if(button.textContent!==text)button.textContent=text;
       button.classList.toggle('log-time-archive-action',plan.action==='archive');
       button.classList.toggle('log-time-delete-action',plan.action==='delete');
     }
     for(const button of $$('[data-del-sub]')){
       const plan=subthemePlan(button.dataset.delSub,raw);
       if(!plan)continue;
-      button.textContent=lifecycleLabel(plan);
+      const text=lifecycleLabel(plan);
+      if(button.textContent!==text)button.textContent=text;
       button.classList.toggle('log-time-archive-action',plan.action==='archive');
       button.classList.toggle('log-time-delete-action',plan.action==='delete');
     }
     for(const manage of $$('[data-submanage]')){
       const row=manage.closest('.settings-list-row');
       const id=manage.dataset.submanage;
-      if(!row||row.querySelector(`[data-log-delete-theme="${CSS.escape(id)}"]`))continue;
+      if(!row||row.querySelector('[data-log-delete-theme]'))continue;
       const plan=themePlan(id,raw);
       if(!plan)continue;
       const button=document.createElement('button');
@@ -269,7 +265,8 @@
       row.appendChild(button);
     }
     const swipeHint=$('#swipeDeleteEnabled')?.closest('.settings-toggle-row')?.querySelector('small');
-    if(swipeHint)swipeHint.textContent='Swipe toont Bewerken en een tweede actie. Verwijderen vraagt altijd eerst om bevestiging.';
+    const hint='Swipe toont Bewerken en een tweede actie. Verwijderen vraagt altijd eerst om bevestiging.';
+    if(swipeHint&&swipeHint.textContent!==hint)swipeHint.textContent=hint;
   }
 
   function archiveRecords(){
