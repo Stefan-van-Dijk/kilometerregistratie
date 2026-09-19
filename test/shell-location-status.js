@@ -1,8 +1,9 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.10-test.51';
+  const BUILD='0.31.10-test.52';
   const VIEW_ID='kmShellLocationsView';
+  const SECTION_KEY='kmreg-test-shell-section-v1';
   let viewObserver=null;
   let observedView=null;
   let toastTimer=null;
@@ -82,6 +83,20 @@
     queueSync();
   }
 
+  function restoreLocationsView(){
+    if(localStorage.getItem(SECTION_KEY)!=='locations')return;
+    if(document.body.classList.contains('editor-view'))return;
+    if($('#kmShellSettings')?.classList.contains('open'))return;
+    const view=$(`#${VIEW_ID}`);
+    if(!view)return;
+    document.body.classList.add('km-shell-locations-mode');
+    document.body.classList.remove('km-shell-placeholder-mode');
+    view.hidden=false;
+    const placeholder=$('#kmShellPlaceholderView');
+    if(placeholder)placeholder.hidden=true;
+    queueSync();
+  }
+
   function showConfirmation(name){
     let toast=$('#kmShellLocationConfirmation');
     if(!toast){
@@ -118,6 +133,11 @@
       bindViewObserver();
     });
     bodyObserver.observe(document.body,{attributes:true,attributeFilter:['class'],childList:true,subtree:false});
+
+    window.addEventListener('kmreg-test-shell-select-section',event=>{
+      if(event.detail?.section!=='locations')return;
+      requestAnimationFrame(restoreLocationsView);
+    });
 
     window.addEventListener('pageshow',()=>{
       updateVersion();
