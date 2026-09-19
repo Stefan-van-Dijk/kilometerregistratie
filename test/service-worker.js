@@ -1,9 +1,9 @@
-const CACHE='kmreg-test-shell-0.31.10-test.57';
+const CACHE='kmreg-test-shell-0.31.10-test.58';
 const SHARED_UI='./log-ui.css?v=0.31.10-test.47';
 const REMOVAL_POLICY='./removal-policy.js?v=0.31.10-test.55';
 const BACKUP_ARCHIVE='./shell-backup-archive.js?v=0.31.10-test.56';
-const QUICK_ACTIONS='./shell-quick-actions.js?v=0.31.10-test.57';
-const SHELL=['./','./index.html','./log-json-v2.js?v=2.0.0',SHARED_UI,REMOVAL_POLICY,BACKUP_ARCHIVE,QUICK_ACTIONS,'./shell-ui.js?v=0.31.10-test.34','./shell-ui-stable.js?v=0.31.10-test.47','./shell-gestures.js?v=0.31.10-test.47','./shell-time-layout.js?v=0.31.10-test.48','./shell-location-status.js?v=0.31.10-test.56','./shell-removal-policy.js?v=0.31.10-test.55','./id-converter.html','./manifest.webmanifest','./app-icon.svg','./config/modules.json','./time/index.html','./time/app.js','./time/styles.css','./time/home-layout.css','./time/home-layout.js','./time/home-top.css','./time/home-top.js','./time/removal-policy-ui.js?v=0.31.10-test.55','./time/quick-actions.js?v=0.31.10-test.57'];
+const QUICK_ACTIONS='./shell-quick-actions.js?v=0.31.10-test.58';
+const SHELL=['./','./index.html','./log-json-v2.js?v=2.0.0',SHARED_UI,REMOVAL_POLICY,BACKUP_ARCHIVE,QUICK_ACTIONS,'./shell-ui.js?v=0.31.10-test.34','./shell-ui-stable.js?v=0.31.10-test.47','./shell-gestures.js?v=0.31.10-test.47','./shell-time-layout.js?v=0.31.10-test.48','./shell-location-status.js?v=0.31.10-test.56','./shell-removal-policy.js?v=0.31.10-test.55','./id-converter.html','./manifest.webmanifest','./app-icon.svg','./config/modules.json','./time/index.html','./time/app.js','./time/styles.css','./time/home-layout.css','./time/home-layout.js','./time/home-top.css','./time/home-top.js','./time/removal-policy-ui.js?v=0.31.10-test.55','./time/quick-actions.js?v=0.31.10-test.58'];
 
 function injectShellScript(response){
   if(!response)return response;
@@ -18,7 +18,7 @@ function injectShellScript(response){
     html=html.replace(/shell-location-status\.js\?v=[^"'<>]+/g,'shell-location-status.js?v=0.31.10-test.56');
     html=html.replace(/shell-removal-policy\.js\?v=[^"'<>]+/g,'shell-removal-policy.js?v=0.31.10-test.55');
     html=html.replace(/shell-backup-archive\.js\?v=[^"'<>]+/g,'shell-backup-archive.js?v=0.31.10-test.56');
-    html=html.replace(/shell-quick-actions\.js\?v=[^"'<>]+/g,'shell-quick-actions.js?v=0.31.10-test.57');
+    html=html.replace(/shell-quick-actions\.js\?v=[^"'<>]+/g,'shell-quick-actions.js?v=0.31.10-test.58');
     html=html.replace(/removal-policy\.js\?v=[^"'<>]+/g,'removal-policy.js?v=0.31.10-test.55');
     let injection='';
     if(!html.includes('./removal-policy.js'))injection+=`<script src="./removal-policy.js?v=0.31.10-test.55"></script>`;
@@ -29,7 +29,7 @@ function injectShellScript(response){
     if(!html.includes('shell-time-layout.js'))injection+=`<script src="./shell-time-layout.js?v=0.31.10-test.48"></script>`;
     if(!html.includes('shell-location-status.js'))injection+=`<script src="./shell-location-status.js?v=0.31.10-test.56"></script>`;
     if(!html.includes('shell-removal-policy.js'))injection+=`<script src="./shell-removal-policy.js?v=0.31.10-test.55"></script>`;
-    if(!html.includes('shell-quick-actions.js'))injection+=`<script src="./shell-quick-actions.js?v=0.31.10-test.57"></script>`;
+    if(!html.includes('shell-quick-actions.js'))injection+=`<script src="./shell-quick-actions.js?v=0.31.10-test.58"></script>`;
     if(injection)html=html.replace('</body>',`${injection}</body>`);
     const headers=new Headers(response.headers);
     headers.delete('content-length');
