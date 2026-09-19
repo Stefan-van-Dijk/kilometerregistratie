@@ -12,6 +12,7 @@
 
   const $=(selector,root=document)=>root.querySelector(selector);
   const $$=(selector,root=document)=>[...root.querySelectorAll(selector)];
+  const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
   function readKm(){
     try{
@@ -72,7 +73,7 @@
     const tripRefs=raw.trips.filter(trip=>['origin','destination','plannedDestination','expectedDestination'].some(key=>referencesLocation(trip?.[key],allIds)));
     const eventRefs=raw.events.filter(event=>referencesLocation(event?.location,allIds));
     const activeRefs=raw.activeTrip&&['origin','destination','plannedDestination','expectedDestination'].some(key=>referencesLocation(raw.activeTrip?.[key],allIds))?1:0;
-    const plan=policy.createPlan({
+    return policy.createPlan({
       entityType:'location',
       id,
       label:location.name||'Locatie',
@@ -84,7 +85,6 @@
       ],
       meta:{locationIds:[...allIds]}
     });
-    return plan;
   }
 
   function tripPlan(id,raw=readKm()){
@@ -100,7 +100,7 @@
       label:`Rit ${from} → ${to}`,
       owned:[
         events.length?{key:'events',label:events.length===1?'tussenpunt':'tussenpunten',count:events.length,ids:events.map(item=>item.id)}:null,
-        points.length?{key:'trackPoints',label:points.length===1?'GPS-punt':'GPS-punten',count:points.length}: {key:'trackPoints',label:'eventuele gekoppelde GPS-gegevens',count:null}
+        points.length?{key:'trackPoints',label:points.length===1?'GPS-punt':'GPS-punten',count:points.length}:{key:'trackPoints',label:'eventuele gekoppelde GPS-gegevens',count:null}
       ],
       incoming:[]
     });
@@ -109,13 +109,7 @@
   function eventPlan(id,raw=readKm()){
     const item=raw.events.find(event=>String(event.id)===String(id));
     if(!item)return null;
-    return policy.createPlan({
-      entityType:'event',
-      id,
-      label:item.type==='tank'?'Tankpunt':'Tussenpunt',
-      owned:[],
-      incoming:[]
-    });
+    return policy.createPlan({entityType:'event',id,label:item.type==='tank'?'Tankpunt':'Tussenpunt',owned:[],incoming:[]});
   }
 
   function installStyles(){
@@ -161,21 +155,14 @@
     const ids=new Set((plan.meta?.locationIds||[plan.id]).map(String));
     const items=raw.locations.filter(item=>ids.has(String(item.id)));
     if(!items.length)return;
-    policy.archiveBatch({
-      source:'km',
-      entityType:'location',
-      rootId:plan.id,
-      items,
-      reason:policy.archiveCopy(plan).message
-    });
+    policy.archiveBatch({source:'km',entityType:'location',rootId:plan.id,items,reason:policy.archiveCopy(plan).message});
     raw.locations=raw.locations.filter(item=>!ids.has(String(item.id)));
     writeKm(raw);
     refreshLocations();
   }
 
   async function deleteLocationGroup(plan){
-    const confirmed=await policy.confirmDelete(plan);
-    if(!confirmed)return;
+    if(!await policy.confirmDelete(plan))return;
     const raw=readKm();
     const ids=new Set((plan.meta?.locationIds||[plan.id]).map(String));
     raw.locations=raw.locations.filter(item=>!ids.has(String(item.id)));
@@ -227,8 +214,10 @@
         const plan=locationPlan(id);
         if(!plan)continue;
         const archive=plan.action==='archive';
-        button.textContent=archive?'Archiveer':'Verwijder';
-        button.setAttribute('aria-label',`${plan.label} ${archive?'archiveren':'verwijderen'}`);
+        const text=archive?'Archiveer':'Verwijder';
+        if(button.textContent!==text)button.textContent=text;
+        const aria=`${plan.label} ${archive?'archiveren':'verwijderen'}`;
+        if(button.getAttribute('aria-label')!==aria)button.setAttribute('aria-label',aria);
         button.classList.toggle('km-shell-location-swipe-archive',archive);
         button.classList.toggle('km-shell-location-swipe-delete',!archive);
       }
@@ -239,7 +228,8 @@
       const plan=locationPlan(id);
       if(!plan)continue;
       const archive=plan.action==='archive';
-      button.textContent=archive?'Archiveren':'Verwijderen';
+      const text=archive?'Archiveren':'Verwijderen';
+      if(button.textContent!==text)button.textContent=text;
       button.classList.toggle('km-shell-location-swipe-archive',archive);
     }
   }
@@ -260,6 +250,8 @@
     const groups=archivedLocationGroups();
     let archive=$('#logLocationArchive',view);
     if(!groups.length){archive?.remove();return;}
+    const signature=groups.map(records=>records.map(record=>`${record.archiveId}:${record.archivedAt}`).join(',')).join('|');
+    if(archive?.dataset.signature===signature)return;
     if(!archive){
       archive=document.createElement('details');
       archive.id='logLocationArchive';
@@ -268,11 +260,12 @@
     }
     const open=archive.open;
     const itemCount=groups.reduce((sum,records)=>sum+records.length,0);
+    archive.dataset.signature=signature;
     archive.innerHTML=`<summary><span class="log-location-archive-copy"><strong>Archief</strong><small>${itemCount} ${itemCount===1?'locatie':'locaties'} · tik om te herstellen</small></span><span aria-hidden="true">›</span></summary><div class="log-location-archive-body">${groups.map(records=>{
       const root=records.find(record=>String(record.id)===String(record.rootId))||records[0];
       const name=root?.payload?.name||'Locatie';
       const extra=records.length>1?` · ${records.length-1} sublocatie${records.length===2?'':'s'}`:'';
-      return `<div class="log-location-archive-row"><div class="log-location-archive-row-copy"><strong>${String(name).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}</strong><small>Gearchiveerd${extra}</small></div><button type="button" data-log-location-restore="${root.batchId}">Herstel</button></div>`;
+      return `<div class="log-location-archive-row"><div class="log-location-archive-row-copy"><strong>${esc(name)}</strong><small>Gearchiveerd${extra}</small></div><button type="button" data-log-location-restore="${esc(root.batchId)}">Herstel</button></div>`;
     }).join('')}</div>`;
     archive.open=open;
   }
