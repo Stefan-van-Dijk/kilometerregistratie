@@ -1,10 +1,12 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.10-test.57';
+  const BUILD='0.31.10-test.58';
   const DATA_KEY='kmreg-test-v4-data';
+  const POSITIVE_SWIPE_THRESHOLD=36;
   let decorateQueued=false;
   let busy=false;
+  let positiveSwipe=null;
 
   const $=(selector,root=document)=>root.querySelector(selector);
   const $$=(selector,root=document)=>[...root.querySelectorAll(selector)];
@@ -61,6 +63,10 @@
     if(!sameLocation(trip.origin,origin))return false;
     if(!trip.destination?.id)return false;
     return Array.isArray(data.locations)&&data.locations.some(location=>String(location.id)===String(trip.destination.id));
+  }
+
+  function positiveActionForRow(row){
+    return $('.swipe-actions-left [data-action="reopen-trip"]',row)||$('[data-log-start-trip]',row)||null;
   }
 
   function decorateTripActions(){
@@ -153,6 +159,48 @@
     }
   }
 
+  function positiveSwipeStart(event){
+    if(event.button!=null&&event.button!==0)return;
+    if(event.target.closest?.('button,input,select,textarea'))return;
+    const surface=event.target.closest?.('.swipe-row[data-swipe-kind="trip"] .swipe-surface');
+    if(!surface)return;
+    const row=surface.closest('.swipe-row[data-swipe-kind="trip"]');
+    const action=positiveActionForRow(row);
+    if(!row||!action)return;
+    positiveSwipe={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,dx:0,dy:0,horizontal:false,cancelled:false,row,action};
+  }
+
+  function positiveSwipeMove(event){
+    const gesture=positiveSwipe;
+    if(!gesture||gesture.pointerId!==event.pointerId||gesture.cancelled)return;
+    gesture.dx=event.clientX-gesture.startX;
+    gesture.dy=event.clientY-gesture.startY;
+    if(!gesture.horizontal){
+      if(Math.abs(gesture.dy)>10&&Math.abs(gesture.dy)>Math.abs(gesture.dx)){gesture.cancelled=true;return;}
+      if(Math.abs(gesture.dx)>8&&Math.abs(gesture.dx)>Math.abs(gesture.dy))gesture.horizontal=true;
+    }
+  }
+
+  function positiveSwipeEnd(event){
+    const gesture=positiveSwipe;
+    if(!gesture||gesture.pointerId!==event.pointerId)return;
+    positiveSwipe=null;
+    if(gesture.cancelled||!gesture.horizontal)return;
+    const activate=gesture.dx>=POSITIVE_SWIPE_THRESHOLD&&Math.abs(gesture.dx)>Math.abs(gesture.dy);
+    if(!activate)return;
+    const action=gesture.action;
+    queueMicrotask(()=>{
+      if(!action?.isConnected)return;
+      resetRow(gesture.row);
+      action.click();
+    });
+  }
+
+  function positiveSwipeCancel(event){
+    if(!positiveSwipe||positiveSwipe.pointerId!==event.pointerId)return;
+    positiveSwipe=null;
+  }
+
   function scheduleDecorate(){
     if(decorateQueued)return;
     decorateQueued=true;
@@ -185,6 +233,10 @@
       event.stopImmediatePropagation();
       startHistoricalTrip(button.dataset.logStartTrip,button);
     },true);
+    document.addEventListener('pointerdown',positiveSwipeStart,true);
+    document.addEventListener('pointermove',positiveSwipeMove,true);
+    document.addEventListener('pointerup',positiveSwipeEnd,true);
+    document.addEventListener('pointercancel',positiveSwipeCancel,true);
     const app=$('#app');
     if(app)new MutationObserver(scheduleDecorate).observe(app,{childList:true,subtree:true});
     new MutationObserver(()=>{updateVersion();scheduleDecorate();}).observe(document.body,{attributes:true,attributeFilter:['class']});
