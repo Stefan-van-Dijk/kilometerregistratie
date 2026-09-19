@@ -1,9 +1,11 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.10-test.59';
+  const BUILD='0.31.10-test.60';
   const EDIT_THRESHOLD=36;
   let gesture=null;
+  let versionObserver=null;
+  let versionQueued=false;
 
   const $=(selector,root=document)=>root.querySelector(selector);
 
@@ -44,7 +46,7 @@
     const surface=event.target.closest?.('.km-shell-location-swipe-surface,.swipe-surface');
     if(!surface)return;
     const ctx=contextFor(surface);
-    if(!ctx||( !ctx.edit&&!ctx.lifecycle))return;
+    if(!ctx||(!ctx.edit&&!ctx.lifecycle))return;
     gesture={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,dx:0,dy:0,horizontal:false,cancelled:false,ctx};
   }
 
@@ -81,11 +83,13 @@
   }
 
   function updateVersion(){
+    window.LOG_TEST_BUILD=BUILD;
+    document.documentElement.dataset.logBuild=BUILD;
     const version=$('.km-shell-version-number');
     const badge=$('.km-shell-version');
     const today=$('#today');
     if(version&&version.textContent!==BUILD)version.textContent=BUILD;
-    if(badge)badge.setAttribute('aria-label',`Geladen testversie ${BUILD}`);
+    if(badge&&badge.getAttribute('aria-label')!==`Geladen testversie ${BUILD}`)badge.setAttribute('aria-label',`Geladen testversie ${BUILD}`);
     if(today){
       const date=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date());
       const value=`${date} · ${BUILD}`;
@@ -93,13 +97,30 @@
     }
   }
 
+  function scheduleVersion(){
+    if(versionQueued)return;
+    versionQueued=true;
+    requestAnimationFrame(()=>{
+      versionQueued=false;
+      updateVersion();
+    });
+  }
+
+  function bindVersionGuard(){
+    if(versionObserver||!document.body)return;
+    versionObserver=new MutationObserver(scheduleVersion);
+    versionObserver.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['aria-label','class']});
+  }
+
   function init(){
     updateVersion();
+    bindVersionGuard();
     document.addEventListener('pointerdown',pointerDown,true);
     document.addEventListener('pointermove',pointerMove,true);
     document.addEventListener('pointerup',pointerUp,true);
     document.addEventListener('pointercancel',pointerCancel,true);
-    window.addEventListener('pageshow',updateVersion);
+    window.addEventListener('pageshow',scheduleVersion);
+    window.addEventListener('log-shell-view-refresh',scheduleVersion);
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
