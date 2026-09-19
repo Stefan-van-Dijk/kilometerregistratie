@@ -1,15 +1,12 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.10-test.50';
+  const BUILD='0.31.10-test.51';
   const VIEW_ID='kmShellLocationsView';
-  const SECTION_KEY='kmreg-test-shell-section-v1';
   let viewObserver=null;
   let observedView=null;
   let toastTimer=null;
   let syncQueued=false;
-  let lastEditorState=document.body.classList.contains('editor-view');
-  let restoreTimer=null;
 
   const $=(selector,root=document)=>root.querySelector(selector);
 
@@ -39,37 +36,6 @@
       .km-shell-location-confirmation.show{opacity:1;transform:translate(-50%,0)}
     `;
     document.head.appendChild(style);
-  }
-
-  function activeSection(){
-    return localStorage.getItem(SECTION_KEY)||'';
-  }
-
-  function locationViewMayBeShown(){
-    return activeSection()==='locations'&&
-      !document.body.classList.contains('editor-view')&&
-      !$('#kmShellSettings')?.classList.contains('open');
-  }
-
-  function ensureLocationView(){
-    if(!locationViewMayBeShown())return;
-    const view=$(`#${VIEW_ID}`);
-    if(!view)return;
-    if(!document.body.classList.contains('km-shell-locations-mode'))document.body.classList.add('km-shell-locations-mode');
-    document.body.classList.remove('km-shell-placeholder-mode');
-    if(view.hidden)view.hidden=false;
-    const placeholder=$('#kmShellPlaceholderView');
-    if(placeholder&&!placeholder.hidden)placeholder.hidden=true;
-    queueSync();
-  }
-
-  function restoreLocationViewAfterEditor(){
-    clearTimeout(restoreTimer);
-    requestAnimationFrame(()=>{
-      ensureLocationView();
-      requestAnimationFrame(ensureLocationView);
-    });
-    restoreTimer=setTimeout(ensureLocationView,120);
   }
 
   function matchedName(view){
@@ -133,21 +99,10 @@
     toastTimer=setTimeout(()=>toast.classList.remove('show'),2600);
   }
 
-  function handleShellStateChange(){
-    const editor=document.body.classList.contains('editor-view');
-    const editorClosed=lastEditorState&&!editor;
-    lastEditorState=editor;
-    updateVersion();
-    bindViewObserver();
-    if(editorClosed)restoreLocationViewAfterEditor();
-    else ensureLocationView();
-  }
-
   function init(){
     installStyles();
     updateVersion();
     bindViewObserver();
-    ensureLocationView();
 
     document.addEventListener('click',event=>{
       const button=event.target.closest?.('[data-shell-current-location]');
@@ -155,18 +110,18 @@
       setTimeout(()=>{
         updateVersion();
         bindViewObserver();
-        ensureLocationView();
       },0);
     },{passive:true});
 
-    const bodyObserver=new MutationObserver(handleShellStateChange);
+    const bodyObserver=new MutationObserver(()=>{
+      updateVersion();
+      bindViewObserver();
+    });
     bodyObserver.observe(document.body,{attributes:true,attributeFilter:['class'],childList:true,subtree:false});
 
-    window.addEventListener('kmreg-test-shell-select-section',()=>setTimeout(ensureLocationView,0));
     window.addEventListener('pageshow',()=>{
       updateVersion();
       bindViewObserver();
-      ensureLocationView();
     });
   }
 
