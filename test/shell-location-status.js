@@ -1,14 +1,16 @@
 (function(){
   'use strict';
 
-  const BUILD='0.31.10-test.53';
+  const BUILD='0.31.10-test.54';
   const VIEW_ID='kmShellLocationsView';
   const SECTION_KEY='kmreg-test-shell-section-v1';
   const DATA_KEY='kmreg-test-v4-data';
+  const EDIT_SWIPE_DISTANCE=28;
   let viewObserver=null;
   let observedView=null;
   let toastTimer=null;
   let syncQueued=false;
+  let directSwipe=null;
 
   const $=(selector,root=document)=>root.querySelector(selector);
 
@@ -35,6 +37,14 @@
       .km-shell-location-actions [data-shell-current-location].km-location-confirmed{background:color-mix(in srgb,var(--good) 13%,var(--surface))!important;color:var(--good)!important}
       .km-shell-location-actions [data-shell-current-location].km-location-confirmed:active{background:color-mix(in srgb,var(--good) 21%,var(--surface))!important}
       .km-shell-location-buttons [data-shell-edit-location]{display:none!important}
+      .km-shell-location-swipe-actions{display:none!important}
+      .km-shell-location-swipe-row{position:relative!important;overflow:hidden!important;transition:background .12s ease}
+      .km-shell-location-swipe-row::after{position:absolute;z-index:0;right:14px;top:50%;transform:translateY(-50%);color:#fff;font-size:12px;font-weight:800;letter-spacing:-.01em;opacity:0;transition:opacity .1s ease;pointer-events:none}
+      .km-shell-location-swipe-row.km-direct-swipe-edit{background:#0a84ff!important}
+      .km-shell-location-swipe-row.km-direct-swipe-edit::after{content:'Bewerk';opacity:1}
+      .km-shell-location-swipe-row.km-direct-swipe-delete{background:#ff453a!important}
+      .km-shell-location-swipe-row.km-direct-swipe-delete::after{content:'Verwijder';opacity:1}
+      .km-shell-location-swipe-surface{will-change:transform}
       .km-shell-location-confirmation{position:fixed;z-index:118;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));max-width:min(88vw,430px);padding:10px 14px;border:.5px solid color-mix(in srgb,var(--good) 34%,var(--line));border-radius:999px;background:color-mix(in srgb,var(--surface) 92%,transparent);color:var(--good);box-shadow:0 10px 30px rgba(0,0,0,.18);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);font-size:12px;font-weight:750;text-align:center;opacity:0;transform:translate(-50%,8px);transition:opacity .18s ease,transform .18s ease;pointer-events:none}
       .km-shell-location-confirmation.show{opacity:1;transform:translate(-50%,0)}
     `;
@@ -106,6 +116,103 @@
     reorderLocationTree(mode);
   }
 
+  function resetDirectSwipe(swipe=directSwipe,animate=true){
+    if(!swipe)return;
+    const {row,surface}=swipe;
+    if(surface){
+      surface.style.transition=animate?'transform .18s cubic-bezier(.22,1,.36,1)':'none';
+      surface.style.transform='translateX(0)';
+      delete surface.dataset.swipeOpen;
+    }
+    row?.classList.remove('km-direct-swipe-edit','km-direct-swipe-delete','swipe-open');
+  }
+
+  function finishDirectSwipe(event){
+    const swipe=directSwipe;
+    if(!swipe||swipe.pointerId!==event.pointerId)return;
+    directSwipe=null;
+    if(swipe.cancelled||!swipe.horizontal||swipe.distance<EDIT_SWIPE_DISTANCE){
+      resetDirectSwipe(swipe);
+      return;
+    }
+
+    swipe.surface.dataset.suppressClick='1';
+    setTimeout(()=>{delete swipe.surface.dataset.suppressClick;},450);
+    const remove=swipe.canDelete&&swipe.distance>=swipe.deleteDistance;
+    const action=swipe.row.querySelector(`[data-shell-location-swipe-action="${remove?'delete':'edit'}"]`);
+    if(!action){resetDirectSwipe(swipe);return;}
+
+    if(remove){
+      swipe.surface.style.transition='transform .16s cubic-bezier(.4,0,1,1)';
+      swipe.surface.style.transform='translateX(-105%)';
+      setTimeout(()=>action.click(),120);
+      return;
+    }
+
+    resetDirectSwipe(swipe);
+    setTimeout(()=>action.click(),90);
+  }
+
+  function bindDirectLocationSwipe(){
+    const root=$(`#${VIEW_ID}`);
+    if(!root)return;
+
+    root.onpointerdown=event=>{
+      if(event.button!=null&&event.button!==0)return;
+      const target=event.target instanceof Element?event.target:null;
+      if(!target||target.closest('button,input,select,textarea'))return;
+      const surface=target.closest('.km-shell-location-swipe-surface');
+      const row=surface?.closest('.km-shell-location-swipe-row');
+      if(!surface||!row)return;
+      const width=Math.max(240,surface.getBoundingClientRect().width||0);
+      directSwipe={
+        pointerId:event.pointerId,
+        startX:event.clientX,
+        startY:event.clientY,
+        distance:0,
+        row,
+        surface,
+        horizontal:false,
+        cancelled:false,
+        canDelete:Boolean(row.querySelector('[data-shell-location-swipe-action="delete"]')),
+        deleteDistance:Math.max(100,Math.min(138,width*.32))
+      };
+      try{surface.setPointerCapture(event.pointerId);}catch(_){}
+    };
+
+    root.onpointermove=event=>{
+      const swipe=directSwipe;
+      if(!swipe||swipe.pointerId!==event.pointerId||swipe.cancelled)return;
+      const rawX=event.clientX-swipe.startX;
+      const rawY=event.clientY-swipe.startY;
+      if(!swipe.horizontal){
+        if(Math.abs(rawY)>10&&Math.abs(rawY)>Math.abs(rawX)){
+          swipe.cancelled=true;
+          resetDirectSwipe(swipe,false);
+          return;
+        }
+        if(rawX>-8||Math.abs(rawX)<=Math.abs(rawY))return;
+        swipe.horizontal=true;
+      }
+      if(event.cancelable)event.preventDefault();
+      const maxDistance=swipe.canDelete?swipe.deleteDistance+42:86;
+      swipe.distance=Math.min(maxDistance,Math.max(0,-rawX));
+      swipe.surface.style.transition='none';
+      swipe.surface.style.transform=`translateX(-${swipe.distance}px)`;
+      const deleting=swipe.canDelete&&swipe.distance>=swipe.deleteDistance;
+      swipe.row.classList.toggle('km-direct-swipe-delete',deleting);
+      swipe.row.classList.toggle('km-direct-swipe-edit',!deleting&&swipe.distance>=EDIT_SWIPE_DISTANCE);
+    };
+
+    root.onpointerup=finishDirectSwipe;
+    root.onpointercancel=event=>{
+      if(!directSwipe||directSwipe.pointerId!==event.pointerId)return;
+      const swipe=directSwipe;
+      directSwipe=null;
+      resetDirectSwipe(swipe);
+    };
+  }
+
   function matchedName(view){
     const status=$('#kmStableCurrentStatus',view);
     const match=status?.textContent?.match(/^Huidige locatie:\s*(.*?)\s*·/i);
@@ -119,6 +226,7 @@
     const view=$(`#${VIEW_ID}`);
     const button=$('[data-shell-current-location]',view||document);
     if(!view||!button)return;
+    bindDirectLocationSwipe();
     const name=matchedName(view);
     const confirmed=Boolean(name);
     button.classList.toggle('km-location-confirmed',confirmed);
