@@ -189,11 +189,11 @@
     const activate=gesture.dx>=POSITIVE_SWIPE_THRESHOLD&&Math.abs(gesture.dx)>Math.abs(gesture.dy);
     if(!activate)return;
     const action=gesture.action;
-    queueMicrotask(()=>{
+    setTimeout(()=>{
       if(!action?.isConnected)return;
       resetRow(gesture.row);
       action.click();
-    });
+    },0);
   }
 
   function positiveSwipeCancel(event){
