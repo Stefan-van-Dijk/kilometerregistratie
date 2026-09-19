@@ -1,0 +1,130 @@
+(function(){
+  'use strict';
+
+  const BUILD='0.31.10-test.49';
+  const VIEW_ID='kmShellLocationsView';
+  let viewObserver=null;
+  let observedView=null;
+  let toastTimer=null;
+  let syncQueued=false;
+
+  const $=(selector,root=document)=>root.querySelector(selector);
+
+  function updateVersion(){
+    const version=$('.km-shell-version-number');
+    const badge=$('.km-shell-version');
+    const today=$('#today');
+    if(version&&version.textContent!==BUILD)version.textContent=BUILD;
+    if(badge)badge.setAttribute('aria-label',`Geladen testversie ${BUILD}`);
+    if(today){
+      const date=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date());
+      const value=`${date} · ${BUILD}`;
+      if(today.textContent!==value)today.textContent=value;
+    }
+  }
+
+  function installStyles(){
+    if($('#kmShellLocationStatusStyle'))return;
+    const style=document.createElement('style');
+    style.id='kmShellLocationStatusStyle';
+    style.textContent=`
+      .km-shell-location-actions{grid-template-columns:minmax(0,1fr) minmax(0,2fr)!important}
+      .km-shell-location-actions [data-shell-current-location]{min-width:0!important;padding-left:10px!important;padding-right:10px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px!important;transition:background .18s ease,color .18s ease}
+      .km-shell-location-actions [data-shell-current-location].km-location-confirmed{background:color-mix(in srgb,var(--good) 13%,var(--surface))!important;color:var(--good)!important}
+      .km-shell-location-actions [data-shell-current-location].km-location-confirmed:active{background:color-mix(in srgb,var(--good) 21%,var(--surface))!important}
+      .km-shell-location-confirmation{position:fixed;z-index:118;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));max-width:min(88vw,430px);padding:10px 14px;border:.5px solid color-mix(in srgb,var(--good) 34%,var(--line));border-radius:999px;background:color-mix(in srgb,var(--surface) 92%,transparent);color:var(--good);box-shadow:0 10px 30px rgba(0,0,0,.18);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);font-size:12px;font-weight:750;text-align:center;opacity:0;transform:translate(-50%,8px);transition:opacity .18s ease,transform .18s ease;pointer-events:none}
+      .km-shell-location-confirmation.show{opacity:1;transform:translate(-50%,0)}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function matchedName(view){
+    const status=$('#kmStableCurrentStatus',view);
+    const match=status?.textContent?.match(/^Huidige locatie:\s*(.*?)\s*·/i);
+    if(match?.[1])return match[1].trim();
+    const current=$('.km-shell-location-node.km-current-location .km-shell-location-copy strong',view);
+    return current?.textContent?.trim()||'';
+  }
+
+  function syncButton(){
+    syncQueued=false;
+    const view=$(`#${VIEW_ID}`);
+    const button=$('[data-shell-current-location]',view||document);
+    if(!view||!button)return;
+    const name=matchedName(view);
+    const confirmed=Boolean(name);
+    button.classList.toggle('km-location-confirmed',confirmed);
+    button.dataset.registeredLocation=name;
+    const label=confirmed?`✓ ${name}`:'Huidige locatie';
+    if(button.textContent!==label)button.textContent=label;
+    if(confirmed){
+      button.setAttribute('aria-label',`Huidige locatie is geregistreerd als ${name}. Tik om opnieuw te controleren.`);
+      button.title=`Geregistreerd als ${name}`;
+    }else{
+      button.setAttribute('aria-label','Huidige locatie controleren');
+      button.removeAttribute('title');
+    }
+  }
+
+  function queueSync(){
+    if(syncQueued)return;
+    syncQueued=true;
+    requestAnimationFrame(syncButton);
+  }
+
+  function bindViewObserver(){
+    const view=$(`#${VIEW_ID}`);
+    if(!view||view===observedView){queueSync();return;}
+    viewObserver?.disconnect();
+    observedView=view;
+    viewObserver=new MutationObserver(queueSync);
+    viewObserver.observe(view,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+    queueSync();
+  }
+
+  function showConfirmation(name){
+    let toast=$('#kmShellLocationConfirmation');
+    if(!toast){
+      toast=document.createElement('div');
+      toast.id='kmShellLocationConfirmation';
+      toast.className='km-shell-location-confirmation';
+      toast.setAttribute('role','status');
+      toast.setAttribute('aria-live','polite');
+      document.body.appendChild(toast);
+    }
+    toast.textContent=name?`Deze locatie is al geregistreerd als ${name}.`:'Deze locatie is al geregistreerd.';
+    clearTimeout(toastTimer);
+    toast.classList.remove('show');
+    requestAnimationFrame(()=>toast.classList.add('show'));
+    toastTimer=setTimeout(()=>toast.classList.remove('show'),2600);
+  }
+
+  function init(){
+    installStyles();
+    updateVersion();
+    bindViewObserver();
+
+    document.addEventListener('click',event=>{
+      const button=event.target.closest?.('[data-shell-current-location]');
+      if(button?.classList.contains('km-location-confirmed'))showConfirmation(button.dataset.registeredLocation||'');
+      setTimeout(()=>{
+        updateVersion();
+        bindViewObserver();
+      },0);
+    },{passive:true});
+
+    const bodyObserver=new MutationObserver(()=>{
+      updateVersion();
+      bindViewObserver();
+    });
+    bodyObserver.observe(document.body,{attributes:true,attributeFilter:['class'],childList:true,subtree:false});
+
+    window.addEventListener('pageshow',()=>{
+      updateVersion();
+      bindViewObserver();
+    });
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
