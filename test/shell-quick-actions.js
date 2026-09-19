@@ -165,8 +165,14 @@
   function updateVersion(){
     const version=$('.km-shell-version-number');
     const badge=$('.km-shell-version');
+    const today=$('#today');
     if(version&&version.textContent!==BUILD)version.textContent=BUILD;
     if(badge)badge.setAttribute('aria-label',`Geladen testversie ${BUILD}`);
+    if(today){
+      const date=new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date());
+      const value=`${date} · ${BUILD}`;
+      if(today.textContent!==value)today.textContent=value;
+    }
   }
 
   function init(){
@@ -181,6 +187,7 @@
     },true);
     const app=$('#app');
     if(app)new MutationObserver(scheduleDecorate).observe(app,{childList:true,subtree:true});
+    new MutationObserver(()=>{updateVersion();scheduleDecorate();}).observe(document.body,{attributes:true,attributeFilter:['class']});
     window.addEventListener('log-shell-view-refresh',scheduleDecorate);
     window.addEventListener('storage',event=>{if(event.key===DATA_KEY)scheduleDecorate();});
     window.addEventListener('pageshow',()=>{updateVersion();scheduleDecorate();});
